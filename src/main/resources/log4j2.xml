@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+
+	<!--  ************************ Propiedades/variables *********************** -->
+    <Properties>
+        <Property name="LOG_PATTERN">
+            %d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex
+        </Property>
+        <Property name ="LOG_PATTERN_FILE">
+        	%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
+        </Property>
+    </Properties>
+    
+   
+    <!--  *************************** Appenders *************************+++ -->
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+        
+        <File name="LogToFile" fileName="logs/app.log">
+         <PatternLayout pattern="${LOG_PATTERN_FILE}"/>
+     </File>
+     
+    </Appenders>
+    
+    <Loggers>
+    	<!-- *********** Log individual, para un paquete especifico o puede ser tambien para un clase en particular *******  -->
+       <!--  <Logger name="com.curso.spring.data.jpa" level="warn" additivity="false">
+            <AppenderRef ref="LogToFile" />
+        </Logger> -->
+        
+   	    
+   	    <!-- ************* Log para el modulo web  **************** -->
+       <!-- <Logger name="org.springframework.web" level="debug" additivity="false">
+          <AppenderRef ref="LogToFile" />
+        
+        </Logger> -->    
+
+		<!-- ********************** Log raiz, para toda la aplicaciones ****************** -->
+        
+       <!--  <Logger name="com.curso.spring.data.jpa.controller.ClienteController" level="TRACE"/> -->
+        <Root level="info">
+            <AppenderRef ref="ConsoleAppender" />
+        </Root>
+    </Loggers>
+</Configuration>

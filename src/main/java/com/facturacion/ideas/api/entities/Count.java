@@ -1,0 +1,119 @@
+package com.facturacion.ideas.api.entities;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+
+import com.facturacion.ideas.api.enums.RolEnum;
+
+@Entity
+@Table(name = "cuentas")
+public class Count implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "CUE_COD")
+	private Long ide;
+
+	@Column(name = "CUE_RUC")
+	private String ruc;
+
+	@Column(name = "CUE_PAS")
+	private String password;
+
+	@Column(name = "CUE_EST")
+	private boolean estado;
+
+	@Column(name = "CUE_FEC_REG")
+	private Date fechaRegistro;
+
+	@Column(name = "CUE_ROL")
+	@Enumerated(EnumType.STRING)
+	private RolEnum rol;
+
+	public Count(Long ide, String ruc, String password, boolean estado, Date fechaRegistro, RolEnum rol) {
+		super();
+		this.ide = ide;
+		this.ruc = ruc;
+		this.password = password;
+		this.estado = estado;
+		this.fechaRegistro = fechaRegistro;
+		this.rol = rol;
+	}
+
+	public Count() {
+		super();
+	}
+
+	@PrePersist
+	private void prePersistData() {
+		fechaRegistro = new Date();
+
+	}
+
+	public Long getIde() {
+		return ide;
+	}
+
+	public void setIde(Long ide) {
+		this.ide = ide;
+	}
+
+	public String getRuc() {
+		return ruc;
+	}
+
+	public void setRuc(String ruc) {
+		this.ruc = ruc;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public boolean isEstado() {
+		return estado;
+	}
+
+	public void setEstado(boolean estado) {
+		this.estado = estado;
+	}
+
+	public Date getFechaRegistro() {
+		return fechaRegistro;
+	}
+
+	public void setFechaRegistro(Date fechaRegistro) {
+		this.fechaRegistro = fechaRegistro;
+	}
+
+	public RolEnum getRol() {
+		return rol;
+	}
+
+	public void setRol(RolEnum rol) {
+		this.rol = rol;
+	}
+
+	@Override
+	public String toString() {
+		return "Count [ide=" + ide + ", ruc=" + ruc + ", password=" + password + ", estado=" + estado
+				+ ", fechaRegistro=" + fechaRegistro + ", rol=" + rol + "]";
+	}
+
+}
