@@ -8,13 +8,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.entities.Count;
+import com.facturacion.ideas.api.entities.Login;
 import com.facturacion.ideas.api.repositories.ICountRepository;
+import com.facturacion.ideas.api.repositories.ILoginRepository;
 
 @Service
 public class SenderServiceImpl implements ISenderService {
 
 	@Autowired
 	private ICountRepository countRepository;
+	
+	@Autowired
+	private ILoginRepository loginRepository;
 
 	@Override
 	@Transactional
@@ -52,6 +57,19 @@ public class SenderServiceImpl implements ISenderService {
 	public List<Count> findCountAll() {
 		
 		return  countRepository.findAll();
+	}
+
+	@Override
+	@Transactional
+	public Login saveLoginIn(Login login) {
+	
+		return loginRepository.save(login);
+	}
+
+	@Override
+	@Transactional
+	public Count updateCount(Count count) {
+		return countRepository.save(count);
 	}
 
 }

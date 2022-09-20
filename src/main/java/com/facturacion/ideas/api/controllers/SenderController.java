@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.entities.Count;
+import com.facturacion.ideas.api.entities.Login;
 import com.facturacion.ideas.api.services.ISenderService;
 
 @RestController
@@ -139,18 +140,18 @@ public class SenderController {
 			if (!countOptional.isEmpty()) {
 
 				Count countSave = countOptional.get();
-				
+
 				countSave.setEstado(count.isEstado());
 				countSave.setPassword(count.getPassword());
-				
+
 				countSave = senderService.saveCount(countSave);
 
-				responseEntity = getResponseEntity(HttpStatus. OK, countSave, null);
+				responseEntity = getResponseEntity(HttpStatus.OK, countSave, null);
 
 			} else {
 
 				responseEntity = getResponseEntity(HttpStatus.BAD_REQUEST, null,
-						"La cuenta  " + count.getIde()+ " no esta registrada");
+						"La cuenta  " + count.getIde() + " no esta registrada");
 			}
 
 		} catch (DataAccessException e) {
@@ -193,6 +194,70 @@ public class SenderController {
 		} catch (DataAccessException e) {
 
 			LOGGER.error("Error al eliminar cuenta: ", e);
+			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
+					e.getMessage() + " " + e.getMostSpecificCause());
+
+		}
+
+		return responseEntity;
+
+	}
+
+	@PostMapping("/login/{id}")
+	public ResponseEntity<?> saveLogin(@PathVariable Long id) {
+
+		LOGGER.info("Id Cuenta de Login guardar: " + id);
+
+		ResponseEntity<?> responseEntity = null;
+
+		try {
+
+			Optional<Count> count = senderService.findCountById(id);
+
+			Count countCurrent = count.get();
+			countCurrent.addLogin(new Login());
+
+			LOGGER.info("Cuenta de Login actual: " + countCurrent);
+
+			countCurrent = senderService.updateCount(countCurrent);
+
+			responseEntity = getResponseEntity(HttpStatus.OK, countCurrent, null);
+
+		} catch (DataAccessException e) {
+
+			LOGGER.error("Error al guardar registro Login: ", e);
+			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
+					e.getMessage() + " " + e.getMostSpecificCause());
+
+		}
+
+		return responseEntity;
+
+	}
+
+	@GetMapping("/login/{id}")
+	public ResponseEntity<?> getListLogin(@PathVariable Long id) {
+
+		LOGGER.info("Id Cuenta: " + id);
+
+		ResponseEntity<?> responseEntity = null;
+
+		try {
+
+			Optional<Count> count = senderService.findCountById(id);
+
+			if (!count.isEmpty()) {
+				List<Login> listLogins = count.get().getLogins();
+
+				responseEntity = getResponseEntity(HttpStatus.OK, listLogins, null);
+
+			}
+			responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null, 
+					"Cuenta Id " +  id + " no registrada");
+
+		} catch (DataAccessException e) {
+
+			LOGGER.error("Error al listar Logins: ", e);
 			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
 					e.getMessage() + " " + e.getMostSpecificCause());
 

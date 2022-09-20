@@ -1,15 +1,21 @@
 package com.facturacion.ideas.api.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
@@ -41,6 +47,11 @@ public class Count implements Serializable {
 	@Column(name = "CUE_ROL")
 	@Enumerated(EnumType.STRING)
 	private RolEnum rol;
+	
+	
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "LOG_FK_COD_CUE")
+	private List<Login> logins;
 
 	public Count(Long ide, String ruc, String password, boolean estado, Date fechaRegistro, RolEnum rol) {
 		super();
@@ -50,12 +61,17 @@ public class Count implements Serializable {
 		this.estado = estado;
 		this.fechaRegistro = fechaRegistro;
 		this.rol = rol;
+		initData();
 	}
 
 	public Count() {
 		super();
+		initData();
 	}
 
+	private void initData() {
+		logins = new ArrayList<>();
+	}
 	@PrePersist
 	private void prePersistData() {
 		fechaRegistro = new Date();
@@ -110,6 +126,13 @@ public class Count implements Serializable {
 		this.rol = rol;
 	}
 
+	public List<Login> getLogins() {
+		return logins;
+	}
+	public void addLogin(Login login) {
+		this.logins.add(login);
+	}
+	
 	@Override
 	public String toString() {
 		return "Count [ide=" + ide + ", ruc=" + ruc + ", password=" + password + ", estado=" + estado

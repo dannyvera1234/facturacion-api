@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.facturacion.ideas.api.entities.Count;
+import com.facturacion.ideas.api.entities.Login;
 
 public interface ISenderService {
 
@@ -16,4 +17,8 @@ public interface ISenderService {
 	List<Count> findCountAll();
 	
 	void deleteCountById(Long id);
+	
+	Login saveLoginIn(Login login) ;
+	
+	Count updateCount(Count count);
 }
