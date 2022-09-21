@@ -18,7 +18,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-
 import com.facturacion.ideas.api.enums.RolEnum;
 
 @Entity
@@ -26,7 +25,6 @@ import com.facturacion.ideas.api.enums.RolEnum;
 public class Count implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "CUE_COD")
@@ -47,11 +45,14 @@ public class Count implements Serializable {
 	@Column(name = "CUE_ROL")
 	@Enumerated(EnumType.STRING)
 	private RolEnum rol;
-	
-	
+	 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "LOG_FK_COD_CUE")
 	private List<Login> logins;
+	
+	@OneToMany(fetch =  FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "CTP_FK_COD_CUE")
+	private List<DetailsAggrement> detailsAggrement;
 
 	public Count(Long ide, String ruc, String password, boolean estado, Date fechaRegistro, RolEnum rol) {
 		super();
@@ -71,6 +72,7 @@ public class Count implements Serializable {
 
 	private void initData() {
 		logins = new ArrayList<>();
+		detailsAggrement = new ArrayList<>();
 	}
 	@PrePersist
 	private void prePersistData() {
@@ -131,6 +133,14 @@ public class Count implements Serializable {
 	}
 	public void addLogin(Login login) {
 		this.logins.add(login);
+	}
+	
+	public List<DetailsAggrement> getDetailsAggrement() {
+		return detailsAggrement;
+	}
+	
+	public void addDetailsAggrement(DetailsAggrement detailsAggrement) {
+		this.detailsAggrement.add(detailsAggrement);
 	}
 	
 	@Override

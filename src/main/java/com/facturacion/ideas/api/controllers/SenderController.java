@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.controllers;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.entities.Count;
+import com.facturacion.ideas.api.entities.DetailsAggrement;
 import com.facturacion.ideas.api.entities.Login;
+import com.facturacion.ideas.api.services.IAgreementService;
 import com.facturacion.ideas.api.services.ISenderService;
 
 @RestController
@@ -32,6 +36,9 @@ public class SenderController {
 
 	@Autowired
 	private ISenderService senderService;
+
+	@Autowired
+	private IAgreementService agreementService;
 
 	@PostMapping
 	public ResponseEntity<?> saveCount(@RequestBody Count count) {
@@ -82,7 +89,6 @@ public class SenderController {
 			if (!countOptional.isEmpty()) {
 
 				Count countSave = countOptional.get();
-
 				responseEntity = getResponseEntity(HttpStatus.OK, countSave, null);
 
 			} else {
@@ -214,14 +220,19 @@ public class SenderController {
 
 			Optional<Count> count = senderService.findCountById(id);
 
-			Count countCurrent = count.get();
-			countCurrent.addLogin(new Login());
+			if (!count.isEmpty()) {
 
-			LOGGER.info("Cuenta de Login actual: " + countCurrent);
+				Count countCurrent = count.get();
+				countCurrent.addLogin(new Login());
 
-			countCurrent = senderService.updateCount(countCurrent);
+				LOGGER.info("Cuenta de Login actual: " + countCurrent);
 
-			responseEntity = getResponseEntity(HttpStatus.OK, countCurrent, null);
+				countCurrent = senderService.updateCount(countCurrent);
+
+				responseEntity = getResponseEntity(HttpStatus.OK, countCurrent, null);
+
+			}else responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null, 
+					"Cuenta con id " + id + " no esta registrado");
 
 		} catch (DataAccessException e) {
 
@@ -251,13 +262,75 @@ public class SenderController {
 
 				responseEntity = getResponseEntity(HttpStatus.OK, listLogins, null);
 
-			}
-			responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null, 
-					"Cuenta Id " +  id + " no registrada");
+			} else
+				responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null, "Cuenta Id " + id + " no registrada");
 
 		} catch (DataAccessException e) {
 
 			LOGGER.error("Error al listar Logins: ", e);
+			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
+					e.getMessage() + " " + e.getMostSpecificCause());
+
+		}
+
+		return responseEntity;
+
+	}
+
+	/**
+	 * Registrar un nuevo plan
+	 * 
+	 * @param id     : Id de la cuenta
+	 * @param codigo : codig del plan seleccionado
+	 * @return
+	 */
+	@PostMapping("/agreements/{id}/{codigo}")
+	public ResponseEntity<?> saveDetailsAggrement(@PathVariable Long id,
+			@PathVariable(required = false) String codigo) {
+
+		LOGGER.info(String.format("Id cuenta " + id + " Id Plan : " + codigo));
+
+		ResponseEntity<?> responseEntity = null;
+
+		try {
+
+			Optional<Count> count = senderService.findCountById(id);
+
+			if (!count.isEmpty()) {
+
+				Optional<Agreement> agreementOptional = agreementService.findById(codigo);
+
+				if (!agreementOptional.isEmpty()) {
+
+					Count countCurrent = count.get();
+
+					Agreement agreement = agreementOptional.get();
+
+					DetailsAggrement detailsAggrement = new DetailsAggrement();
+					detailsAggrement.setDateStart(new Date());
+					detailsAggrement.setDateEnd(new Date());
+					detailsAggrement.setStatus(true);
+
+					detailsAggrement.setGreement(agreement);
+
+					countCurrent.addDetailsAggrement(detailsAggrement);
+
+					countCurrent = senderService.updateCount(countCurrent);
+
+					responseEntity = getResponseEntity(HttpStatus.OK, countCurrent, null);
+				} else
+					responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null,
+
+							"Plan codigo " + codigo + " no registrado");
+
+			} else
+				responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null,
+
+						"Cuenta Id " + id + " no registrada");
+
+		} catch (DataAccessException e) {
+
+			LOGGER.error("Error al guardar registro contrato plan: ", e);
 			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
 					e.getMessage() + " " + e.getMostSpecificCause());
 
