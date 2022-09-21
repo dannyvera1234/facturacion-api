@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.entities.Agreement;
@@ -29,10 +28,9 @@ import com.facturacion.ideas.api.services.IAgreementService;
 import com.facturacion.ideas.api.services.ISenderService;
 
 @RestController
-@RequestMapping("/facturacion/counts")
-public class SenderController {
+public class CountRestController {
 
-	private static final Logger LOGGER = LogManager.getLogger(SenderController.class);
+	private static final Logger LOGGER = LogManager.getLogger(CountRestController.class);
 
 	@Autowired
 	private ISenderService senderService;
@@ -209,7 +207,7 @@ public class SenderController {
 
 	}
 
-	@PostMapping("/login/{id}")
+	@PostMapping("/{id}/login")
 	public ResponseEntity<?> saveLogin(@PathVariable Long id) {
 
 		LOGGER.info("Id Cuenta de Login guardar: " + id);
@@ -246,7 +244,7 @@ public class SenderController {
 
 	}
 
-	@GetMapping("/login/{id}")
+	@GetMapping("/{id}/login")
 	public ResponseEntity<?> getListLogin(@PathVariable Long id) {
 
 		LOGGER.info("Id Cuenta: " + id);
@@ -284,7 +282,7 @@ public class SenderController {
 	 * @param codigo : codig del plan seleccionado
 	 * @return
 	 */
-	@PostMapping("/agreements/{id}/{codigo}")
+	@PostMapping("/{id}/agreements/{codigo}")
 	public ResponseEntity<?> saveDetailsAggrement(@PathVariable Long id,
 			@PathVariable(required = false) String codigo) {
 
