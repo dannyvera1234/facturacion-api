@@ -1,44 +1,29 @@
 package com.facturacion.ideas.api.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 public class FunctionUtil {
 
-	/**
-	 * Funcion que genera el codigo para un nuevo establecimiento
-	 * 
-	 * @param numSubsidiary : numero de establecimiento a generar
-	 * @return
-	 */
-	public static String getCodSubsidiary(Integer numSubsidiary) {
-
-		if (numSubsidiary != null) {
-
-			String codGenerar = null;
-
-			if (numSubsidiary < 10)
-				codGenerar = "00" + numSubsidiary;
-			else if (numSubsidiary >= 10 && numSubsidiary < 100)
-				codGenerar = "0" + numSubsidiary;
-
-			else
-				codGenerar = "" + numSubsidiary;
-
-			return codGenerar;
-		}
-		return ConstanteUtil.COD_DEFAULT_SUBSIDIARY;
-
-	}
 
 	/**
-	 * Funcion encargada de generar el numero siguiente del establecimiento de un
-	 * emisor en particular.
-	 * Suma uno al numero actual, si numberMax en null, retorna 1
-	 * 
-	 * @param numberMax
+	 * Geneera una respuesta 
+	 * @param status : Codigo {@link HttpStatus} 
+	 * @param data : datos de la respuesta, peuder ser null
+	 * @param error : Una cadena de texto que indique el eror, puede ser null
 	 * @return
 	 */
-	public static Integer getNumberNextSubsidiary(Integer numberMax) {
+	public static ResponseEntity<Map<String, Object>> getResponseEntity(HttpStatus status, Object data, String error) {
 
-		return numberMax == null ? 1 : (numberMax + 1);
+		Map<String, Object> responseData = new HashMap<>();
+		responseData.put("status", status);
+		responseData.put("data", data);
+		responseData.put("error", error);
+
+		return new ResponseEntity<>(responseData, status);
 	}
 
 }

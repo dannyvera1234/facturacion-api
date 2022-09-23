@@ -1,6 +1,5 @@
 package com.facturacion.ideas.api.controllers;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,16 +19,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.facturacion.ideas.api.admin.AdminCodeDocument;
+import com.facturacion.ideas.api.admin.AdminSender;
+import com.facturacion.ideas.api.admin.AdminSubsidiary;
 import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
-import com.facturacion.ideas.api.enums.ProvinceEnum;
-import com.facturacion.ideas.api.enums.TypeEmissionEnum;
-import com.facturacion.ideas.api.enums.TypeEnvironmentEnum;
 import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.ISenderService;
-import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
 @RestController
@@ -68,15 +66,13 @@ public class SenderRestController {
 
 				if (senderIsExist.isEmpty()) {
 
-					// Por seguridad seteo el ruc de la cuenta
-					sender.setRuc(countCurrent.getRuc());
-					sender.setCount(countCurrent);
-
 					Optional<Integer> numberMax = codeDocumentService.findNumberMaxByIdCount(idCount);
 
-					Integer numberNext = FunctionUtil.getNumberNextSubsidiary(numberMax.orElse(null));
+					Integer numberNext = AdminSubsidiary.getNumberNextSubsidiary(numberMax.orElse(null));
 
-					Subsidiary subsidiary = createNewSubsidiary(sender, countCurrent.getIde(), numberNext);
+					AdminSender.create(sender, countCurrent);
+
+					Subsidiary subsidiary = AdminSubsidiary.create(sender, countCurrent.getIde(), numberNext);
 
 					// Agregar al emisor el establecimiento
 					sender.addSubsidiary(subsidiary);
@@ -85,60 +81,31 @@ public class SenderRestController {
 					Sender senderCurrent = senderService.saveSender(sender);
 
 					// Ingresar datos numeros documentos
-					CodeDocument codeDocument = createNewCodDocument(countCurrent.getIde(), subsidiary.getCode(),
+					CodeDocument codeDocument = AdminCodeDocument.create(countCurrent.getIde(), subsidiary.getCode(),
 							numberNext);
 
 					codeDocumentService.save(codeDocument);
 
-					responseEntity = getResponseEntity(HttpStatus.CREATED, senderCurrent, null);
+					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.CREATED, senderCurrent, null);
 
 				} else
-					responseEntity = getResponseEntity(HttpStatus.BAD_REQUEST, null,
+					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.BAD_REQUEST, null,
 							"Emisor con ruc " + countCurrent.getRuc() + " ya esta registrado");
 
 			} else
-				responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null,
+				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
 						"Cuenta con id " + idCount + " no esta registrada");
 
 		} catch (DataAccessException e) {
 			LOGGER.error("Error al guardar emisor:", e);
 
-			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
+			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
 					e.getMessage() + " : " + e.getMostSpecificCause());
 
 		}
 
 		return responseEntity;
 
-	}
-
-	private Subsidiary createNewSubsidiary(Sender sender, Long idCount, Integer numberNext) {
-
-		Subsidiary subsidiary = new Subsidiary();
-
-		String codSubsidiary = FunctionUtil.getCodSubsidiary(numberNext);
-
-		subsidiary.setCode(codSubsidiary);
-		subsidiary.setAddress(sender.getMatrixAddress());
-		subsidiary.setDateCreate(new Date());
-		subsidiary.setPrincipal(numberNext == 1);
-		subsidiary.setStatus(true);
-		subsidiary.setSocialReason(sender.getSocialReason());
-
-		return subsidiary;
-	}
-
-	private CodeDocument createNewCodDocument(Long idCount, String codSubsidiary, Integer numberNext) {
-
-		// Ingresar datos numeros documentos
-		CodeDocument codeDocument = new CodeDocument();
-		codeDocument.setCodeCount(idCount);
-
-		codeDocument.setCodeSubsidiary(codSubsidiary);
-		codeDocument.setNumSubsidiary(numberNext);
-		codeDocument.setNumEmissionPoint(1);
-
-		return codeDocument;
 	}
 
 	@GetMapping("/{id}")
@@ -151,15 +118,15 @@ public class SenderRestController {
 			Optional<Sender> senderOptional = senderService.findSenderById(id);
 
 			if (!senderOptional.isEmpty()) {
-				responseEntity = getResponseEntity(HttpStatus.OK, senderOptional.get(), null);
+				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senderOptional.get(), null);
 			} else
-				responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null,
+				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
 						"El emisor con id " + id + " no esta registrado");
 
 		} catch (DataAccessException e) {
 			LOGGER.error("Error al buscar emisor:", e);
 
-			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
+			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
 					e.getMessage() + " : " + e.getMostSpecificCause());
 
 		}
@@ -177,12 +144,12 @@ public class SenderRestController {
 
 			List<Sender> senders = senderService.findSenderAll();
 
-			responseEntity = getResponseEntity(HttpStatus.OK, senders, null);
+			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senders, null);
 
 		} catch (DataAccessException e) {
 			LOGGER.error("Error al listar todos emisor:", e);
 
-			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
+			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
 					e.getMessage() + " : " + e.getMostSpecificCause());
 
 		}
@@ -207,77 +174,27 @@ public class SenderRestController {
 
 				Sender senderCurrent = senderOptional.get();
 
-				// Setear nuevos valores
-
-				senderCurrent.setSocialReason(
-						sender.getSocialReason() == null ? senderCurrent.getSocialReason() : sender.getSocialReason());
-
-				senderCurrent.setCommercialName(sender.getCommercialName() == null ? senderCurrent.getCommercialName() :
-
-						sender.getCommercialName());
-				senderCurrent.setLogo(sender.getLogo() == null ? senderCurrent.getLogo() : sender.getLogo());
-				senderCurrent.setProvince(
-
-						sender.getProvince() == null ? ProvinceEnum.getProvinceEnum(senderCurrent.getProvince())
-								: ProvinceEnum.getProvinceEnum(sender.getProvince()));
-				senderCurrent.setTypeEnvironment(
-
-						sender.getTypeEnvironment() == null
-								? TypeEnvironmentEnum.getTypeEnvironmentEnum(senderCurrent.getTypeEnvironment())
-								:
-
-								TypeEnvironmentEnum.getTypeEnvironmentEnum(sender.getTypeEnvironment()));
-				senderCurrent.setMatrixAddress(sender.getMatrixAddress() == null ? senderCurrent.getMatrixAddress()
-						: sender.getMatrixAddress());
-
-				senderCurrent.setSpecialContributor(
-
-						sender.getSpecialContributor() == null ? senderCurrent.getSpecialContributor()
-								: sender.getSpecialContributor());
-
-				senderCurrent.setTypeEmission(
-
-						sender.getTypeEmission() == null
-								? TypeEmissionEnum.getTypeEmissionEnum(senderCurrent.getTypeEmission())
-								: TypeEmissionEnum.getTypeEmissionEnum(sender.getTypeEmission()));
-
-				senderCurrent.setTypeSender(
-						sender.getTypeSender() == null ? senderCurrent.getTypeSender() : sender.getTypeSender());
-
-				senderCurrent.setAccountancy(
-						sender.getAccountancy() == null ? senderCurrent.getAccountancy() : sender.getAccountancy());
-
-				LOGGER.info("Emisor antes de  actualizar : " + senderCurrent);
+				AdminSender.update(senderCurrent, sender);
 
 				Sender senderUpdate = senderService.saveSender(senderCurrent);
 
 				LOGGER.info("Emisor actualizado : " + senderUpdate);
-				responseEntity = getResponseEntity(HttpStatus.OK, senderUpdate, null);
+				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senderUpdate, null);
 
 			} else
-				responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null,
+				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
 						"Emisor con id " + id + " no esta registrado");
 
 		} catch (DataAccessException e) {
 			LOGGER.error("Error al actualizar emisor:", e);
 
-			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
+			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
 					e.getMessage() + " : " + e.getMostSpecificCause());
 
 		}
 
 		return responseEntity;
 
-	}
-
-	private ResponseEntity<Map<String, Object>> getResponseEntity(HttpStatus status, Object data, String error) {
-
-		Map<String, Object> responseData = new HashMap<>();
-		responseData.put("status", status);
-		responseData.put("data", data);
-		responseData.put("error", error);
-
-		return new ResponseEntity<>(responseData, status);
 	}
 
 }
