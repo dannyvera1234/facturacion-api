@@ -2,6 +2,8 @@ package com.facturacion.ideas.api.enums;
 
 import java.util.Arrays;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 public enum TypeEmissionEnum {
 
 	
@@ -14,6 +16,7 @@ public enum TypeEmissionEnum {
 		this.code = code;
 	}
 
+	@JsonValue
 	public String getCode() {
 		return code;
 	}

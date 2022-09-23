@@ -16,9 +16,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+
 import com.facturacion.ideas.api.enums.RolEnum;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "cuentas")
@@ -45,14 +48,18 @@ public class Count implements Serializable {
 	@Column(name = "CUE_ROL")
 	@Enumerated(EnumType.STRING)
 	private RolEnum rol;
-	 
+
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "LOG_FK_COD_CUE")
 	private List<Login> logins;
-	
-	@OneToMany(fetch =  FetchType.LAZY, cascade = CascadeType.ALL)
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "CTP_FK_COD_CUE")
 	private List<DetailsAggrement> detailsAggrement;
+
+	@OneToOne(mappedBy = "count", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JsonManagedReference
+	private Sender sender;
 
 	public Count(Long ide, String ruc, String password, boolean estado, Date fechaRegistro, RolEnum rol) {
 		super();
@@ -74,6 +81,7 @@ public class Count implements Serializable {
 		logins = new ArrayList<>();
 		detailsAggrement = new ArrayList<>();
 	}
+
 	@PrePersist
 	private void prePersistData() {
 		fechaRegistro = new Date();
@@ -131,18 +139,27 @@ public class Count implements Serializable {
 	public List<Login> getLogins() {
 		return logins;
 	}
+
 	public void addLogin(Login login) {
 		this.logins.add(login);
 	}
-	
+
 	public List<DetailsAggrement> getDetailsAggrement() {
 		return detailsAggrement;
 	}
-	
+
 	public void addDetailsAggrement(DetailsAggrement detailsAggrement) {
 		this.detailsAggrement.add(detailsAggrement);
 	}
-	
+
+	public Sender getSender() {
+		return sender;
+	}
+
+	public void setSender(Sender sender) {
+		this.sender = sender;
+	}
+
 	@Override
 	public String toString() {
 		return "Count [ide=" + ide + ", ruc=" + ruc + ", password=" + password + ", estado=" + estado

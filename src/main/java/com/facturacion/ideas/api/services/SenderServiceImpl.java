@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Login;
+import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.repositories.ICountRepository;
 import com.facturacion.ideas.api.repositories.ILoginRepository;
+import com.facturacion.ideas.api.repositories.ISenderRepository;
 
 @Service
 public class SenderServiceImpl implements ISenderService {
@@ -21,6 +23,10 @@ public class SenderServiceImpl implements ISenderService {
 	@Autowired
 	private ILoginRepository loginRepository;
 
+	
+	@Autowired
+	private ISenderRepository senderRepository;
+	
 	@Override
 	@Transactional
 	public Count saveCount(Count count) {
@@ -70,6 +76,41 @@ public class SenderServiceImpl implements ISenderService {
 	@Transactional
 	public Count updateCount(Count count) {
 		return countRepository.save(count);
+	}
+
+	@Override
+	@Transactional
+	public Sender saveSender(Sender sender) {
+		
+		return senderRepository.save(sender);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Sender> findSenderByRuc(String ruc) {
+		// TODO Auto-generated method stub
+		return Optional.empty();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Sender> findSenderById(Long id) {
+		
+		return  senderRepository.findById(id);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Sender> findSenderAll() {
+		
+		return senderRepository.findAll();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Boolean> senderIsExiste(String ruc) {
+		
+		return  senderRepository.senderIsExist(ruc);
 	}
 
 }

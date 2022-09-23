@@ -3,6 +3,8 @@ package com.facturacion.ideas.api.enums;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum ProvinceEnum {
 
 	AZUAY("01", "07", "AZUAY"), BOLIVAR("02", "03", "BOLÍVAR"), CANNAR("03", "07", "CAÑAR"),
@@ -26,6 +28,7 @@ public enum ProvinceEnum {
 		this.name = name;
 	}
 
+	@JsonValue
 	public String getCode() {
 		return code;
 	}

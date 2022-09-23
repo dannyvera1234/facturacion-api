@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Login;
+import com.facturacion.ideas.api.entities.Sender;
 
 public interface ISenderService {
 
@@ -21,4 +22,18 @@ public interface ISenderService {
 	Login saveLoginIn(Login login) ;
 	
 	Count updateCount(Count count);
+	
+	
+	// Sender
+	Sender saveSender(Sender sender);
+	
+	Optional<Sender> findSenderByRuc(String ruc);
+	
+	Optional<Sender> findSenderById(Long id);
+	
+	Optional<Boolean> senderIsExiste(String ruc);
+	
+	List<Sender> findSenderAll();
+	
+	
 }

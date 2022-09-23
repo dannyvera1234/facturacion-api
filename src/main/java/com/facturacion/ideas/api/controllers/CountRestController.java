@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.entities.Agreement;
@@ -28,6 +29,7 @@ import com.facturacion.ideas.api.services.IAgreementService;
 import com.facturacion.ideas.api.services.ISenderService;
 
 @RestController
+@RequestMapping("/facturacion/counts")
 public class CountRestController {
 
 	private static final Logger LOGGER = LogManager.getLogger(CountRestController.class);
@@ -87,6 +89,7 @@ public class CountRestController {
 			if (!countOptional.isEmpty()) {
 
 				Count countSave = countOptional.get();
+				countSave.getSender();
 				responseEntity = getResponseEntity(HttpStatus.OK, countSave, null);
 
 			} else {
@@ -115,10 +118,20 @@ public class CountRestController {
 		try {
 
 			List<Count> counts = senderService.findCountAll();
+		
+
+			/*for(Count c : counts) {
+				
+				c.getSender();
+				c.getLogins().size();
+				c.getDetailsAggrement().size();
+			}*/
+			
+
 
 			responseEntity = getResponseEntity(HttpStatus.OK, counts, null);
 
-		} catch (DataAccessException e) {
+		} catch (DataAccessException e) { 
 
 			LOGGER.error("Error al listar cuentas: ", e);
 			responseEntity = getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
@@ -229,8 +242,9 @@ public class CountRestController {
 
 				responseEntity = getResponseEntity(HttpStatus.OK, countCurrent, null);
 
-			}else responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null, 
-					"Cuenta con id " + id + " no esta registrado");
+			} else
+				responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null,
+						"Cuenta con id " + id + " no esta registrado");
 
 		} catch (DataAccessException e) {
 
