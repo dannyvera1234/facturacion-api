@@ -1,7 +1,10 @@
 package com.facturacion.ideas.api.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -11,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -20,6 +24,7 @@ import com.facturacion.ideas.api.enums.TypeEmissionEnum;
 import com.facturacion.ideas.api.enums.TypeEnvironmentEnum;
 import com.facturacion.ideas.api.enums.TypeSenderEnum;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "emisores")
@@ -59,7 +64,7 @@ public class Sender implements Serializable {
 	private String logo;
 
 	@Column(name = "EMI_TIP_AMB")
-	//@Enumerated(EnumType.STRING)
+	// @Enumerated(EnumType.STRING)
 	private String typeEnvironment;
 
 	@Column(name = "EMI_TIP_EMI")
@@ -70,14 +75,19 @@ public class Sender implements Serializable {
 
 	@Column(name = "EMI_PRO")
 	private String province;
-	
+
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="EMI_FK_COD_CUE")
+	@JoinColumn(name = "EMI_FK_COD_CUE")
 	@JsonBackReference
 	private Count count;
 
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
+	@JsonManagedReference
+	private List<Subsidiary> subsidiarys;
+
 	public Sender() {
 		super();
+		initData();
 	}
 
 	public Sender(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
@@ -97,6 +107,13 @@ public class Sender implements Serializable {
 		this.typeEmission = typeEmission.getCode();
 		this.rimpe = rimpe;
 		this.province = province.getCode();
+
+		initData();
+	}
+
+	private void initData() {
+
+		subsidiarys = new ArrayList<>();
 	}
 
 	public Long getIde() {
@@ -202,17 +219,25 @@ public class Sender implements Serializable {
 	public void setProvince(ProvinceEnum province) {
 		this.province = province.getCode();
 	}
-	
+
 	public void setCount(Count count) {
 		this.count = count;
-		
-		//count.setSender(this);
+
+		// count.setSender(this);
 	}
-	
+
 	public Count getCount() {
 		return count;
 	}
-	
+
+	public List<Subsidiary> getSubsidiarys() {
+		return subsidiarys;
+	}
+
+	public void addSubsidiary(Subsidiary subsidiary) {
+
+		this.subsidiarys.add(subsidiary);
+	}
 
 	@Override
 	public String toString() {
@@ -222,6 +247,5 @@ public class Sender implements Serializable {
 				+ ", typeEnvironment=" + typeEnvironment + ", typeEmission=" + typeEmission + ", rimpe=" + rimpe
 				+ ", province=" + province + "]";
 	}
-		
 
 }
