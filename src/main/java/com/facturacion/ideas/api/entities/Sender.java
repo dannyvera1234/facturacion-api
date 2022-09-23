@@ -114,6 +114,7 @@ public class Sender implements Serializable {
 	private void initData() {
 
 		subsidiarys = new ArrayList<>();
+
 	}
 
 	public Long getIde() {
@@ -236,6 +237,7 @@ public class Sender implements Serializable {
 
 	public void addSubsidiary(Subsidiary subsidiary) {
 
+		subsidiary.setSender(this);
 		this.subsidiarys.add(subsidiary);
 	}
 

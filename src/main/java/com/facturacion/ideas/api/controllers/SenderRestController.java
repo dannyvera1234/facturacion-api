@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.controllers;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Sender;
+import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.enums.ProvinceEnum;
 import com.facturacion.ideas.api.enums.TypeEmissionEnum;
 import com.facturacion.ideas.api.enums.TypeEnvironmentEnum;
+import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.ISenderService;
+import com.facturacion.ideas.api.util.ConstanteUtil;
+import com.facturacion.ideas.api.util.FunctionUtil;
 
 @RestController
 @RequestMapping("/facturacion/senders")
@@ -35,17 +41,21 @@ public class SenderRestController {
 	@Autowired
 	private ISenderService senderService;
 
-	@PostMapping("/{id}")
-	public ResponseEntity<Map<String, Object>> saveSender(@RequestBody Sender sender, @PathVariable Long id) {
+	@Autowired
+	private ICodeDocumentService codeDocumentService;
 
-		LOGGER.info("Id Cuenta Emisor: " + id);
+	@PostMapping("/{id}")
+	public ResponseEntity<Map<String, Object>> saveSender(@RequestBody Sender sender,
+			@PathVariable("id") Long idCount) {
+
+		LOGGER.info("Id Cuenta Emisor: " + idCount);
 
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 
 			// Verificar si existe la cuenta
-			Optional<Count> countOptional = senderService.findCountById(id);
+			Optional<Count> countOptional = senderService.findCountById(idCount);
 
 			if (!countOptional.isEmpty()) {
 
@@ -60,12 +70,25 @@ public class SenderRestController {
 
 					// Por seguridad seteo el ruc de la cuenta
 					sender.setRuc(countCurrent.getRuc());
-
 					sender.setCount(countCurrent);
+
+					Optional<Integer> numberMax = codeDocumentService.findNumberMaxByIdCount(idCount);
+
+					Integer numberNext = FunctionUtil.getNumberNextSubsidiary(numberMax.orElse(null));
+
+					Subsidiary subsidiary = createNewSubsidiary(sender, countCurrent.getIde(), numberNext);
+
+					// Agregar al emisor el establecimiento
+					sender.addSubsidiary(subsidiary);
 
 					// Persistir el Emisor
 					Sender senderCurrent = senderService.saveSender(sender);
-					LOGGER.info("Sender guardado : " + senderCurrent);
+
+					// Ingresar datos numeros documentos
+					CodeDocument codeDocument = createNewCodDocument(countCurrent.getIde(), subsidiary.getCode(),
+							numberNext);
+
+					codeDocumentService.save(codeDocument);
 
 					responseEntity = getResponseEntity(HttpStatus.CREATED, senderCurrent, null);
 
@@ -75,7 +98,7 @@ public class SenderRestController {
 
 			} else
 				responseEntity = getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Cuenta con id " + id + " no esta registrada");
+						"Cuenta con id " + idCount + " no esta registrada");
 
 		} catch (DataAccessException e) {
 			LOGGER.error("Error al guardar emisor:", e);
@@ -87,6 +110,35 @@ public class SenderRestController {
 
 		return responseEntity;
 
+	}
+
+	private Subsidiary createNewSubsidiary(Sender sender, Long idCount, Integer numberNext) {
+
+		Subsidiary subsidiary = new Subsidiary();
+
+		String codSubsidiary = FunctionUtil.getCodSubsidiary(numberNext);
+
+		subsidiary.setCode(codSubsidiary);
+		subsidiary.setAddress(sender.getMatrixAddress());
+		subsidiary.setDateCreate(new Date());
+		subsidiary.setPrincipal(numberNext == 1);
+		subsidiary.setStatus(true);
+		subsidiary.setSocialReason(sender.getSocialReason());
+
+		return subsidiary;
+	}
+
+	private CodeDocument createNewCodDocument(Long idCount, String codSubsidiary, Integer numberNext) {
+
+		// Ingresar datos numeros documentos
+		CodeDocument codeDocument = new CodeDocument();
+		codeDocument.setCodeCount(idCount);
+
+		codeDocument.setCodeSubsidiary(codSubsidiary);
+		codeDocument.setNumSubsidiary(numberNext);
+		codeDocument.setNumEmissionPoint(1);
+
+		return codeDocument;
 	}
 
 	@GetMapping("/{id}")

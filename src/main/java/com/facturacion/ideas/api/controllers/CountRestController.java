@@ -26,6 +26,7 @@ import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.DetailsAggrement;
 import com.facturacion.ideas.api.entities.Login;
 import com.facturacion.ideas.api.services.IAgreementService;
+import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.ISenderService;
 
 @RestController
@@ -36,6 +37,9 @@ public class CountRestController {
 
 	@Autowired
 	private ISenderService senderService;
+	
+	@Autowired
+	private ICodeDocumentService  codeDocumentService;
 
 	@Autowired
 	private IAgreementService agreementService;
@@ -199,7 +203,11 @@ public class CountRestController {
 				Count countSave = countOptional.get();
 
 				senderService.deleteCountById(countSave.getIde());
-
+				
+				// Eliminar los registros en la CodeDocument, que
+				// esten relacionados con la cuenta recientemente elimnada
+				codeDocumentService.deleteByIdCount(countSave.getIde());
+				
 				responseEntity = getResponseEntity(HttpStatus.OK, null, null);
 
 			} else {
