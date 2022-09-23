@@ -118,7 +118,8 @@ public class SenderRestController {
 			Optional<Sender> senderOptional = senderService.findSenderById(id);
 
 			if (!senderOptional.isEmpty()) {
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senderOptional.get(), null);
+
+	 			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senderOptional.get(), null);
 			} else
 				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
 						"El emisor con id " + id + " no esta registrado");

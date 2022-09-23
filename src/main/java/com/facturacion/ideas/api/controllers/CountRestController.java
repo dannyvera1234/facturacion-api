@@ -93,7 +93,7 @@ public class CountRestController {
 			if (!countOptional.isEmpty()) {
 
 				Count countSave = countOptional.get();
-				countSave.getSender();
+				//countSave.getSender();
 				responseEntity = getResponseEntity(HttpStatus.OK, countSave, null);
 
 			} else {
