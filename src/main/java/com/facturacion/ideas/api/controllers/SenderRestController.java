@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.controllers;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import com.facturacion.ideas.api.admin.AdminSubsidiary;
 import com.facturacion.ideas.api.controller.operation.ISenderOperation;
 import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
+import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.services.ICodeDocumentService;
@@ -71,8 +73,9 @@ public class SenderRestController implements ISenderOperation {
 
 					AdminSender.create(sender, countCurrent);
 
+					//Crear Establecimiento
 					Subsidiary subsidiary = AdminSubsidiary.create(sender, countCurrent.getIde(), numberNext);
-
+		
 					// Agregar al emisor el establecimiento
 					sender.addSubsidiary(subsidiary);
 

@@ -8,6 +8,14 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 
 public class AdminSubsidiary {
 
+	/**
+	 * Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento, automaticamente
+	 * se creará el primer punto de emisión para este Establecimiento
+	 * @param sender
+	 * @param idCount
+	 * @param numberNext
+	 * @return
+	 */
 	public static Subsidiary create(Sender sender, Long idCount, Integer numberNext) {
 
 		Subsidiary subsidiary = new Subsidiary();
@@ -20,7 +28,10 @@ public class AdminSubsidiary {
 		subsidiary.setPrincipal(numberNext == 1);
 		subsidiary.setStatus(true);
 		subsidiary.setSocialReason(sender.getSocialReason());
-
+		
+		
+		// Crear el primer Punto de emision	y agregar al establecimiento recien creado
+		subsidiary.addEmissionPoint(AdminEmissionPoint.create(numberNext, sender.getRuc()));
 		return subsidiary;
 	}
 
