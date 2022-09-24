@@ -1,6 +1,5 @@
 package com.facturacion.ideas.api.controllers;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,17 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.admin.AdminCodeDocument;
 import com.facturacion.ideas.api.admin.AdminSender;
 import com.facturacion.ideas.api.admin.AdminSubsidiary;
+import com.facturacion.ideas.api.controller.operation.ISenderOperation;
 import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Sender;
@@ -30,9 +25,15 @@ import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.ISenderService;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
+/**
+ * RestController que expone servicios web para la entidad {@link Sender}
+ * 
+ * @author Ronny Chamba
+ *
+ */
 @RestController
 @RequestMapping("/facturacion/senders")
-public class SenderRestController {
+public class SenderRestController implements ISenderOperation {
 
 	private static final Logger LOGGER = LogManager.getLogger(SenderRestController.class);
 
@@ -41,11 +42,9 @@ public class SenderRestController {
 
 	@Autowired
 	private ICodeDocumentService codeDocumentService;
-
-	@PostMapping("/{id}")
-	public ResponseEntity<Map<String, Object>> saveSender(@RequestBody Sender sender,
-			@PathVariable("id") Long idCount) {
-
+	
+	@Override
+	public ResponseEntity<?> save(Sender sender, Long idCount) {
 		LOGGER.info("Id Cuenta Emisor: " + idCount);
 
 		ResponseEntity<Map<String, Object>> responseEntity = null;
@@ -105,40 +104,10 @@ public class SenderRestController {
 		}
 
 		return responseEntity;
-
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Map<String, Object>> findSenderById(@PathVariable Long id) {
-
-		ResponseEntity<Map<String, Object>> responseEntity = null;
-
-		try {
-
-			Optional<Sender> senderOptional = senderService.findSenderById(id);
-
-			if (!senderOptional.isEmpty()) {
-
-	 			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senderOptional.get(), null);
-			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"El emisor con id " + id + " no esta registrado");
-
-		} catch (DataAccessException e) {
-			LOGGER.error("Error al buscar emisor:", e);
-
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
-
-		}
-
-		return responseEntity;
-
-	}
-
-	@GetMapping
-	public ResponseEntity<Map<String, Object>> findSenderAll() {
-
+	@Override
+	public ResponseEntity<?> findAll() {
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
@@ -156,12 +125,38 @@ public class SenderRestController {
 		}
 
 		return responseEntity;
+	}
+
+	@Override
+	public ResponseEntity<?> findById(Long id) {
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+
+		try {
+
+			Optional<Sender> senderOptional = senderService.findSenderById(id);
+
+			if (!senderOptional.isEmpty()) {
+
+				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senderOptional.get(), null);
+			} else
+				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
+						"El emisor con id " + id + " no esta registrado");
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error al buscar emisor:", e);
+
+			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
+					e.getMessage() + " : " + e.getMostSpecificCause());
+
+		}
+
+		return responseEntity;
 
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<Map<String, Object>> updateSender(@RequestBody Sender sender, @PathVariable Long id) {
-
+	@Override
+	public ResponseEntity<?> update(Sender sender, Long id) {
+		
 		LOGGER.info("Id Emisor: " + id);
 
 		ResponseEntity<Map<String, Object>> responseEntity = null;
@@ -195,7 +190,6 @@ public class SenderRestController {
 		}
 
 		return responseEntity;
-
 	}
 
 }
