@@ -1,6 +1,5 @@
 package com.facturacion.ideas.api.controllers;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,7 +19,6 @@ import com.facturacion.ideas.api.admin.AdminSubsidiary;
 import com.facturacion.ideas.api.controller.operation.ISenderOperation;
 import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
-import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.services.ICodeDocumentService;
@@ -84,7 +82,7 @@ public class SenderRestController implements ISenderOperation {
 
 					// Ingresar datos numeros documentos
 					CodeDocument codeDocument = AdminCodeDocument.create(countCurrent.getIde(), subsidiary.getCode(),
-							numberNext);
+							numberNext, null);
 
 					codeDocumentService.save(codeDocument);
 

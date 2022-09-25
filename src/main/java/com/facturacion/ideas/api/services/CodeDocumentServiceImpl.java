@@ -52,9 +52,16 @@ public class CodeDocumentServiceImpl implements ICodeDocumentService {
 	@Override
 	@Transactional
 	public void deleteByIdCount(Long idCount) {
-	
+
 		codeDocumentRepository.deleteByCodeCount(idCount);
-		
+	}
+
+	@Override
+	@Transactional
+	public void deleteByIdCountAndCodeSubsidiary(Long idCount, String codeSender) {
+
+		codeDocumentRepository.deleteByIdCountAndCodeSubsidiary(idCount, codeSender);
+
 	}
 
 }

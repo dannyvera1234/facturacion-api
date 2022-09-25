@@ -10,11 +10,12 @@ public class AdminSubsidiary {
 
 	/**
 	 * Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento, automaticamente
-	 * se creará el primer punto de emisión para este Establecimiento
+	 * se creará el primer punto de emisión para este Establecimiento. Este metodo es llamado
+	 * solo cuando se crea un nuevo Sender
 	 * @param sender
 	 * @param idCount
 	 * @param numberNext
-	 * @return
+	 * @return : Un objeto {@link Subsidiary}
 	 */
 	public static Subsidiary create(Sender sender, Long idCount, Integer numberNext) {
 
@@ -33,6 +34,39 @@ public class AdminSubsidiary {
 		// Crear el primer Punto de emision	y agregar al establecimiento recien creado
 		subsidiary.addEmissionPoint(AdminEmissionPoint.create(numberNext, sender.getRuc()));
 		return subsidiary;
+	}
+	
+	/**
+	 *  Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento, automaticamente
+	 * se creará el primer punto de emisión para este Establecimiento. <br>
+	 * Este metodo es llamado para agregar  un nuevo establecimineto a un Sender que ya esta registrado en la Base de Datos
+	 * @param subsidiary
+	 * @param sender
+	 * @param idCount
+	 * @param numberNext
+	 */
+	public static void createOther(Subsidiary subsidiary, Sender sender, Long idCount, Integer numberNext) {
+
+		String codSubsidiary = getCodSubsidiary(numberNext);
+
+		subsidiary.setCode(codSubsidiary);
+		
+		// La direccion de cada establecimiento sera pro defecto la del establecmiento principal 
+		subsidiary.setAddress(subsidiary.getAddress() ==null? sender.getMatrixAddress() :
+				subsidiary.getAddress());
+		
+		subsidiary.setDateCreate(new Date());
+		subsidiary.setPrincipal(false);
+		subsidiary.setStatus(true);
+		subsidiary.setSocialReason(sender.getSocialReason());
+		
+		// Agregar al establecmiento el Emisor
+		subsidiary.setSender(sender);
+		
+		
+		// Crear el primer Punto de emision	y agregar al establecimiento recien creado
+		// Pasamos Null para que valide como el primer punto de emiion de este establecimiento
+		subsidiary.addEmissionPoint(AdminEmissionPoint.create(null, sender.getRuc()));
 	}
 
 	/**

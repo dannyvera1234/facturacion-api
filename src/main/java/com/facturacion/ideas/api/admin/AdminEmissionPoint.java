@@ -9,7 +9,8 @@ public class AdminEmissionPoint {
 
 	/**
 	 * Crear un nuevo {@link EmissionPoint}}
-	 * @param numberNext : Valor entero que corresponde al numero secuencial para el punto emision
+	 * @param numberNext : Valor entero que corresponde al numero secuencial para el punto emision. </br>
+	 * 						Si {@link numberNext} es null, indica que es el primer {@link EmissionPoint} del establecimiento
 	 * @param rucSender : EL ruc de Sender que es dueña del establecimiento, se utilizara para generar
 	 * 					 la clave del EmissionPoint
 	 * @return
@@ -26,27 +27,29 @@ public class AdminEmissionPoint {
 	}
 	
 	/**
-	 * Funcion que genera el codigo para un nuevo establecimiento
-	 * @param numSubsidiary :  numero de establecimiento a generar
+	 * Funcion que genera el codigo para un nuevo punto de emision .Si numEmissionPoint
+	 * es null ubicara el valor por defecto de {@link com.facturacion.ideas.api.util.ConstanteUtil#COD_DEFAULT_EMISSION_POINT}
+	 * 
+	 * @param numEmissionPoint :  numero de punto emision a generar
 	 * @return  :
 	 */
-	private static String getCodEmissionPoint(Integer numSubsidiary) {
+	private static String getCodEmissionPoint(Integer numEmissionPoint) {
 
-		if (numSubsidiary != null) {
+		if (numEmissionPoint != null) {
 
 			String codGenerar = null;
 
-			if (numSubsidiary < 10)
-				codGenerar = "00" + numSubsidiary;
-			else if (numSubsidiary >= 10 && numSubsidiary < 100)
-				codGenerar = "0" + numSubsidiary;
+			if (numEmissionPoint < 10)
+				codGenerar = "00" + numEmissionPoint;
+			else if (numEmissionPoint >= 10 && numEmissionPoint < 100)
+				codGenerar = "0" + numEmissionPoint;
 
 			else
-				codGenerar = "" + numSubsidiary;
+				codGenerar = "" + numEmissionPoint;
 
 			return codGenerar;
 		}
-		return ConstanteUtil.COD_DEFAULT_SUBSIDIARY;
+		return ConstanteUtil.COD_DEFAULT_EMISSION_POINT;
 
 	}
 }
