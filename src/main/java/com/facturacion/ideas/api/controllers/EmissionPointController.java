@@ -23,6 +23,11 @@ import com.facturacion.ideas.api.services.IEmissionPointService;
 import com.facturacion.ideas.api.services.ISubsidiaryService;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
+/**
+ * RestController que expone servicios web para la entidad {@link EmissionPoint}
+ * @author Ronny Chamba
+ *
+ */
 @RestController
 @RequestMapping("/facturacion/subsidiarys/{codigo}/emissions")
 public class EmissionPointController implements IEmissionPointOperation {

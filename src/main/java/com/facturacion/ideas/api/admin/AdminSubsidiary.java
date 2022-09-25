@@ -32,7 +32,8 @@ public class AdminSubsidiary {
 		
 		
 		// Crear el primer Punto de emision	y agregar al establecimiento recien creado
-		subsidiary.addEmissionPoint(AdminEmissionPoint.create(numberNext, sender.getRuc()));
+		// Pasamos Null para que valide como el primer punto de emision de este establecimiento
+		subsidiary.addEmissionPoint(AdminEmissionPoint.create(null, sender.getRuc()));
 		return subsidiary;
 	}
 	

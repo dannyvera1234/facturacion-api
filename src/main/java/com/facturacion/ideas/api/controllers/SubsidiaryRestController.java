@@ -25,8 +25,13 @@ import com.facturacion.ideas.api.services.ISenderService;
 import com.facturacion.ideas.api.services.ISubsidiaryService;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
+/**
+ * RestController que expone servicios web para la entidad {@link Subsidiary}
+ * @author Ronny Chamba
+ *
+ */
 @RestController
-@RequestMapping("/facturacion/senders/{id}")
+@RequestMapping("/facturacion/senders/{id}/subsidiarys")
 public class SubsidiaryRestController implements ISubsidiaryOperation {
 
 	private static final Logger LOGGER = LogManager.getLogger(SubsidiaryRestController.class);

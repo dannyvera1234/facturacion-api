@@ -12,20 +12,20 @@ import com.facturacion.ideas.api.entities.Subsidiary;
 
 public interface ISubsidiaryOperation {
 
-	@PostMapping("/subsidiarys")
+	@PostMapping
 	public ResponseEntity<?> save(@RequestBody Subsidiary subsidiary, @PathVariable("id") Long idSender);
 
-	@GetMapping("/subsidiarys")
+	@GetMapping
 	public ResponseEntity<?> findAll(@PathVariable("id") Long idSender);
 
-	@GetMapping("/subsidiarys/{codigo}")
+	@GetMapping("/{codigo}")
 	public ResponseEntity<?> findById(@PathVariable(required = false, name="id") Long idSender, @PathVariable Long codigo);
 
-	@PutMapping("/subsidiarys/{codigo}")
+	@PutMapping("/{codigo}")
 	public ResponseEntity<?> update(@RequestBody Subsidiary subsidiary,
 			@PathVariable(required = false, name="id") Long idSender, @PathVariable  Long codigo);
 
-	@DeleteMapping("/subsidiarys/{codigo}")
+	@DeleteMapping("/{codigo}")
 	public ResponseEntity<?> delete(@PathVariable(required = false, name="id") Long idSender,  @PathVariable Long codigo);
 
 }
