@@ -18,6 +18,9 @@ public class AdminEmissionPoint {
 	public static EmissionPoint create(Integer numberNext, String rucSender) {
 
 		EmissionPoint emissionPoint = new EmissionPoint();
+		
+		numberNext = getNumberNextEmissionPoint(numberNext);
+		
 		emissionPoint.setCodePoint(getCodEmissionPoint(numberNext));
 		emissionPoint.setDateRegister(new Date());
 		emissionPoint.setKeyPoint(rucSender +"_" +emissionPoint.getCodePoint());
@@ -52,4 +55,10 @@ public class AdminEmissionPoint {
 		return ConstanteUtil.COD_DEFAULT_EMISSION_POINT;
 
 	}
+	
+	private static Integer getNumberNextEmissionPoint(Integer numberNext) {
+
+		return numberNext == null ? 1 : (numberNext + 1);
+	}
+
 }

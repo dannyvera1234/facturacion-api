@@ -31,6 +31,15 @@ public interface ICodeDocumentService {
 	 */
 	void deleteByIdCount(Long idCount);
 	
+	
+	/**
+	 * Consulta  un registro en {@link CodeDocument}
+	 * @param codeCount : Id de la cuenta 
+	 * @param codeSubsidiary : Codigo del establecimiento
+	 * @return
+	 */
+	Optional<CodeDocument> findByCodeCountAndCodeSubsidiary (Long codeCount, String codeSubsidiary);
+	
 	Optional<CodeDocument> findByIdSenderAndCodSubsidiary(Long idSender, String codSubsidiary);
 	
 	/**

@@ -64,4 +64,11 @@ public class CodeDocumentServiceImpl implements ICodeDocumentService {
 
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<CodeDocument> findByCodeCountAndCodeSubsidiary(Long codeCount, String codeSubsidiary) {
+	
+		return codeDocumentRepository.findByCodeCountAndCodeSubsidiary(codeCount, codeSubsidiary);
+	}
+
 }

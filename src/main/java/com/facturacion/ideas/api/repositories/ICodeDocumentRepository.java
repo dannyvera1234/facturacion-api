@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.facturacion.ideas.api.controllers.CountRestController;
-import com.facturacion.ideas.api.controllers.SubsidiaryRestController;
 import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Subsidiary;
@@ -18,6 +17,18 @@ public interface ICodeDocumentRepository extends JpaRepository<CodeDocument, Lon
 
 	@Query("SELECT MAX(c.numSubsidiary) FROM CodeDocument c  where c.codeCount = :codeCount GROUP BY c.codeCount")
 	Optional<Integer> findNumberMaxSender(@Param("codeCount") Long codeCount);
+	
+	/**
+	 * Consulta  un registro en {@link CodeDocument}
+	 * @param codeCount : Id de la cuenta 
+	 * @param codeSubsidiary : Codigo del establecimiento
+	 * @return
+	 */
+	Optional<CodeDocument> findByCodeCountAndCodeSubsidiary (Long codeCount, String codeSubsidiary);
+	
+	@Query("SELECT MAX(c.numEmissionPoint) FROM CodeDocument c  where c.codeCount = :codeCount GROUP BY c.codeCount")
+	Optional<Integer> findByNumberMaxEmission(@Param("codeCount") Long codeCount);
+
 
 	/**
 	 * Elimina todos los registros asociados a una cuenta. Este metodo es llamado desde {@link CountRestController} despues
