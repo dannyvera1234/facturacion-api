@@ -1,6 +1,5 @@
 package com.facturacion.ideas.api.controllers;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,13 +17,17 @@ import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Subsidiary;
+import com.facturacion.ideas.api.exeption.NotDataAccessException;
+import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.IEmissionPointService;
 import com.facturacion.ideas.api.services.ISubsidiaryService;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
 /**
  * RestController que expone servicios web para la entidad {@link EmissionPoint}
+ * 
  * @author Ronny Chamba
  *
  */
@@ -47,8 +50,6 @@ public class EmissionPointController implements IEmissionPointOperation {
 	public ResponseEntity<?> save(Long codigo, EmissionPoint emissionPoint) {
 
 		LOGGER.info("Id Establecimiento para el PuntoEmision: " + codigo);
-
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 
@@ -77,7 +78,7 @@ public class EmissionPointController implements IEmissionPointOperation {
 						codeSubsidiary);
 
 				if (!codeOptional.isEmpty()) {
-					
+
 					CodeDocument codeDocumentCurrent = codeOptional.get();
 
 					// Crear el EmissionPoint
@@ -93,27 +94,21 @@ public class EmissionPointController implements IEmissionPointOperation {
 					codeDocumentCurrent.setNumEmissionPoint(codeDocumentCurrent.getNumEmissionPoint() + 1);
 					codeDocumentService.save(codeDocumentCurrent);
 
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.CREATED,
-
-							emissionPointSave.getCodePoint(), null);
+					return FunctionUtil.getResponseEntity(HttpStatus.CREATED, emissionPointSave);
 
 				} else
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.BAD_REQUEST,
 
-							null, "No se pudo crear el punto Emision, no se accedio al numero secuencial");
+					throw new NotFoundException("numero-emision: " + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Establecimiento con Id " + codigo + " no esta registrado en la Base de Datos");
+				throw new NotFoundException(
+						"establecimiento: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al guardar Punto de emisions:", e);
+			LOGGER.error("Error  guardar Punto emision:", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			throw new NotDataAccessException("Error guardar Punto emision: " + e.getMessage());
 		}
-
-		return responseEntity;
 	}
 
 	@Override

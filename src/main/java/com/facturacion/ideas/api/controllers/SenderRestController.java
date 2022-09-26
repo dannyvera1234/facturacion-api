@@ -1,7 +1,6 @@
 package com.facturacion.ideas.api.controllers;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,8 +20,12 @@ import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
+import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
+import com.facturacion.ideas.api.exeption.NotDataAccessException;
+import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.ISenderService;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
 /**
@@ -42,12 +45,11 @@ public class SenderRestController implements ISenderOperation {
 
 	@Autowired
 	private ICodeDocumentService codeDocumentService;
-	
+
 	@Override
 	public ResponseEntity<?> save(Sender sender, Long idCount) {
-		LOGGER.info("Id Cuenta Emisor: " + idCount);
 
-		ResponseEntity<Map<String, Object>> responseEntity = null;
+		LOGGER.info("Id Cuenta Emisor: " + idCount);
 
 		try {
 
@@ -71,9 +73,9 @@ public class SenderRestController implements ISenderOperation {
 
 					AdminSender.create(sender, countCurrent);
 
-					//Crear Establecimiento
+					// Crear Establecimiento
 					Subsidiary subsidiary = AdminSubsidiary.create(sender, countCurrent.getIde(), numberNext);
-		
+
 					// Agregar al emisor el establecimiento
 					sender.addSubsidiary(subsidiary);
 
@@ -86,51 +88,43 @@ public class SenderRestController implements ISenderOperation {
 
 					codeDocumentService.save(codeDocument);
 
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.CREATED, senderCurrent, null);
+					return FunctionUtil.getResponseEntity(HttpStatus.CREATED, senderCurrent);
 
 				} else
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.BAD_REQUEST, null,
-							"Emisor con ruc " + countCurrent.getRuc() + " ya esta registrado");
 
+					throw new DuplicatedResourceException("ruc: " + countCurrent.getRuc()
+							+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Cuenta con id " + idCount + " no esta registrada");
+
+				throw new NotFoundException("id: " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al guardar emisor:", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			LOGGER.error("Error guardar emisor:", e);
+			throw new NotDataAccessException("Error guardar emision: " + e.getMessage());
 
 		}
 
-		return responseEntity;
 	}
 
 	@Override
 	public ResponseEntity<?> findAll() {
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 
 			List<Sender> senders = senderService.findSenderAll();
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senders, null);
+			return FunctionUtil.getResponseEntity(HttpStatus.OK, senders);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al listar todos emisor:", e);
-
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			LOGGER.error("Error listar emisores:", e);
+			throw new NotDataAccessException("Error listar emisores: " + e.getMessage());
 
 		}
-
-		return responseEntity;
 	}
 
 	@Override
 	public ResponseEntity<?> findById(Long id) {
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 
@@ -138,29 +132,23 @@ public class SenderRestController implements ISenderOperation {
 
 			if (!senderOptional.isEmpty()) {
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senderOptional.get(), null);
+				return FunctionUtil.getResponseEntity(HttpStatus.OK, senderOptional.get());
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"El emisor con id " + id + " no esta registrado");
+				throw new NotFoundException("id: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al buscar emisor:", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			LOGGER.error("Error buscar emisor:", e);
 
+			throw new NotDataAccessException("Error buscar emisore: " + e.getMessage());
 		}
-
-		return responseEntity;
 
 	}
 
 	@Override
 	public ResponseEntity<?> update(Sender sender, Long id) {
-		
-		LOGGER.info("Id Emisor: " + id);
 
-		ResponseEntity<Map<String, Object>> responseEntity = null;
+		LOGGER.info("Id Emisor: " + id);
 
 		try {
 
@@ -176,21 +164,19 @@ public class SenderRestController implements ISenderOperation {
 				Sender senderUpdate = senderService.saveSender(senderCurrent);
 
 				LOGGER.info("Emisor actualizado : " + senderUpdate);
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, senderUpdate, null);
+
+				return FunctionUtil.getResponseEntity(HttpStatus.OK, senderUpdate);
 
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Emisor con id " + id + " no esta registrado");
+				throw new NotFoundException("id: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al actualizar emisor:", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			LOGGER.error("Error actualizar emisor:", e);
+
+			throw new NotDataAccessException("Error actualizar emisore: " + e.getMessage());
 
 		}
-
-		return responseEntity;
 	}
 
 }

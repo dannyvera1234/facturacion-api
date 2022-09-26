@@ -1,7 +1,6 @@
 package com.facturacion.ideas.api.controllers;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -20,13 +19,17 @@ import com.facturacion.ideas.api.entities.CodeDocument;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
+import com.facturacion.ideas.api.exeption.NotDataAccessException;
+import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.ISenderService;
 import com.facturacion.ideas.api.services.ISubsidiaryService;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
 /**
  * RestController que expone servicios web para la entidad {@link Subsidiary}
+ * 
  * @author Ronny Chamba
  *
  */
@@ -49,8 +52,6 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 	public ResponseEntity<?> save(Subsidiary subsidiary, Long idSender) {
 
 		LOGGER.info("Id  Emisor: " + idSender);
-
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 
@@ -77,28 +78,23 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 
 				codeDocumentService.save(codeDocument);
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.CREATED, subsidiarySave.getCode(), null);
+				return FunctionUtil.getResponseEntity(HttpStatus.CREATED, subsidiarySave);
 
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Emisor con Id " + idSender + " no esta registrado en la Base de Datos");
+				throw new NotFoundException("id: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al guardar establecimiento:", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			LOGGER.error("Error guardar establecimiento", e);
+
+			throw new NotDataAccessException("Error guardar establecimiento: " + e.getMessage());
 		}
-
-		return responseEntity;
 	}
 
 	@Override
 	public ResponseEntity<?> findAll(Long idSender) {
 
 		LOGGER.info("Id  Emisor: " + idSender);
-
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
@@ -109,28 +105,25 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 
 				List<Subsidiary> subsidiaries = senderCurrent.getSubsidiarys();
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, subsidiaries, null);
+				return FunctionUtil.getResponseEntity(HttpStatus.OK, subsidiaries);
 
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Emisor con Id " + idSender + " no esta registrado en la Base de Datos");
+
+				throw new NotFoundException("id: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al listar establecimientoas", e);
+			LOGGER.error("Error listar establecimientoas", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			throw new NotDataAccessException("Error listar  establecimientos: " + e.getMessage());
+
 		}
 
-		return responseEntity;
 	}
 
 	@Override
 	public ResponseEntity<?> findById(Long idSender, Long codigo) {
 
 		LOGGER.info("Id  Emisor: " + idSender);
-
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
@@ -145,32 +138,28 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 
 				if (!subsidiaryOptional.isEmpty()) {
 
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, subsidiaryOptional.get(), null);
+					return FunctionUtil.getResponseEntity(HttpStatus.OK, subsidiaryOptional.get());
 
 				} else
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-							"Establecimiento con Id " + codigo + " no esta registrado en la Base de Datos");
+
+					throw new NotFoundException(
+							"establecimiento: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Emisor con Id " + idSender + " no esta registrado en la Base de Datos");
+				throw new NotFoundException("emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al buscar un establecimientoas", e);
+			LOGGER.error("Error buscar establecimiento", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			throw new NotDataAccessException("Error buscar establecimiento: " + e.getMessage());
 		}
 
-		return responseEntity;
 	}
 
 	@Override
 	public ResponseEntity<?> update(Subsidiary subsidiary, Long idSender, Long codigo) {
 
 		LOGGER.info("Id  Emisor: " + idSender);
-
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
@@ -190,32 +179,27 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 
 					subsidiaryCurrent = subsidiaryService.save(subsidiaryCurrent);
 
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, subsidiaryCurrent, null);
+					return FunctionUtil.getResponseEntity(HttpStatus.OK, subsidiaryCurrent);
 
 				} else
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-							"Establecimiento con Id " + codigo + " no esta registrado en la Base de Datos");
+
+					throw new NotFoundException(
+							"establecimiento: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Emisor con Id " + idSender + " no esta registrado en la Base de Datos");
+				throw new NotFoundException("emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al actualizar un establecimiento", e);
+			LOGGER.error("Error actualizar  establecimiento", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			throw new NotDataAccessException("Error actualizar  establecimiento: " + e.getMessage());
 		}
-
-		return responseEntity;
 	}
 
 	@Override
 	public ResponseEntity<?> delete(Long idSender, Long codigo) {
 
 		LOGGER.info("Id  Emisor: " + idSender);
-
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 
 		try {
 			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
@@ -232,32 +216,28 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 
 					String codSubsidiary = subsidiaryCurrent.getCode();
 
-					// Eliminar El establecimiento y pro la cascada sus Puntos de Emision
+					// Eliminar El establecimiento y por la cascada sus Puntos de Emision
 					subsidiaryService.deleteById(subsidiaryCurrent.getIde());
-
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK,
-							"Establecimiento " + subsidiaryCurrent.getIde() + "  eliminado con exito", null);
 
 					// Eliminar El Registro en CodeDocument del Establecimiento recientiemente
 					// eliminado
 					codeDocumentService.deleteByIdCountAndCodeSubsidiary(senderCurrent.getIde(), codSubsidiary);
 
+					return FunctionUtil.getResponseEntity(HttpStatus.NO_CONTENT, "");
+
 				} else
-					responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-							"Establecimiento con Id " + codigo + " no esta registrado en la Base de Datos");
+					throw new NotFoundException(
+							"establecimiento: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 			} else
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Emisor con Id " + idSender + " no esta registrado en la Base de Datos");
+				throw new NotFoundException("emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error al eliminar un establecimientoas", e);
+			LOGGER.error("Error eliminar establecimientoas", e);
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " : " + e.getMostSpecificCause());
+			throw new NotDataAccessException("Error eliminar establecimiento: " + e.getMessage());
 		}
 
-		return responseEntity;
 	}
 
 }

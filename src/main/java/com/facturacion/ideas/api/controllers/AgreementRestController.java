@@ -14,11 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.controller.operation.IAgreementOperation;
 import com.facturacion.ideas.api.entities.Agreement;
+import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
+import com.facturacion.ideas.api.exeption.NotDataAccessException;
+import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.services.IAgreementService;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
 /**
  * RestController que expone servicios web para las entidades {@link Agreement}
+ * 
  * @author Ronny Chamba
  *
  */
@@ -36,8 +41,6 @@ public class AgreementRestController implements IAgreementOperation {
 
 		LOGGER.info("Plan a guardar " + agreement);
 
-		ResponseEntity<?> responseEntity = null;
-
 		try {
 
 			Optional<Agreement> aggreementOptional = agreementService.findById(agreement.getCodigo());
@@ -46,45 +49,39 @@ public class AgreementRestController implements IAgreementOperation {
 
 				Agreement agreementSave = agreementService.save(agreement);
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, agreementSave, null);
+				return FunctionUtil.getResponseEntity(HttpStatus.OK, agreementSave);
 
 			} else {
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.BAD_REQUEST, null,
-						"Plan  con codigo " + aggreementOptional.get().getCodigo() + " ya esta registrado");
+
+				throw new DuplicatedResourceException("Id: " + aggreementOptional.get().getCodigo()
+						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 			}
 
 		} catch (DataAccessException e) {
 
-			LOGGER.error("Error al guardar Plan: ", e);
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " " + e.getMostSpecificCause());
+			LOGGER.error("Error guardar Plan: ", e);
 
+			throw new NotDataAccessException("Error guardar el Plan: " + e.getMessage());
 		}
-
-		return responseEntity;
 
 	}
 
 	@Override
 	public ResponseEntity<?> findAll() {
 
-		ResponseEntity<?> responseEntity = null;
-
 		try {
 
 			List<Agreement> listAgreement = agreementService.listAll();
 
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, listAgreement, null);
+			return FunctionUtil.getResponseEntity(HttpStatus.OK, listAgreement);
 
 		} catch (DataAccessException e) {
 
-			LOGGER.error("Error al listar todos los Planes: ", e);
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " " + e.getMostSpecificCause());
+			LOGGER.error("Error listar Planes: ", e);
+
+			throw new NotDataAccessException("Error istar Planes: " + e.getMessage());
 
 		}
-
-		return responseEntity;
 
 	}
 
@@ -92,8 +89,6 @@ public class AgreementRestController implements IAgreementOperation {
 	public ResponseEntity<?> findById(String codigo) {
 
 		LOGGER.info("Id Plan a buscar: " + codigo);
-
-		ResponseEntity<?> responseEntity = null;
 
 		try {
 
@@ -103,23 +98,19 @@ public class AgreementRestController implements IAgreementOperation {
 
 				Agreement agreementSave = aggreementOptional.get();
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, agreementSave, null);
+				return FunctionUtil.getResponseEntity(HttpStatus.OK, agreementSave);
 
-			} else {
+			} else
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Plan  " + codigo + " no esta registrado");
-			}
+				throw new NotFoundException("codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
 
-			LOGGER.error("Error al buscar Plan: ", e);
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " " + e.getMostSpecificCause());
+			LOGGER.error("Error buscar Plan: ", e);
+
+			throw new NotDataAccessException("Error buscar Plan: " + e.getMessage());
 
 		}
-
-		return responseEntity;
 
 	}
 
@@ -127,8 +118,6 @@ public class AgreementRestController implements IAgreementOperation {
 	public ResponseEntity<?> deleteById(String codigo) {
 
 		LOGGER.info("Id Plan a eliminar: " + codigo);
-
-		ResponseEntity<?> responseEntity = null;
 
 		try {
 
@@ -140,23 +129,20 @@ public class AgreementRestController implements IAgreementOperation {
 
 				agreementService.deleteById(agreementDelete.getCodigo());
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, agreementDelete, null);
+				// NO_CONTENT, NO retornara nada en la respuesta así se le pase algo
+				return FunctionUtil.getResponseEntity(HttpStatus.NO_CONTENT, String
+						.format("Plan %s fue eliminado con exito", agreementDelete.getTypeAgreement().toString()));
 
-			} else {
+			} else
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.NOT_FOUND, null,
-						"Plan  " + codigo + " no esta registrado");
-			}
+				throw new NotFoundException("codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
 
-			LOGGER.error("Error al eliminar Plan: ", e);
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " " + e.getMostSpecificCause());
+			LOGGER.error("Error eliminar Plan: ", e);
+			throw new NotDataAccessException("Error eliminar Plan: " + e.getMessage());
 
 		}
-
-		return responseEntity;
 
 	}
 
@@ -164,9 +150,6 @@ public class AgreementRestController implements IAgreementOperation {
 	public ResponseEntity<?> update(Agreement agreement, String codigo) {
 
 		LOGGER.info("Plan a actualizar " + agreement);
-
-		ResponseEntity<?> responseEntity = null;
-
 		try {
 
 			Optional<Agreement> agreementOptional = agreementService.findById(codigo);
@@ -178,22 +161,16 @@ public class AgreementRestController implements IAgreementOperation {
 
 				agreementCurrent = agreementService.save(agreementCurrent);
 
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.OK, agreementCurrent, null);
+				return FunctionUtil.getResponseEntity(HttpStatus.OK, agreementCurrent);
 
-			} else {
-				responseEntity = FunctionUtil.getResponseEntity(HttpStatus.BAD_REQUEST, null,
-						"Plan  con codigo " +codigo + " no esta registrado");
-			}
+			} else
+				throw new NotFoundException("codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
-
-			LOGGER.error("Error al actualizar Plan: ", e);
-			responseEntity = FunctionUtil.getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null,
-					e.getMessage() + " " + e.getMostSpecificCause());
+			LOGGER.error("Error actualizar Plan: ", e);
+			throw new NotDataAccessException("Error actualizar Plan: " + e.getMessage());
 
 		}
-
-		return responseEntity;
 	}
 
 }

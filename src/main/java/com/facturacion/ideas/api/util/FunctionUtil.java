@@ -25,5 +25,13 @@ public class FunctionUtil {
 
 		return new ResponseEntity<>(responseData, status);
 	}
+	
+	public static ResponseEntity<Map<String, Object>> getResponseEntity(HttpStatus status,Object data) {
+
+		Map<String, Object> responseData = new HashMap<>();
+		// responseData.put("status", status.value());
+		responseData.put("data", data);
+		return new ResponseEntity<>(responseData, status);
+	}
 
 }
