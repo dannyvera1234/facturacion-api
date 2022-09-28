@@ -1,6 +1,8 @@
 package com.facturacion.ideas.api.exeption;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,7 +35,9 @@ public class ApiExceptionHandler {
 			org.springframework.http.converter.HttpMessageNotReadableException.class,
 			org.springframework.web.server.ServerWebInputException.class,
 			DuplicatedResourceException.class,
-			NotDataAccessException.class})
+			NotDataAccessException.class,
+			HttpRequestMethodNotSupportedException.class,
+			MissingPathVariableException.class})
 	@ResponseBody
 	public ErrorMessage badRequest(Exception exception) {
 		return new ErrorMessage(exception, HttpStatus.BAD_REQUEST.value());

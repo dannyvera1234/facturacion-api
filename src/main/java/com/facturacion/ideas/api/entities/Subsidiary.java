@@ -59,7 +59,7 @@ public class Subsidiary implements Serializable {
 	private List<EmissionPoint> emissionPoints;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "subsidiary")
-	@JsonManagedReference
+	//@JsonManagedReference
 	private List<Employee> employees;
 
 	public Subsidiary() {

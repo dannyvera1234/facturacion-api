@@ -12,7 +12,7 @@ public interface IEmployeeService {
 
 	List<EmployeeDTO> findByAll();
 
-	void deleteById(Long id);
+	String deleteById(Long id);
 
 	EmployeeDTO update(EmployeeDTO employeeDTO, Long id);
 

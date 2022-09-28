@@ -2,8 +2,6 @@ package com.facturacion.ideas.api.dto;
 
 import java.io.Serializable;
 
-import com.facturacion.ideas.api.enums.RolEnum;
-
 public class EmployeeDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -13,17 +11,20 @@ public class EmployeeDTO implements Serializable {
 	private String name;
 
 	private String cedula;
+	
+	private String telephone;
 
 	private String rol;
 
 	private String subsidiary;
 
-	public EmployeeDTO(Long ide, String name, String cedula, String rol, String subsidiary) {
+	public EmployeeDTO(Long ide, String name, String cedula, String rol, String telephone, String subsidiary) {
 
 		this.ide = ide;
 		this.name = name;
 		this.cedula = cedula;
 		this.rol = rol;
+		this.telephone = telephone;
 		this.subsidiary = subsidiary;
 	}
 
@@ -71,10 +72,20 @@ public class EmployeeDTO implements Serializable {
 		this.subsidiary = subsidiary;
 	}
 
+	public String getTelephone() {
+		return telephone;
+	}
+	
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+	}
+
 	@Override
 	public String toString() {
-		return "EmployeeDTO [ide=" + ide + ", name=" + name + ", cedula=" + cedula + ", rol=" + rol + ", subsidiary="
-				+ subsidiary + "]";
+		return "EmployeeDTO [ide=" + ide + ", name=" + name + ", cedula=" + cedula + ", telephone=" + telephone
+				+ ", rol=" + rol + ", subsidiary=" + subsidiary + "]";
 	}
+	
+	
 
 }

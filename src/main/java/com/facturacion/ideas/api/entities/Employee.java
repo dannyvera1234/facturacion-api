@@ -31,6 +31,9 @@ public class Employee implements Serializable {
 	@Column(name = "EMP_NOM")
 	private String name;
 
+	@Column(name = "EMP_CEL")
+	private String telephone;
+
 	@Column(name = "EMP_CED")
 	private String cedula;
 
@@ -40,18 +43,19 @@ public class Employee implements Serializable {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "EMP_FK_COD_EST")
-	@JsonBackReference
+	// @JsonBackReference
 	private Subsidiary subsidiary;
 
 	public Employee() {
 
 	}
 
-	public Employee(Long ide, String name, String cedula, RolEnum rol) {
+	public Employee(Long ide, String name, String cedula, String telephone, RolEnum rol) {
 		super();
 		this.ide = ide;
 		this.name = name;
 		this.cedula = cedula;
+		this.telephone = telephone;
 		this.rol = rol;
 
 	}
@@ -96,10 +100,20 @@ public class Employee implements Serializable {
 		this.subsidiary = subsidiary;
 	}
 
+	
+	public String getTelephone() {
+		return telephone;
+	}
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+	}
+
 	@Override
 	public String toString() {
-		return "Employee [ide=" + ide + ", name=" + name + ", cedula=" + cedula + ", rol=" + rol + ", subsidiary="
-				+ subsidiary.getCode() + "]";
+		return "Employee [ide=" + ide + ", name=" + name + ", telephone=" + telephone + ", cedula=" + cedula + ", rol="
+				+ rol + ", subsidiary=" + subsidiary + "]";
 	}
+	
+
 
 }

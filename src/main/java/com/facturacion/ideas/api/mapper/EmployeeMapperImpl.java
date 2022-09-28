@@ -18,6 +18,8 @@ public class EmployeeMapperImpl implements IEmployeeMapper {
 
 		employee.setCedula(employeeDTO.getCedula());
 
+		employee.setTelephone(employeeDTO.getTelephone());
+
 		employee.setName(employeeDTO.getName());
 
 		employee.setRol(RolEnum.getRolEnum(employeeDTO.getRol()));
@@ -33,6 +35,7 @@ public class EmployeeMapperImpl implements IEmployeeMapper {
 		employeeDTO.setIde(employee.getIde());
 		employeeDTO.setCedula(employee.getCedula());
 		employeeDTO.setName(employee.getName());
+		employeeDTO.setTelephone(employee.getTelephone());
 		employeeDTO.setRol(employee.getRol().name());
 		employeeDTO.setSubsidiary(employee.getSubsidiary().getSocialReason());
 
