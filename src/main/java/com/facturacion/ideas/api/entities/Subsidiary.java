@@ -28,10 +28,9 @@ public class Subsidiary implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="EST_COD")
+	@Column(name = "EST_COD")
 	private Long ide;
-	
-	
+
 	@Column(name = "EST_COD_EST")
 	private String code;
 
@@ -59,12 +58,16 @@ public class Subsidiary implements Serializable {
 	@JsonManagedReference
 	private List<EmissionPoint> emissionPoints;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "subsidiary")
+	@JsonManagedReference
+	private List<Employee> employees;
+
 	public Subsidiary() {
 		super();
 		initData();
 	}
 
-	public Subsidiary( Long ide, String code, String socialReason, String address, boolean status, Date dateCreate,
+	public Subsidiary(Long ide, String code, String socialReason, String address, boolean status, Date dateCreate,
 			boolean principal) {
 		super();
 		this.ide = ide;
@@ -79,15 +82,17 @@ public class Subsidiary implements Serializable {
 
 	private void initData() {
 		emissionPoints = new ArrayList<>();
+		employees = new ArrayList<>();
 	}
 
 	public Long getIde() {
 		return ide;
 	}
+
 	public void setIde(Long ide) {
 		this.ide = ide;
 	}
-	
+
 	public String getCode() {
 		return code;
 	}
@@ -150,15 +155,19 @@ public class Subsidiary implements Serializable {
 		this.emissionPoints.add(emissionPoint);
 	}
 
+	public List<Employee> getEmployees() {
+		return employees;
+	}
+
+	public void addEmployee(Employee employee) {
+
+		this.employees.add(employee);
+	}
+
 	@Override
 	public String toString() {
 		return "Subsidiary [ide=" + ide + ", code=" + code + ", socialReason=" + socialReason + ", address=" + address
 				+ ", status=" + status + ", dateCreate=" + dateCreate + ", principal=" + principal + "]";
 	}
-	
 
-	
-
-	
-	
 }

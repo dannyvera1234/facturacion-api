@@ -43,9 +43,13 @@ public class EmissionPoint implements Serializable {
 	@JsonBackReference
 	private Subsidiary subsidiary;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "PTE_FK_COD_EMP")
+	private Employee employee;
+
 	public EmissionPoint() {
 	}
-	
+
 	public EmissionPoint(Long ide, String codePoint, boolean status, Date dateRegister, String keyPoint,
 			Subsidiary subsidiary) {
 
@@ -101,6 +105,14 @@ public class EmissionPoint implements Serializable {
 		return subsidiary;
 	}
 
+	public Employee getEmployee() {
+		return employee;
+	}
+
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
+	}
+
 	public void setSubsidiary(Subsidiary subsidiary) {
 		this.subsidiary = subsidiary;
 	}
@@ -110,8 +122,5 @@ public class EmissionPoint implements Serializable {
 		return "EmissionPoint [ide=" + ide + ", codePoint=" + codePoint + ", status=" + status + ", dateRegister="
 				+ dateRegister + ", keyPoint=" + keyPoint + ", subsidiary=" + subsidiary.getCode() + "]";
 	}
-
-	
-	
 
 }
