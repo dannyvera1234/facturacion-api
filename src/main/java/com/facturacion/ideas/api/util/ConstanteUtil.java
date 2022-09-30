@@ -10,4 +10,6 @@ public class ConstanteUtil {
 	public static final String MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION = " no esta registrado en la Base de Datos";
 	
 	public static final String MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION = " ya esta registrado en la Base de Datos";
+	
+	public static final String DATE_FORMAT_DEFAULT = "yyyy-MM-dd";
 }
