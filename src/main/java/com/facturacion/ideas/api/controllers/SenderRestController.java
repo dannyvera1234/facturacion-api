@@ -35,7 +35,7 @@ import com.facturacion.ideas.api.util.FunctionUtil;
  *
  */
 @RestController
-@RequestMapping("/facturacion/senders")
+@RequestMapping("/facturacion")
 public class SenderRestController implements ISenderOperation {
 
 	private static final Logger LOGGER = LogManager.getLogger(SenderRestController.class);

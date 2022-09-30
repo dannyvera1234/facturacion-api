@@ -28,7 +28,7 @@ public interface ISenderOperation {
 	 * @param idCount : Id de la Count
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
-	@PostMapping("/{id}")
+	@PostMapping("/counts/{id}/senders")
 	public ResponseEntity<?> save(@RequestBody Sender sender, @PathVariable("id") Long idCount);
 
 	/**
@@ -37,7 +37,7 @@ public interface ISenderOperation {
 	 * @return Respuesta
 	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
-	@GetMapping
+	@GetMapping("/senders")
 	public ResponseEntity<?> findAll();
 
 	/**
@@ -47,7 +47,7 @@ public interface ISenderOperation {
 	 * @return Respuesta
 	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
-	@GetMapping("/{id}")
+	@GetMapping("/senders/{id}")
 	public ResponseEntity<?> findById(@PathVariable(required = false) Long id);
 
 	/**
@@ -68,6 +68,6 @@ public interface ISenderOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 *         con los nuevos datos actualizados
 	 */
-	@PutMapping("/{id}")
+	@PutMapping("/senders/{id}")
 	public ResponseEntity<?> update(@RequestBody Sender sender, @PathVariable Long id);
 }
