@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.facturacion.ideas.api.dto.ProductDTO;
+import com.facturacion.ideas.api.dto.ProductInformationDTO;
 
 public interface IProductOperation {
 
@@ -29,4 +30,21 @@ public interface IProductOperation {
 
 	@PutMapping("/products/{id}")
 	public ResponseEntity<ProductDTO> update(@RequestBody ProductDTO productDTO, @PathVariable Long id);
+	
+	// Product Information
+	@GetMapping("/products/{id}/additional-details")
+	public ResponseEntity<List<ProductInformationDTO>> findProducInformation(@PathVariable Long id);
+	
+	@GetMapping("/products/{id}/additional-details/{id-details}")
+	public ResponseEntity<ProductInformationDTO> findProducInformationById(@PathVariable Long id, @PathVariable(name = "id-details") Long idDetails);
+	
+	
+	@DeleteMapping("/products/{id}/additional-details")
+	public ResponseEntity<String> deleteProductInformationAll(@PathVariable Long id);
+	
+	@DeleteMapping("/products/{id}/additional-details/{id-details}")
+	public ResponseEntity<String> deleteProductInformation(@PathVariable Long id , @PathVariable(name = "id-details") Long idDetails);
+
+	
+	
 }

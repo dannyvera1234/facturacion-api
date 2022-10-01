@@ -1,8 +1,11 @@
 package com.facturacion.ideas.api.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
@@ -58,8 +62,13 @@ public class Product implements Serializable {
 	@JoinColumn(name = "PRO_FK_COD_EST")
 	private Subsidiary subsidiary;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "INF_FK_COD_PRO")
+	private List<ProductInformation> productInformations;
+
 	public Product() {
 		super();
+		initData();
 	}
 
 	public Product(Long ide, String codePrivate, String codeAuxilar, TypeProductEnum typeProductEnum, String name,
@@ -74,12 +83,18 @@ public class Product implements Serializable {
 		this.iva = iva;
 		this.ice = ice;
 		this.irbpnr = irbpnr;
+		initData();
 	}
 
 	@PrePersist
 	public void prePersistData() {
 
 		dateCreate = new Date();
+	}
+
+	private void initData() {
+
+		productInformations = new ArrayList<>();
 	}
 
 	public Long getIde() {
@@ -168,6 +183,19 @@ public class Product implements Serializable {
 
 	public Date getDateCreate() {
 		return dateCreate;
+	}
+
+	
+	public void setProductInformations(List<ProductInformation> productInformations) {
+		this.productInformations = productInformations;
+	}
+	
+	public List<ProductInformation> getProductInformations() {
+		return productInformations;
+	}
+
+	public void addProductoInformation(ProductInformation productInformation) {
+		this.productInformations.add(productInformation);
 	}
 
 	@Override

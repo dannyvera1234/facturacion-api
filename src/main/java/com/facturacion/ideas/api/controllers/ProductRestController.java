@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.controller.operation.IProductOperation;
 import com.facturacion.ideas.api.dto.ProductDTO;
+import com.facturacion.ideas.api.dto.ProductInformationDTO;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.IProductService;
 
@@ -27,7 +28,10 @@ public class ProductRestController implements IProductOperation {
 	@Override
 	public ResponseEntity<ProductDTO> save(ProductDTO productDTO, Long idSubsidiary) {
 
+		LOGGER.info("Producto guardar: " + productDTO.getProductInformationDTOs().size());
 		try {
+
+			// return ResponseEntity.ok(productDTO);
 			ProductDTO productDTOSaved = productService.save(productDTO, idSubsidiary);
 
 			return new ResponseEntity<ProductDTO>(productDTOSaved, HttpStatus.CREATED);
@@ -83,11 +87,66 @@ public class ProductRestController implements IProductOperation {
 		try {
 
 			ProductDTO productDTOUpdated = productService.update(productDTO, id);
-			
+
 			return ResponseEntity.ok(productDTOUpdated);
 
 		} catch (NotDataAccessException e) {
 
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+
+	@Override
+	public ResponseEntity<List<ProductInformationDTO>> findProducInformation(Long id) {
+
+		try {
+
+			List<ProductInformationDTO> productInformationDTOs = productService.findProductInforAll(id);
+
+			return ResponseEntity.ok(productInformationDTOs);
+
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+
+		}
+	}
+
+	@Override
+	public ResponseEntity<ProductInformationDTO> findProducInformationById(Long id, Long idDetails) {
+		try {
+
+			ProductInformationDTO productInformationDTO = productService.findProductInforById(id, idDetails);
+			return ResponseEntity.ok(productInformationDTO);
+
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+
+		}
+	}
+
+	@Override
+	public ResponseEntity<String> deleteProductInformation(Long id, Long idDetails) {
+
+		try {
+
+			String response = productService.deleteProductInfoById(id, idDetails);
+
+			return new ResponseEntity<String>(response, HttpStatus.NO_CONTENT);
+
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+
+	@Override
+	public ResponseEntity<String> deleteProductInformationAll(Long id) {
+		try {
+
+			String response = productService.deleteProductInfoAllById(id);
+
+			return new ResponseEntity<String>(response, HttpStatus.NO_CONTENT);
+
+		} catch (NotDataAccessException e) {
 			throw new NotDataAccessException(e.getMessage());
 		}
 	}

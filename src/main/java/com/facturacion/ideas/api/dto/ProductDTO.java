@@ -1,6 +1,8 @@
 package com.facturacion.ideas.api.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductDTO implements Serializable {
 
@@ -17,7 +19,7 @@ public class ProductDTO implements Serializable {
 	private String name;
 
 	private double unitValue;
-	
+
 	private String dateCreate;
 
 	private String iva;
@@ -28,8 +30,11 @@ public class ProductDTO implements Serializable {
 
 	private String sender;
 
+	private List<ProductInformationDTO> productInformationDTOs;
+
 	public ProductDTO() {
 		super();
+		initData();
 	}
 
 	public ProductDTO(Long ide, String codePrivate, String codeAuxilar, String typeProductEnum, String name,
@@ -45,6 +50,13 @@ public class ProductDTO implements Serializable {
 		this.ice = ice;
 		this.irbpnr = irbpnr;
 		this.sender = sender;
+
+		initData();
+	}
+
+	private void initData() {
+
+		productInformationDTOs = new ArrayList<>();
 	}
 
 	public Long getIde() {
@@ -126,12 +138,22 @@ public class ProductDTO implements Serializable {
 	public void setSender(String sender) {
 		this.sender = sender;
 	}
-	
+
 	public String getDateCreate() {
 		return dateCreate;
 	}
+
 	public void setDateCreate(String dateCreate) {
 		this.dateCreate = dateCreate;
+	}
+
+	public List<ProductInformationDTO> getProductInformationDTOs() {
+		return productInformationDTOs;
+	}
+
+	public void addProductInformationDTO(ProductInformationDTO productInformationDTO) {
+
+		productInformationDTOs.add(productInformationDTO);
 	}
 
 	@Override
@@ -141,8 +163,5 @@ public class ProductDTO implements Serializable {
 				+ ", dateCreate=" + dateCreate + ", iva=" + iva + ", ice=" + ice + ", irbpnr=" + irbpnr + ", sender="
 				+ sender + "]";
 	}
-	
-
-
 
 }
