@@ -41,6 +41,10 @@ public class DetailsAggrement implements Serializable {
 	 */
 	private Agreement greement;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "CTP_FK_COD_CUE")
+	private Count count;
+
 	public DetailsAggrement() {
 		super();
 	}
@@ -93,6 +97,13 @@ public class DetailsAggrement implements Serializable {
 	public void setGreement(Agreement greement) {
 		this.greement = greement;
 	}
+	public void setCount(Count count) {
+		this.count = count;
+	}
+	
+	public Count getCount() {
+		return count;
+	}
 
 	@Override
 	public String toString() {
@@ -100,6 +111,4 @@ public class DetailsAggrement implements Serializable {
 				+ status + ", greement=" + greement + "]";
 	}
 
-	
-	
 }

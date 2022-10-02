@@ -10,26 +10,33 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.facturacion.ideas.api.admin.AdminDetailsAggrement;
 import com.facturacion.ideas.api.dto.CountNewDTO;
 import com.facturacion.ideas.api.dto.CountResponseDTO;
+import com.facturacion.ideas.api.dto.DetailsAgreementDTO;
 import com.facturacion.ideas.api.dto.LoginDTO;
+import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.entities.Count;
+import com.facturacion.ideas.api.entities.DetailsAggrement;
 import com.facturacion.ideas.api.entities.Login;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.ICountMapper;
+import com.facturacion.ideas.api.mapper.IDetailsAgreementMapper;
+import com.facturacion.ideas.api.repositories.IAgreementRepository;
 import com.facturacion.ideas.api.repositories.ICodeDocumentRepository;
 import com.facturacion.ideas.api.repositories.ICountRepository;
+import com.facturacion.ideas.api.repositories.IDetailsAgreementRepository;
 import com.facturacion.ideas.api.repositories.ILoginRepository;
 import com.facturacion.ideas.api.repositories.ISenderRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 @Service
-public class SenderServiceImpl implements ISenderService {
+public class CountServiceImpl implements ICountService {
 
-	private static final Logger LOGGER = LogManager.getLogger(SenderServiceImpl.class);
+	private static final Logger LOGGER = LogManager.getLogger(CountServiceImpl.class);
 	@Autowired
 	private ICountRepository countRepository;
 
@@ -40,10 +47,19 @@ public class SenderServiceImpl implements ISenderService {
 	private ISenderRepository senderRepository;
 
 	@Autowired
+	private ICodeDocumentRepository codeDocumentRepository;
+
+	@Autowired
+	private IAgreementRepository agreementRepository;
+
+	@Autowired
+	private IDetailsAgreementRepository detailsAgreementRepository;
+
+	@Autowired
 	private ICountMapper countMapper;
 
 	@Autowired
-	private ICodeDocumentRepository codeDocumentRepository;
+	private IDetailsAgreementMapper detailsAgreementMapper;
 
 	@Override
 	@Transactional
@@ -121,14 +137,6 @@ public class SenderServiceImpl implements ISenderService {
 
 	}
 
-	// este se debe eliminar
-	@Override
-	@Transactional(readOnly = true)
-	public Optional<Count> findCountById(Long id) {
-
-		return countRepository.findById(id);
-	}
-
 	@Override
 	@Transactional
 	public void deleteCountById(Long id) {
@@ -157,8 +165,26 @@ public class SenderServiceImpl implements ISenderService {
 
 	@Override
 	@Transactional
-	public Count updateCount(Count count) {
-		return countRepository.save(count);
+	public CountResponseDTO updateCount(CountNewDTO countNewDTO, Long idCount) {
+
+		try {
+
+			Count count = countRepository.findById(idCount).orElseThrow(
+					() -> new NotFoundException("id: " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			if (countNewDTO.getPassword() != null) {
+
+				count.setPassword(countNewDTO.getPassword());
+			}
+
+			return countMapper.mapperToDTO(countRepository.save(count));
+		} catch (DataAccessException e) {
+
+			LOGGER.info("Erro actualizar cuenta", e);
+			throw new NotDataAccessException("Error actualizar cuenta" + e.getMessage());
+
+		}
+
 	}
 
 	@Override
@@ -239,5 +265,32 @@ public class SenderServiceImpl implements ISenderService {
 			throw new NotDataAccessException("Error listar login" + e.getMessage());
 		}
 
+	}
+
+	@Override
+	@Transactional
+	public DetailsAgreementDTO saveDetailsAgreementDTO(Long idCount, String codeAgreement) {
+
+		try {
+
+			Count count = countRepository.findById(idCount).orElseThrow(() -> new NotFoundException(
+					"id count: " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			Agreement agreement = agreementRepository.findById(codeAgreement).orElseThrow(() -> new NotFoundException(
+					"codigo plan: " + codeAgreement + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			DetailsAggrement detailsAggrement = AdminDetailsAggrement.create(agreement.getTypeAgreement());
+			detailsAggrement.setGreement(agreement);
+			detailsAggrement.setCount(count);
+
+			DetailsAggrement detailsAggrementSaved = detailsAgreementRepository.save(detailsAggrement);
+
+			return detailsAgreementMapper.mapperToDTO(detailsAggrementSaved);
+
+		} catch (DataAccessException e) {
+
+			LOGGER.info("Error guardar detailsAgreement", e);
+			throw new NotDataAccessException("Error guardar detailsAgreement" + e.getMessage());
+		}
 	}
 }

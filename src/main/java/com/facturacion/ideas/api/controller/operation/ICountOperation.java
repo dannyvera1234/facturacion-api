@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.facturacion.ideas.api.controllers.CountRestController;
 import com.facturacion.ideas.api.dto.CountNewDTO;
 import com.facturacion.ideas.api.dto.CountResponseDTO;
+import com.facturacion.ideas.api.dto.DetailsAgreementDTO;
 import com.facturacion.ideas.api.dto.LoginDTO;
 import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.entities.Count;
@@ -76,7 +77,7 @@ public interface ICountOperation {
 	 *         con los nuevos datos actualizados
 	 */
 	@PutMapping("/{id}")
-	public ResponseEntity<?> update(@RequestBody Count count, @PathVariable Long id);
+	public ResponseEntity<CountResponseDTO> update(@RequestBody CountNewDTO count, @PathVariable Long id);
 
 	/**
 	 * Elimina {@link Count} a traves de su Id
@@ -106,6 +107,6 @@ public interface ICountOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@PostMapping("/{id}/agreements/{codigo}")
-	public ResponseEntity<?> saveDetailsAggrement(@PathVariable("id") Long idCount,
+	public ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(@PathVariable("id") Long idCount,
 			@PathVariable(required = false, name = "codigo") String codigoPlan);
 }

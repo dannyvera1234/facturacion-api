@@ -24,7 +24,7 @@ import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.services.ICodeDocumentService;
-import com.facturacion.ideas.api.services.ISenderService;
+import com.facturacion.ideas.api.services.ICountService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
@@ -41,7 +41,7 @@ public class SenderRestController implements ISenderOperation {
 	private static final Logger LOGGER = LogManager.getLogger(SenderRestController.class);
 
 	@Autowired
-	private ISenderService senderService;
+	private ICountService senderService;
 
 	@Autowired
 	private ICodeDocumentService codeDocumentService;

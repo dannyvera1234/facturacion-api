@@ -52,8 +52,8 @@ public class Count implements Serializable {
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "count")
 	private List<Login> logins;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "CTP_FK_COD_CUE")
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "count")
+	//@JoinColumn(name = "CTP_FK_COD_CUE")
 	private List<DetailsAggrement> detailsAggrement;
 
 	@OneToMany(mappedBy = "count", cascade = CascadeType.ALL,fetch = FetchType.LAZY)

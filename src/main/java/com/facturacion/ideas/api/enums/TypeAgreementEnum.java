@@ -2,8 +2,18 @@ package com.facturacion.ideas.api.enums;
 
 public enum TypeAgreementEnum {
 
-	MONTH, YEAR;
+	MONTH(1), YEAR(1);
 
+	private int number;
+	private TypeAgreementEnum(int number) {
+		
+		this.number = number;
+	}
+	
+	public int getNumber() {
+		return number;
+	}
+	
 	public static TypeAgreementEnum getTypeAgreementEnum(String name) {
 
 		if (name == null) {
