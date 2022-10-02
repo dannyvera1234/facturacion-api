@@ -7,11 +7,11 @@ public interface IAgreementService {
 
 	AgreementDTO save(AgreementDTO agreementDTO);
 	
-	AgreementDTO update(AgreementDTO agreementDTO, String ide);
+	AgreementDTO update(AgreementDTO agreementDTO, Long code);
 	
-	void deleteById(String codigo);
+	void deleteById(Long codigo);
 	
 	List<AgreementDTO> listAll();
 	
-	AgreementDTO findById(String codigo);
+	AgreementDTO findById(Long  codigo);
 }

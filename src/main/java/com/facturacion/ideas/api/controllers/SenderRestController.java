@@ -54,8 +54,10 @@ public class SenderRestController implements ISenderOperation {
 		try {
 
 			// Verificar si existe la cuenta
-			Optional<Count> countOptional = senderService.findCountById(idCount);
+			  // Optional<Count> countOptional = senderService.findCountById(idCount);
 
+			Optional<Count> countOptional = null;
+			 
 			if (!countOptional.isEmpty()) {
 
 				Count countCurrent = countOptional.get();

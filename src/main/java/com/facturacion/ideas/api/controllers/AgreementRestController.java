@@ -66,7 +66,7 @@ public class AgreementRestController implements IAgreementOperation {
 	}
 
 	@Override
-	public ResponseEntity<AgreementDTO> findById(String codigo) {
+	public ResponseEntity<AgreementDTO> findById(Long codigo) {
 
 		LOGGER.info("Id Plan a buscar: " + codigo);
 
@@ -84,7 +84,7 @@ public class AgreementRestController implements IAgreementOperation {
 	}
 
 	@Override
-	public ResponseEntity<String> deleteById(String codigo) {
+	public ResponseEntity<String> deleteById(Long codigo) {
 
 		LOGGER.info("Id Plan a eliminar: " + codigo);
 
@@ -101,7 +101,7 @@ public class AgreementRestController implements IAgreementOperation {
 	}
 
 	@Override
-	public ResponseEntity<AgreementDTO> update(AgreementDTO agreementDTO, String codigo) {
+	public ResponseEntity<AgreementDTO> update(AgreementDTO agreementDTO, Long codigo) {
 
 		LOGGER.info("Plan a actualizar " + agreementDTO);
 		try {

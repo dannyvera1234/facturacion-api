@@ -269,7 +269,7 @@ public class CountServiceImpl implements ICountService {
 
 	@Override
 	@Transactional
-	public DetailsAgreementDTO saveDetailsAgreementDTO(Long idCount, String codeAgreement) {
+	public DetailsAgreementDTO saveDetailsAgreementDTO(Long idCount, Long codeAgreement) {
 
 		try {
 

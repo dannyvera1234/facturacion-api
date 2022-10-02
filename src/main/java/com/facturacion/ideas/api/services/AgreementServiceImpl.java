@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.dto.AgreementDTO;
 import com.facturacion.ideas.api.entities.Agreement;
+import com.facturacion.ideas.api.enums.TypeAgreementEnum;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
@@ -34,7 +35,10 @@ public class AgreementServiceImpl implements IAgreementService {
 	public AgreementDTO save(AgreementDTO agreementDTO) {
 
 		try {
-			Agreement agreementSear = agreementRepository.findById(agreementDTO.getCodigo()).orElse(null);
+			
+			Agreement agreementSear = agreementRepository
+					.findByTypeAgreement(TypeAgreementEnum.getTypeAgreementEnum(agreementDTO.getTypeAgreement()))
+					.orElse(null);
 
 			if (agreementSear != null) {
 
@@ -62,7 +66,7 @@ public class AgreementServiceImpl implements IAgreementService {
 		try {
 
 			List<Agreement> agreementDTOs = agreementRepository.findAll();
-	
+
 			return agreementMapper.mapperToDTO(agreementDTOs);
 
 		} catch (DataAccessException e) {
@@ -73,7 +77,7 @@ public class AgreementServiceImpl implements IAgreementService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public AgreementDTO findById(String codigo) {
+	public AgreementDTO findById(Long codigo) {
 
 		try {
 			Agreement agreement = agreementRepository.findById(codigo).orElseThrow(() -> new NotFoundException(
@@ -90,7 +94,7 @@ public class AgreementServiceImpl implements IAgreementService {
 
 	@Override
 	@Transactional
-	public void deleteById(String codigo) {
+	public void deleteById(Long codigo) {
 
 		try {
 			Agreement agreement = agreementRepository.findById(codigo).orElseThrow(() -> new NotFoundException(
@@ -106,7 +110,7 @@ public class AgreementServiceImpl implements IAgreementService {
 	}
 
 	@Override
-	public AgreementDTO update(AgreementDTO agreementDTO, String codigo) {
+	public AgreementDTO update(AgreementDTO agreementDTO, Long codigo) {
 		try {
 			Agreement agreement = agreementRepository.findById(codigo).orElseThrow(() -> new NotFoundException(
 					"codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));

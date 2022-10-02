@@ -6,13 +6,13 @@ public class AgreementDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String codigo;
+	private Long codigo;
 
 	private String typeAgreement;
 
 	private double value;
 
-	public AgreementDTO(String codigo, String typeAgreement, double value) {
+	public AgreementDTO(Long codigo, String typeAgreement, double value) {
 		super();
 		this.codigo = codigo;
 		this.typeAgreement = typeAgreement;
@@ -23,11 +23,11 @@ public class AgreementDTO implements Serializable {
 		super();
 	}
 
-	public String getCodigo() {
+	public Long getCodigo() {
 		return codigo;
 	}
 
-	public void setCodigo(String codigo) {
+	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
 	}
 

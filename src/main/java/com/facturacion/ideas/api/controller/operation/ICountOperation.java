@@ -108,5 +108,5 @@ public interface ICountOperation {
 	 */
 	@PostMapping("/{id}/agreements/{codigo}")
 	public ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(@PathVariable("id") Long idCount,
-			@PathVariable(required = false, name = "codigo") String codigoPlan);
+			@PathVariable(required = false, name = "codigo") Long codigoPlan);
 }

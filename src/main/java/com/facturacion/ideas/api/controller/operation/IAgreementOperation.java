@@ -48,7 +48,7 @@ public interface IAgreementOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@GetMapping("/{codigo}")
-	public ResponseEntity<AgreementDTO> findById(@PathVariable(required = false) String codigo);
+	public ResponseEntity<AgreementDTO> findById(@PathVariable(required = false) Long codigo);
 
 	/**
 	 * Elimina {@link Agreement} a traves de su codigo <br>
@@ -57,7 +57,7 @@ public interface IAgreementOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@DeleteMapping("/{codigo}")
-	public ResponseEntity<?> deleteById(@PathVariable(required = false) String codigo);
+	public ResponseEntity<?> deleteById(@PathVariable(required = false) Long codigo);
 
 	/**
 	 * Actualiza una {@link Agreement} <br>
@@ -67,5 +67,5 @@ public interface IAgreementOperation {
 	 * @return  {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@PutMapping("/{codigo}")
-	public ResponseEntity<AgreementDTO> update(@RequestBody AgreementDTO agreementDTO, @PathVariable(required = false) String codigo);
+	public ResponseEntity<AgreementDTO> update(@RequestBody AgreementDTO agreementDTO, @PathVariable(required = false) Long codigo);
 }

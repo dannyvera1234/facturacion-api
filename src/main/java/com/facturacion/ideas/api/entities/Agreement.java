@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -19,7 +21,8 @@ public class Agreement implements Serializable {
 
 	@Id
 	@Column(name = "PLA_COD")
-	private String codigo;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long codigo;
 
 	@Column(name = "PLA_DES")
 	@Enumerated(value = EnumType.STRING)
@@ -32,18 +35,18 @@ public class Agreement implements Serializable {
 		super();
 	}
 
-	public Agreement(String codigo, TypeAgreementEnum typeAgreement, double value) {
+	public Agreement(Long codigo, TypeAgreementEnum typeAgreement, double value) {
 		super();
 		this.codigo = codigo;
 		this.typeAgreement = typeAgreement;
 		this.value = value;
 	}
 
-	public String getCodigo() {
+	public Long getCodigo() {
 		return codigo;
 	}
 
-	public void setCodigo(String codigo) {
+	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
 	}
 

@@ -25,7 +25,7 @@ public interface ICountService {
 	CountResponseDTO updateCount(CountNewDTO countNewDTO, Long idCount);
 
 	// AgreementDetails
-	DetailsAgreementDTO saveDetailsAgreementDTO(Long idCount, String coddeAgreement);
+	DetailsAgreementDTO saveDetailsAgreementDTO(Long idCount, Long coddeAgreement);
 	
 	
 	LoginDTO saveLoginIn(Long idCount);

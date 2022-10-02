@@ -152,7 +152,7 @@ public class CountRestController implements ICountOperation {
 	}
 
 	@Override
-	public ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(Long idCount, String codigoPlan) {
+	public ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(Long idCount, Long codigoPlan) {
 
 		LOGGER.info("Id cuenta " + idCount + " Id Plan : " + codigoPlan);
 
