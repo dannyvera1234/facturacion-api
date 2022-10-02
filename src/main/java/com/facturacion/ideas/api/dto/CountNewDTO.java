@@ -2,7 +2,7 @@ package com.facturacion.ideas.api.dto;
 
 import java.io.Serializable;
 
-public class CountDTO implements Serializable {
+public class CountNewDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -18,7 +18,7 @@ public class CountDTO implements Serializable {
 
 	private String rol;
 
-	public CountDTO(int ide, String ruc, String password, boolean estado, String fechaRegistro, String rol) {
+	public CountNewDTO(int ide, String ruc, String password, boolean estado, String fechaRegistro, String rol) {
 		super();
 		this.ide = ide;
 		this.ruc = ruc;

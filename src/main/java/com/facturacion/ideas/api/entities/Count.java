@@ -21,7 +21,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import com.facturacion.ideas.api.enums.RolEnum;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 
 @Entity
 @Table(name = "cuentas")
@@ -49,17 +49,15 @@ public class Count implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private RolEnum rol;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "LOG_FK_COD_CUE")
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "count")
 	private List<Login> logins;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "CTP_FK_COD_CUE")
 	private List<DetailsAggrement> detailsAggrement;
 
-	@OneToOne(mappedBy = "count", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JsonManagedReference
-	private Sender sender;
+	@OneToMany(mappedBy = "count", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	private List<Sender> sender;
 
 	public Count(Long ide, String ruc, String password, boolean estado, Date fechaRegistro, RolEnum rol) {
 		super();
@@ -80,6 +78,7 @@ public class Count implements Serializable {
 	private void initData() {
 		logins = new ArrayList<>();
 		detailsAggrement = new ArrayList<>();
+		sender = new ArrayList<>();
 	}
 
 	@PrePersist
@@ -152,12 +151,12 @@ public class Count implements Serializable {
 		this.detailsAggrement.add(detailsAggrement);
 	}
 
-	public Sender getSender() {
+	public List<Sender> getSender() {
 		return sender;
 	}
 
 	public void setSender(Sender sender) {
-		this.sender = sender;
+		this.sender.add(sender);
 	}
 
 	@Override

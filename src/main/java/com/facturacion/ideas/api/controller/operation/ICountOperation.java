@@ -1,5 +1,8 @@
 package com.facturacion.ideas.api.controller.operation;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,13 +11,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.facturacion.ideas.api.controllers.CountRestController;
+import com.facturacion.ideas.api.dto.CountNewDTO;
+import com.facturacion.ideas.api.dto.CountResponseDTO;
+import com.facturacion.ideas.api.dto.LoginDTO;
 import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.DetailsAggrement;
 import com.facturacion.ideas.api.entities.Login;
 import com.facturacion.ideas.api.util.FunctionUtil;
-import org.springframework.http.HttpStatus;
 
 /**
  * Interface que define los contratos que debe realizar el
@@ -34,7 +41,7 @@ public interface ICountOperation {
 	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@PostMapping
-	public ResponseEntity<?> save(@RequestBody Count count);
+	public ResponseEntity<CountResponseDTO> save(@RequestBody CountNewDTO countNewDTO);
 
 	/**
 	 * Recupera todas las {@link Count} regisradas en Base de Datos
@@ -43,7 +50,7 @@ public interface ICountOperation {
 	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@GetMapping
-	public ResponseEntity<?> findAll();
+	public ResponseEntity<List<CountResponseDTO>> findAll();
 
 	/**
 	 * Busca una {@link Count} a traves de su id
@@ -53,8 +60,12 @@ public interface ICountOperation {
 	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@GetMapping("/{id}")
-	public ResponseEntity<?> findById(@PathVariable(required = false) Long id);
+	public ResponseEntity<CountResponseDTO> findById(@PathVariable(required = false) Long id);
 
+	@GetMapping("/search")
+	public ResponseEntity<CountResponseDTO> findByRuc(@RequestParam (required = false, defaultValue = "")  String ruc);
+
+	
 	/**
 	 * Actualiza una {@link Count}
 	 * 
@@ -80,8 +91,14 @@ public interface ICountOperation {
 	 * @param idCount : Id de la Cuenta 
 	 * @return  {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
-	@PostMapping("/{id}/login")
-	public ResponseEntity<?> saveLogin(@PathVariable("id") Long idCount);
+	@PostMapping("/{id}/logins")
+	public ResponseEntity<LoginDTO> saveLogin(@PathVariable("id") Long idCount);
+	
+	
+	@GetMapping("/{id}/logins")
+	public ResponseEntity<List<LoginDTO>> findAllLogin(@PathVariable("id") Long idCount);
+	
+	
 	/**
 	 * Registrar un nuevo {@link DetailsAggrement} para una {@link Count}
 	 * @param idCount : Id de la Cuenta

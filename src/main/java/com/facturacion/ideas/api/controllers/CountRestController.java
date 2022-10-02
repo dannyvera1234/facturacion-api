@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.admin.AdminDetailsAggrement;
 import com.facturacion.ideas.api.controller.operation.ICountOperation;
+import com.facturacion.ideas.api.dto.CountNewDTO;
+import com.facturacion.ideas.api.dto.CountResponseDTO;
+import com.facturacion.ideas.api.dto.LoginDTO;
 import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.DetailsAggrement;
-import com.facturacion.ideas.api.entities.Login;
-import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.services.IAgreementService;
-import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.ISenderService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
@@ -43,76 +43,66 @@ public class CountRestController implements ICountOperation {
 	private ISenderService senderService;
 
 	@Autowired
-	private ICodeDocumentService codeDocumentService;
-
-	@Autowired
 	private IAgreementService agreementService;
 
 	@Override
-	public ResponseEntity<?> save(Count count) {
+	public ResponseEntity<CountResponseDTO> save(CountNewDTO countNewDTO) {
 
-		LOGGER.info("Cuenta a guardar: " + count);
+		LOGGER.info("Cuenta a guardar: " + countNewDTO);
 
 		try {
+			CountResponseDTO countResponseDTO = senderService.saveCount(countNewDTO);
+			return ResponseEntity.ok(countResponseDTO);
 
-			Optional<Count> countOptional = senderService.findCountByRuc(count.getRuc());
-
-			if (countOptional.isEmpty()) {
-
-				Count countSave = senderService.saveCount(count);
-
-				return FunctionUtil.getResponseEntity(HttpStatus.CREATED, countSave);
-
-			} else
-				throw new DuplicatedResourceException("ruc: " + countOptional.get().getRuc()
-						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error al guardar cuenta: ", e);
-			throw new NotDataAccessException("Error guardar Count: " + e.getMessage());
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
 
 		}
 	}
 
 	@Override
-	public ResponseEntity<?> findById(Long id) {
+	public ResponseEntity<CountResponseDTO> findById(Long id) {
 
 		LOGGER.info("Id Cuenta a buscar: " + id);
 
 		try {
 
-			Optional<Count> countOptional = senderService.findCountById(id);
+			CountResponseDTO countResponseDTO = senderService.findCountsById(id);
+			return ResponseEntity.ok(countResponseDTO);
 
-			if (!countOptional.isEmpty()) {
-
-				Count countSave = countOptional.get();
-				// countSave.getSender();
-				return FunctionUtil.getResponseEntity(HttpStatus.OK, countSave);
-
-			} else
-				throw new NotFoundException("id: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error al buscar cuenta: ", e);
-			throw new NotDataAccessException("Error  buscar Count: " + e.getMessage());
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
 		}
 
 	}
 
 	@Override
-	public ResponseEntity<?> findAll() {
+	public ResponseEntity<CountResponseDTO> findByRuc(String ruc) {
+
+		LOGGER.info("ruc Cuenta a buscar: " + ruc);
+
 		try {
 
-			List<Count> counts = senderService.findCountAll();
+			CountResponseDTO countResponseDTO = senderService.findCountByRuc(ruc);
+			return ResponseEntity.ok(countResponseDTO);
 
-			return FunctionUtil.getResponseEntity(HttpStatus.OK, counts);
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public ResponseEntity<List<CountResponseDTO>> findAll() {
+		try {
+
+			List<CountResponseDTO> countResponseDTOs = senderService.findCountAll();
+
+			return ResponseEntity.ok(countResponseDTOs);
 
 		} catch (DataAccessException e) {
 
-			LOGGER.error("Error listar cuentas: ", e);
-			throw new NotDataAccessException("Error  listar cuentas: " + e.getMessage());
+			throw new NotDataAccessException(e.getMessage());
 		}
 	}
 
@@ -132,9 +122,10 @@ public class CountRestController implements ICountOperation {
 				countSave.setEstado(count.isEstado());
 				countSave.setPassword(count.getPassword());
 
-				countSave = senderService.saveCount(countSave);
+				// countSave = senderService.saveCount(countSave);
 
-				return FunctionUtil.getResponseEntity(HttpStatus.OK, countSave);
+				// return FunctionUtil.getResponseEntity(HttpStatus.OK, countSave);
+				return FunctionUtil.getResponseEntity(HttpStatus.OK, null);
 
 			} else
 
@@ -156,63 +147,32 @@ public class CountRestController implements ICountOperation {
 		LOGGER.info("Id Cuenta a eliminar: " + id);
 		try {
 
-			Optional<Count> countOptional = senderService.findCountById(id);
+			senderService.deleteCountById(id);
 
-			if (!countOptional.isEmpty()) {
+			return ResponseEntity.noContent().build();
 
-				Count countSave = countOptional.get();
+		} catch (NotDataAccessException e) {
 
-				senderService.deleteCountById(countSave.getIde());
-
-				// Eliminar los registros en la CodeDocument, que
-				// esten relacionados con la cuenta recientemente elimnada
-				codeDocumentService.deleteByIdCount(countSave.getIde());
-
-				return FunctionUtil.getResponseEntity(HttpStatus.NO_CONTENT,
-						countSave.getRuc() + " eliminado con exito");
-
-			} else
-
-				throw new NotFoundException("id: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error eliminar cuenta: ", e);
-
-			throw new NotDataAccessException("Error eliminar cuenta: " + e.getMessage());
+			throw new NotDataAccessException(e.getMessage());
 
 		}
 
 	}
 
 	@Override
-	public ResponseEntity<?> saveLogin(Long idCount) {
+	public ResponseEntity<LoginDTO> saveLogin(Long idCount) {
 
 		LOGGER.info("Id Cuenta de Login guardar: " + idCount);
 
 		try {
 
-			Optional<Count> count = senderService.findCountById(idCount);
+			LoginDTO loginDTO = senderService.saveLoginIn(idCount);
 
-			if (!count.isEmpty()) {
+			return ResponseEntity.ok(loginDTO);
 
-				Count countCurrent = count.get();
-				countCurrent.addLogin(new Login());
+		} catch (NotDataAccessException e) {
 
-				LOGGER.info("Cuenta de Login actual: " + countCurrent);
-
-				countCurrent = senderService.updateCount(countCurrent);
-
-				return FunctionUtil.getResponseEntity(HttpStatus.OK, countCurrent);
-
-			} else
-				throw new NotFoundException("id: " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error guardar registro Login: ", e);
-
-			throw new NotDataAccessException("Error guardar registro Login: " + e.getMessage());
+			throw new NotDataAccessException(e.getMessage());
 
 		}
 
@@ -254,6 +214,25 @@ public class CountRestController implements ICountOperation {
 
 			LOGGER.error("Error guardar registro contrato plan: ", e);
 			throw new NotDataAccessException("Error guardar contrato Plan: " + e.getMessage());
+
+		}
+
+	}
+
+	@Override
+	public ResponseEntity<List<LoginDTO>> findAllLogin(Long idCount) {
+
+		LOGGER.info("Id Cuenta de Login guardar: " + idCount);
+
+		try {
+
+			List<LoginDTO> loginDTOs = senderService.findAllLogin(idCount);
+
+			return ResponseEntity.ok(loginDTOs);
+
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
 
 		}
 

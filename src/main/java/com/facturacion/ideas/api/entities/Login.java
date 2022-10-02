@@ -5,9 +5,12 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
@@ -26,7 +29,12 @@ public class Login implements Serializable{
 	private Date dateLogIn;
 
 	@Column(name = "LOG_FEC_SAL")
-	private Date dateLogOut; 
+	private Date dateLogOut;
+	
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "LOG_FK_COD_CUE")
+	private Count count;
 	
 	public Login() {
 		super();
@@ -68,6 +76,15 @@ public class Login implements Serializable{
 	public void setDateLogOut(Date dateLogOut) {
 		this.dateLogOut = dateLogOut;
 	}
+	
+	
+	public Count getCount() {
+		return count;
+	}
+	public void setCount(Count count) {
+		this.count = count;
+	}
+	
 
 
 	@Override
