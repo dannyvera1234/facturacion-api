@@ -33,7 +33,7 @@ public class CountRestController implements ICountOperation {
 	private static final Logger LOGGER = LogManager.getLogger(CountRestController.class);
 
 	@Autowired
-	private ICountService senderService;
+	private ICountService countService;
 
 	@Override
 	public ResponseEntity<CountResponseDTO> save(CountNewDTO countNewDTO) {
@@ -41,7 +41,7 @@ public class CountRestController implements ICountOperation {
 		LOGGER.info("Cuenta a guardar: " + countNewDTO);
 
 		try {
-			CountResponseDTO countResponseDTO = senderService.saveCount(countNewDTO);
+			CountResponseDTO countResponseDTO = countService.saveCount(countNewDTO);
 			return ResponseEntity.ok(countResponseDTO);
 
 		} catch (NotDataAccessException e) {
@@ -57,7 +57,7 @@ public class CountRestController implements ICountOperation {
 
 		try {
 
-			CountResponseDTO countResponseDTO = senderService.findCountsById(id);
+			CountResponseDTO countResponseDTO = countService.findCountsById(id);
 			return ResponseEntity.ok(countResponseDTO);
 
 		} catch (NotDataAccessException e) {
@@ -73,7 +73,7 @@ public class CountRestController implements ICountOperation {
 
 		try {
 
-			CountResponseDTO countResponseDTO = senderService.findCountByRuc(ruc);
+			CountResponseDTO countResponseDTO = countService.findCountByRuc(ruc);
 			return ResponseEntity.ok(countResponseDTO);
 
 		} catch (NotDataAccessException e) {
@@ -86,7 +86,7 @@ public class CountRestController implements ICountOperation {
 	public ResponseEntity<List<CountResponseDTO>> findAll() {
 		try {
 
-			List<CountResponseDTO> countResponseDTOs = senderService.findCountAll();
+			List<CountResponseDTO> countResponseDTOs = countService.findCountAll();
 
 			return ResponseEntity.ok(countResponseDTOs);
 
@@ -103,7 +103,7 @@ public class CountRestController implements ICountOperation {
 
 		try {
 
-			CountResponseDTO countResponseDTO = senderService.updateCount(countNewDTO, id);
+			CountResponseDTO countResponseDTO = countService.updateCount(countNewDTO, id);
 
 			return ResponseEntity.ok(countResponseDTO);
 		} catch (NotDataAccessException e) {
@@ -120,7 +120,7 @@ public class CountRestController implements ICountOperation {
 		LOGGER.info("Id Cuenta a eliminar: " + id);
 		try {
 
-			senderService.deleteCountById(id);
+			countService.deleteCountById(id);
 
 			return ResponseEntity.noContent().build();
 
@@ -139,7 +139,7 @@ public class CountRestController implements ICountOperation {
 
 		try {
 
-			LoginDTO loginDTO = senderService.saveLoginIn(idCount);
+			LoginDTO loginDTO = countService.saveLoginIn(idCount);
 
 			return ResponseEntity.ok(loginDTO);
 
@@ -158,7 +158,7 @@ public class CountRestController implements ICountOperation {
 
 		try {
 
-			DetailsAgreementDTO detailsAgreementDTO = senderService.saveDetailsAgreementDTO(idCount, codigoPlan);
+			DetailsAgreementDTO detailsAgreementDTO = countService.saveDetailsAgreementDTO(idCount, codigoPlan);
 
 			return ResponseEntity.ok(detailsAgreementDTO);
 
@@ -176,7 +176,7 @@ public class CountRestController implements ICountOperation {
 
 		try {
 
-			List<LoginDTO> loginDTOs = senderService.findAllLogin(idCount);
+			List<LoginDTO> loginDTOs = countService.findAllLogin(idCount);
 
 			return ResponseEntity.ok(loginDTOs);
 
