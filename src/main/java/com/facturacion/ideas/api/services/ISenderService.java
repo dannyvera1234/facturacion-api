@@ -1,20 +1,20 @@
 package com.facturacion.ideas.api.services;
 
-import java.util.Optional;
+import java.util.List;
 
 import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.dto.SenderResponseDTO;
 
 public interface ISenderService {
 
-	SenderResponseDTO save(SenderNewDTO senderNewDTO);
+	SenderResponseDTO save(SenderNewDTO senderNewDTO, Long idCount);
+
+	SenderResponseDTO update(SenderNewDTO senderNewDTO, Long idSender);
 
 	SenderResponseDTO findByRuc(String ruc);
 
 	SenderResponseDTO findById(Long id);
 
-	Optional<Boolean> senderIsExiste(String ruc);
-	
-	
-	
+	List<SenderResponseDTO> findAll();
+
 }

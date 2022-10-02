@@ -1,7 +1,6 @@
 package com.facturacion.ideas.api.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +18,6 @@ import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.DetailsAggrement;
 import com.facturacion.ideas.api.entities.Login;
-import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
@@ -30,7 +28,6 @@ import com.facturacion.ideas.api.repositories.ICodeDocumentRepository;
 import com.facturacion.ideas.api.repositories.ICountRepository;
 import com.facturacion.ideas.api.repositories.IDetailsAgreementRepository;
 import com.facturacion.ideas.api.repositories.ILoginRepository;
-import com.facturacion.ideas.api.repositories.ISenderRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 @Service
@@ -42,10 +39,7 @@ public class CountServiceImpl implements ICountService {
 
 	@Autowired
 	private ILoginRepository loginRepository;
-
-	@Autowired
-	private ISenderRepository senderRepository;
-
+	
 	@Autowired
 	private ICodeDocumentRepository codeDocumentRepository;
 
@@ -210,41 +204,6 @@ public class CountServiceImpl implements ICountService {
 
 		}
 
-	}
-
-	@Override
-	@Transactional
-	public Sender saveSender(Sender sender) {
-
-		return senderRepository.save(sender);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public Optional<Sender> findSenderByRuc(String ruc) {
-		// TODO Auto-generated method stub
-		return Optional.empty();
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public Optional<Sender> findSenderById(Long id) {
-
-		return senderRepository.findById(id);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<Sender> findSenderAll() {
-
-		return senderRepository.findAll();
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public Optional<Boolean> senderIsExiste(String ruc) {
-
-		return senderRepository.senderIsExist(ruc);
 	}
 
 	@Override

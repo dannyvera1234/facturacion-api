@@ -33,6 +33,8 @@ public class SenderMapperImpl implements ISenderMapper {
 		sender.setRimpe(senderNewDTO.isRimpe());
 
 		sender.setTypeEmission(senderNewDTO.getTypeEmission());
+		
+		sender.setTypeSender( senderNewDTO.getTypeSender());
 
 		sender.setTypeEnvironment(senderNewDTO.getTypeEnvironment());
 
@@ -50,6 +52,7 @@ public class SenderMapperImpl implements ISenderMapper {
 		senderResponseDTO.setFullNameSocialReason(sender.getSocialReason() + " " + sender.getCommercialName());
 		senderResponseDTO.setRuc(sender.getRuc());
 		senderResponseDTO.setMatrixAddress(sender.getMatrixAddress());
+		senderResponseDTO.setAccountancy(sender.getAccountancy().name());
 		senderResponseDTO.setRimpe(sender.isRimpe());
 
 		senderResponseDTO.setProvince(
@@ -65,7 +68,7 @@ public class SenderMapperImpl implements ISenderMapper {
 
 		List<SenderResponseDTO> senderResponseDTOs = new ArrayList<>();
 
-		if (senderResponseDTOs.size() > 0) {
+		if (senders.size() > 0) {
 
 			senderResponseDTOs = senders.stream().map(item -> mapperToDTO(item)).collect(Collectors.toList());
 		}

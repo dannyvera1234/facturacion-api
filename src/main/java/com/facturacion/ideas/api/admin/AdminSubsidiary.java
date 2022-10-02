@@ -2,6 +2,7 @@ package com.facturacion.ideas.api.admin;
 
 import java.util.Date;
 
+import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.util.ConstanteUtil;
@@ -17,7 +18,7 @@ public class AdminSubsidiary {
 	 * @param numberNext
 	 * @return : Un objeto {@link Subsidiary}
 	 */
-	public static Subsidiary create(Sender sender, Long idCount, Integer numberNext) {
+	public static Subsidiary create(SenderNewDTO sender, Integer numberNext) {
 
 		Subsidiary subsidiary = new Subsidiary();
 

@@ -55,7 +55,8 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 
 		try {
 
-			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			// Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			Optional<Sender> senderOptional = null;
 
 			if (!senderOptional.isEmpty()) {
 
@@ -97,7 +98,8 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 		LOGGER.info("Id  Emisor: " + idSender);
 
 		try {
-			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			// Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			Optional<Sender> senderOptional = null;
 
 			if (!senderOptional.isEmpty()) {
 
@@ -126,7 +128,8 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 		LOGGER.info("Id  Emisor: " + idSender);
 
 		try {
-			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			// Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			Optional<Sender> senderOptional = null;
 
 			if (!senderOptional.isEmpty()) {
 
@@ -162,7 +165,8 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 		LOGGER.info("Id  Emisor: " + idSender);
 
 		try {
-			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			// Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			Optional<Sender> senderOptional = null;
 
 			if (!senderOptional.isEmpty()) {
 
@@ -202,7 +206,9 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 		LOGGER.info("Id  Emisor: " + idSender);
 
 		try {
-			Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+			// Optional<Sender> senderOptional = senderService.findSenderById(idSender);
+
+			Optional<Sender> senderOptional = null;
 
 			if (!senderOptional.isEmpty()) {
 

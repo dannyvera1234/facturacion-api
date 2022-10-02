@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.admin;
 
+import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.enums.ProvinceEnum;
@@ -23,51 +24,52 @@ public class AdminSender {
 	}
 
 	/**
-	 * Actualiza un Sender : si el nuevo valor de un campo es null, no se realizara ningun 
-	 * cambio en dicho campo
+	 * Actualiza un Sender : si el nuevo valor de un campo es null, no se realizara
+	 * ningun cambio en dicho campo
+	 * 
 	 * @param senderCurrent : El Sender actual consultado desde la Bd
-	 * @param senderNewData : Los nuevos datos a actualizar
+	 * @param senderNewDTO  : Los nuevos datos a actualizar
 	 */
-	public static void update(Sender senderCurrent, Sender senderNewData) {
+	public static void update(Sender senderCurrent, SenderNewDTO senderNewDTO) {
 
 		// Setear nuevos valores
-		senderCurrent.setSocialReason(senderNewData.getSocialReason() == null ? senderCurrent.getSocialReason()
-				: senderNewData.getSocialReason());
+		senderCurrent.setSocialReason(senderNewDTO.getSocialReason() == null ? senderCurrent.getSocialReason()
+				: senderNewDTO.getSocialReason());
 
-		senderCurrent.setCommercialName(senderNewData.getCommercialName() == null ? senderCurrent.getCommercialName() :
+		senderCurrent.setCommercialName(senderNewDTO.getCommercialName() == null ? senderCurrent.getCommercialName() :
 
-				senderNewData.getCommercialName());
-		senderCurrent.setLogo(senderNewData.getLogo() == null ? senderCurrent.getLogo() : senderNewData.getLogo());
+				senderNewDTO.getCommercialName());
+		senderCurrent.setLogo(senderNewDTO.getLogo() == null ? senderCurrent.getLogo() : senderNewDTO.getLogo());
 		senderCurrent.setProvince(
 
-				senderNewData.getProvince() == null ? ProvinceEnum.getProvinceEnum(senderCurrent.getProvince())
-						: ProvinceEnum.getProvinceEnum(senderNewData.getProvince()));
+				senderNewDTO.getProvince() == null ? ProvinceEnum.getProvinceEnum(senderCurrent.getProvince())
+						: senderNewDTO.getProvince());
+
 		senderCurrent.setTypeEnvironment(
 
-				senderNewData.getTypeEnvironment() == null
+				senderNewDTO.getTypeEnvironment() == null
 						? TypeEnvironmentEnum.getTypeEnvironmentEnum(senderCurrent.getTypeEnvironment())
-						:
+						: senderNewDTO.getTypeEnvironment());
 
-						TypeEnvironmentEnum.getTypeEnvironmentEnum(senderNewData.getTypeEnvironment()));
-		senderCurrent.setMatrixAddress(senderNewData.getMatrixAddress() == null ? senderCurrent.getMatrixAddress()
-				: senderNewData.getMatrixAddress());
+		senderCurrent.setMatrixAddress(senderNewDTO.getMatrixAddress() == null ? senderCurrent.getMatrixAddress()
+				: senderNewDTO.getMatrixAddress());
 
 		senderCurrent.setSpecialContributor(
 
-				senderNewData.getSpecialContributor() == null ? senderCurrent.getSpecialContributor()
-						: senderNewData.getSpecialContributor());
+				senderNewDTO.getSpecialContributor() == null ? senderCurrent.getSpecialContributor()
+						: senderNewDTO.getSpecialContributor());
 
 		senderCurrent.setTypeEmission(
 
-				senderNewData.getTypeEmission() == null
+				senderNewDTO.getTypeEmission() == null
 						? TypeEmissionEnum.getTypeEmissionEnum(senderCurrent.getTypeEmission())
-						: TypeEmissionEnum.getTypeEmissionEnum(senderNewData.getTypeEmission()));
+						: senderNewDTO.getTypeEmission());
 
 		senderCurrent.setTypeSender(
-				senderNewData.getTypeSender() == null ? senderCurrent.getTypeSender() : senderNewData.getTypeSender());
+				senderNewDTO.getTypeSender() == null ? senderCurrent.getTypeSender() : senderNewDTO.getTypeSender());
 
-		senderCurrent.setAccountancy(senderNewData.getAccountancy() == null ? senderCurrent.getAccountancy()
-				: senderNewData.getAccountancy());
+		senderCurrent.setAccountancy(
+				senderNewDTO.getAccountancy() == null ? senderCurrent.getAccountancy() : senderNewDTO.getAccountancy());
 
 	}
 }
