@@ -1,5 +1,7 @@
 package com.facturacion.ideas.api.controller.operation;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.facturacion.ideas.api.controllers.AgreementRestController;
+import com.facturacion.ideas.api.dto.AgreementDTO;
 import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.util.FunctionUtil;
 /**
@@ -28,7 +31,7 @@ public interface IAgreementOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@PostMapping
-	public ResponseEntity<?> save(@RequestBody Agreement agreement);
+	public ResponseEntity<AgreementDTO> save(@RequestBody AgreementDTO agreementDTO);
 
 	/**
 	 * Recupera todas los {@link Agreement } regisradas en Base de Datos <br>
@@ -36,7 +39,7 @@ public interface IAgreementOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@GetMapping
-	public ResponseEntity<?> findAll();
+	public ResponseEntity<List<AgreementDTO>> findAll();
 
 	/**
 	 * Busca una {@link Agreement} a traves de su codigo <br>
@@ -45,7 +48,7 @@ public interface IAgreementOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@GetMapping("/{codigo}")
-	public ResponseEntity<?> findById(@PathVariable(required = false) String codigo);
+	public ResponseEntity<AgreementDTO> findById(@PathVariable(required = false) String codigo);
 
 	/**
 	 * Elimina {@link Agreement} a traves de su codigo <br>
@@ -64,5 +67,5 @@ public interface IAgreementOperation {
 	 * @return  {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@PutMapping("/{codigo}")
-	public ResponseEntity<?> update(@RequestBody Agreement agreement, @PathVariable(required = false) String codigo);
+	public ResponseEntity<AgreementDTO> update(@RequestBody AgreementDTO agreementDTO, @PathVariable(required = false) String codigo);
 }

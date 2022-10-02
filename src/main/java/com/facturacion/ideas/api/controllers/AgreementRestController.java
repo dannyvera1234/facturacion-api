@@ -1,25 +1,19 @@
 package com.facturacion.ideas.api.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.controller.operation.IAgreementOperation;
+import com.facturacion.ideas.api.dto.AgreementDTO;
 import com.facturacion.ideas.api.entities.Agreement;
-import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
-import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.services.IAgreementService;
-import com.facturacion.ideas.api.util.ConstanteUtil;
-import com.facturacion.ideas.api.util.FunctionUtil;
 
 /**
  * RestController que expone servicios web para las entidades {@link Agreement}
@@ -37,138 +31,87 @@ public class AgreementRestController implements IAgreementOperation {
 	private IAgreementService agreementService;
 
 	@Override
-	public ResponseEntity<?> save(Agreement agreement) {
+	public ResponseEntity<AgreementDTO> save(AgreementDTO agreementDTO) {
 
-		LOGGER.info("Plan a guardar " + agreement);
+		LOGGER.info("Plan a guardar " + agreementDTO);
 
 		try {
 
-			Optional<Agreement> aggreementOptional = agreementService.findById(agreement.getCodigo());
+			AgreementDTO agreementSaved = agreementService.save(agreementDTO);
 
-			if (aggreementOptional.isEmpty()) {
+			return ResponseEntity.ok(agreementSaved);
 
-				Agreement agreementSave = agreementService.save(agreement);
+		} catch (NotDataAccessException e) {
 
-				return FunctionUtil.getResponseEntity(HttpStatus.OK, agreementSave);
-
-			} else {
-
-				throw new DuplicatedResourceException("Id: " + aggreementOptional.get().getCodigo()
-						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
-			}
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error guardar Plan: ", e);
-
-			throw new NotDataAccessException("Error guardar el Plan: " + e.getMessage());
+			throw new NotDataAccessException(e.getMessage());
 		}
 
 	}
 
 	@Override
-	public ResponseEntity<?> findAll() {
+	public ResponseEntity<List<AgreementDTO>> findAll() {
 
 		try {
 
-			List<Agreement> listAgreement = agreementService.listAll();
+			List<AgreementDTO> listAgreement = agreementService.listAll();
 
-			return FunctionUtil.getResponseEntity(HttpStatus.OK, listAgreement);
+			return ResponseEntity.ok(listAgreement);
 
-		} catch (DataAccessException e) {
+		} catch (NotDataAccessException e) {
 
-			LOGGER.error("Error listar Planes: ", e);
-
-			throw new NotDataAccessException("Error istar Planes: " + e.getMessage());
+			throw new NotDataAccessException(e.getMessage());
 
 		}
 
 	}
 
 	@Override
-	public ResponseEntity<?> findById(String codigo) {
+	public ResponseEntity<AgreementDTO> findById(String codigo) {
 
 		LOGGER.info("Id Plan a buscar: " + codigo);
 
 		try {
 
-			Optional<Agreement> aggreementOptional = agreementService.findById(codigo);
+			AgreementDTO agreementDTO = agreementService.findById(codigo);
 
-			if (!aggreementOptional.isEmpty()) {
+			return ResponseEntity.ok(agreementDTO);
+		} catch (NotDataAccessException e) {
 
-				Agreement agreementSave = aggreementOptional.get();
-
-				return FunctionUtil.getResponseEntity(HttpStatus.OK, agreementSave);
-
-			} else
-
-				throw new NotFoundException("codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error buscar Plan: ", e);
-
-			throw new NotDataAccessException("Error buscar Plan: " + e.getMessage());
+			throw new NotDataAccessException(e.getMessage());
 
 		}
 
 	}
 
 	@Override
-	public ResponseEntity<?> deleteById(String codigo) {
+	public ResponseEntity<String> deleteById(String codigo) {
 
 		LOGGER.info("Id Plan a eliminar: " + codigo);
 
 		try {
 
-			Optional<Agreement> aggreementOptional = agreementService.findById(codigo);
+			agreementService.deleteById(codigo);
+			return ResponseEntity.noContent().build();
 
-			if (!aggreementOptional.isEmpty()) {
-
-				Agreement agreementDelete = aggreementOptional.get();
-
-				agreementService.deleteById(agreementDelete.getCodigo());
-
-				// NO_CONTENT, NO retornara nada en la respuesta así se le pase algo
-				return FunctionUtil.getResponseEntity(HttpStatus.NO_CONTENT, String
-						.format("Plan %s fue eliminado con exito", agreementDelete.getTypeAgreement().toString()));
-
-			} else
-
-				throw new NotFoundException("codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error eliminar Plan: ", e);
-			throw new NotDataAccessException("Error eliminar Plan: " + e.getMessage());
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
 
 		}
 
 	}
 
 	@Override
-	public ResponseEntity<?> update(Agreement agreement, String codigo) {
+	public ResponseEntity<AgreementDTO> update(AgreementDTO agreementDTO, String codigo) {
 
-		LOGGER.info("Plan a actualizar " + agreement);
+		LOGGER.info("Plan a actualizar " + agreementDTO);
 		try {
 
-			Optional<Agreement> agreementOptional = agreementService.findById(codigo);
+			AgreementDTO agreementDTOUpdate = agreementService.update(agreementDTO, codigo);
 
-			if (!agreementOptional.isEmpty()) {
+			return ResponseEntity.ok(agreementDTOUpdate);
 
-				Agreement agreementCurrent = agreementOptional.get();
-				agreementCurrent.setValue(agreement.getValue());
-
-				agreementCurrent = agreementService.save(agreementCurrent);
-
-				return FunctionUtil.getResponseEntity(HttpStatus.OK, agreementCurrent);
-
-			} else
-				throw new NotFoundException("codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-			LOGGER.error("Error actualizar Plan: ", e);
-			throw new NotDataAccessException("Error actualizar Plan: " + e.getMessage());
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
 
 		}
 	}

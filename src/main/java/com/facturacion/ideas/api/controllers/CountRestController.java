@@ -182,7 +182,8 @@ public class CountRestController implements ICountOperation {
 	public ResponseEntity<?> saveDetailsAggrement(Long idCount, String codigoPlan) {
 
 		LOGGER.info("Id cuenta " + idCount + " Id Plan : " + codigoPlan);
-		try {
+		
+		/*try {
 
 			Optional<Count> count = senderService.findCountById(idCount);
 
@@ -215,8 +216,9 @@ public class CountRestController implements ICountOperation {
 			LOGGER.error("Error guardar registro contrato plan: ", e);
 			throw new NotDataAccessException("Error guardar contrato Plan: " + e.getMessage());
 
-		}
+		}*/
 
+		return FunctionUtil.getResponseEntity(HttpStatus.OK,"");
 	}
 
 	@Override

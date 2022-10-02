@@ -1,47 +1,126 @@
 package com.facturacion.ideas.api.services;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.facturacion.ideas.api.dto.AgreementDTO;
 import com.facturacion.ideas.api.entities.Agreement;
+import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
+import com.facturacion.ideas.api.exeption.NotDataAccessException;
+import com.facturacion.ideas.api.exeption.NotFoundException;
+import com.facturacion.ideas.api.mapper.IAgreementMapper;
 import com.facturacion.ideas.api.repositories.IAgreementRepository;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 
 @Service
 public class AgreementServiceImpl implements IAgreementService {
 
+	private static final Logger LOGGER = LogManager.getLogger(AgreementServiceImpl.class);
+
 	@Autowired
 	private IAgreementRepository agreementRepository;
 
-	@Transactional
-	@Override
-	public Agreement save(Agreement agreement) {
+	@Autowired
+	private IAgreementMapper agreementMapper;
 
-		return agreementRepository.save(agreement);
+	@Override
+	@Transactional
+	public AgreementDTO save(AgreementDTO agreementDTO) {
+
+		try {
+			Agreement agreementSear = agreementRepository.findById(agreementDTO.getCodigo()).orElse(null);
+
+			if (agreementSear != null) {
+
+				throw new DuplicatedResourceException("codigo : " + agreementSear.getCodigo()
+						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+			}
+
+			Agreement agreementSaved = agreementMapper.mapperToEntity(agreementDTO);
+
+			agreementSaved = agreementRepository.save(agreementSaved);
+
+			return agreementMapper.mapperToDTO(agreementSaved);
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error guardar plan ", e);
+			throw new NotDataAccessException("Errror guardar plan: " + e.getMessage());
+		}
+
 	}
 
-	@Transactional
 	@Override
+	@Transactional(readOnly = true)
+	public List<AgreementDTO> listAll() {
+
+		try {
+
+			List<Agreement> agreementDTOs = agreementRepository.findAll();
+	
+			return agreementMapper.mapperToDTO(agreementDTOs);
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error listar planes ", e);
+			throw new NotDataAccessException("Errror listar planes: " + e.getMessage());
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public AgreementDTO findById(String codigo) {
+
+		try {
+			Agreement agreement = agreementRepository.findById(codigo).orElseThrow(() -> new NotFoundException(
+					"codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			return agreementMapper.mapperToDTO(agreement);
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error buscar plan id ", e);
+			throw new NotDataAccessException("Errror buscar plan id: " + e.getMessage());
+		}
+
+	}
+
+	@Override
+	@Transactional
 	public void deleteById(String codigo) {
 
-		agreementRepository.deleteById(codigo);
+		try {
+			Agreement agreement = agreementRepository.findById(codigo).orElseThrow(() -> new NotFoundException(
+					"codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			agreementRepository.deleteById(agreement.getCodigo());
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error eiminar plan ", e);
+			throw new NotDataAccessException("Errror eliminar plan id: " + e.getMessage());
+		}
+
 	}
 
-	@Transactional(readOnly = true)
 	@Override
-	public List<Agreement> listAll() {
+	public AgreementDTO update(AgreementDTO agreementDTO, String codigo) {
+		try {
+			Agreement agreement = agreementRepository.findById(codigo).orElseThrow(() -> new NotFoundException(
+					"codigo: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-		return agreementRepository.findAll();
-	}
+			agreement.setValue(agreementDTO.getValue());
 
-	@Transactional(readOnly = true)
-	@Override
-	public Optional<Agreement> findById(String codigo) {
+			Agreement agreementSaved = agreementRepository.save(agreement);
 
-		return agreementRepository.findById(codigo);
+			return agreementMapper.mapperToDTO(agreementSaved);
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error actualizar plan ", e);
+			throw new NotDataAccessException("Errror actualizar plan: " + e.getMessage());
+		}
 	}
 
 }

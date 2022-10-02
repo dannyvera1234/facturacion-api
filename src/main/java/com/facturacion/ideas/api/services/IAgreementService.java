@@ -1,17 +1,17 @@
 package com.facturacion.ideas.api.services;
 
 import java.util.List;
-import java.util.Optional;
-
-import com.facturacion.ideas.api.entities.Agreement;
+import com.facturacion.ideas.api.dto.AgreementDTO;
 
 public interface IAgreementService {
 
-	Agreement save(Agreement agreement);
+	AgreementDTO save(AgreementDTO agreementDTO);
+	
+	AgreementDTO update(AgreementDTO agreementDTO, String ide);
 	
 	void deleteById(String codigo);
 	
-	List<Agreement> listAll();
+	List<AgreementDTO> listAll();
 	
-	Optional<Agreement> findById(String codigo);
+	AgreementDTO findById(String codigo);
 }
