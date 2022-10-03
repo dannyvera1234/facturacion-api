@@ -1,21 +1,21 @@
 package com.facturacion.ideas.api.services;
 
 import java.util.List;
-import java.util.Optional;
-
-import com.facturacion.ideas.api.entities.Sender;
-import com.facturacion.ideas.api.entities.Subsidiary;
+import com.facturacion.ideas.api.dto.SubsidiaryNewDTO;
+import com.facturacion.ideas.api.dto.SubsidiaryResponseDTO;
 
 public interface ISubsidiaryService {
 
-	Subsidiary save(Subsidiary subsidiary);
+	SubsidiaryResponseDTO save(SubsidiaryNewDTO subsidiaryNewDTO, Long idSender);
+	
+	SubsidiaryResponseDTO  update(SubsidiaryNewDTO subsidiaryNewDTO, Long id);
 
 	void deleteById(Long ide);
 
-	List<Subsidiary> listAll();
-
-	Optional<Subsidiary> findById(Long ide);
+	List<SubsidiaryResponseDTO> findAll(Long idSender);
 	
-	Optional<Subsidiary> findByIdAndSender(Long ide, Sender sender);
+	SubsidiaryResponseDTO findById(Long ide);
+	
+	List<SubsidiaryResponseDTO> findByCodeAndSender(String code, Long idSender);
 
 }

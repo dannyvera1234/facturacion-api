@@ -53,7 +53,9 @@ public class EmissionPointController implements IEmissionPointOperation {
 
 		try {
 
-			Optional<Subsidiary> subsidiaryOptional = subsidiaryService.findById(codigo);
+			// Optional<Subsidiary> subsidiaryOptional = subsidiaryService.findById(codigo);
+
+			Optional<Subsidiary> subsidiaryOptional = null;
 
 			if (!subsidiaryOptional.isEmpty()) {
 

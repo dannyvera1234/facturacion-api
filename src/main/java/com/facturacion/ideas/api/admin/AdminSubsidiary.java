@@ -1,18 +1,22 @@
 package com.facturacion.ideas.api.admin;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import com.facturacion.ideas.api.dto.SenderNewDTO;
+import com.facturacion.ideas.api.dto.SubsidiaryNewDTO;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.util.ConstanteUtil;
+import com.facturacion.ideas.api.util.FunctionUtil;
 
 public class AdminSubsidiary {
 
 	/**
-	 * Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento, automaticamente
-	 * se creará el primer punto de emisión para este Establecimiento. Este metodo es llamado
-	 * solo cuando se crea un nuevo Sender
+	 * Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento,
+	 * automaticamente se creará el primer punto de emisión para este
+	 * Establecimiento. Este metodo es llamado solo cuando se crea un nuevo Sender
+	 * 
 	 * @param sender
 	 * @param idCount
 	 * @param numberNext
@@ -30,45 +34,41 @@ public class AdminSubsidiary {
 		subsidiary.setPrincipal(numberNext == 1);
 		subsidiary.setStatus(true);
 		subsidiary.setSocialReason(sender.getSocialReason());
-		
-		
-		// Crear el primer Punto de emision	y agregar al establecimiento recien creado
-		// Pasamos Null para que valide como el primer punto de emision de este establecimiento
+
+		// Crear el primer Punto de emision y agregar al establecimiento recien creado
+		// Pasamos Null para que valide como el primer punto de emision de este
+		// establecimiento
 		subsidiary.addEmissionPoint(AdminEmissionPoint.create(null, sender.getRuc()));
 		return subsidiary;
 	}
-	
+
 	/**
-	 *  Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento, automaticamente
-	 * se creará el primer punto de emisión para este Establecimiento. <br>
-	 * Este metodo es llamado para agregar  un nuevo establecimineto a un Sender que ya esta registrado en la Base de Datos
-	 * @param subsidiary
+	 * Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento,
+	 * automaticamente se creará el primer punto de emisión para este
+	 * Establecimiento. <br>
+	 * Este metodo es llamado para agregar un nuevo establecimineto a un Sender que
+	 * ya esta registrado en la Base de Datos
+	 * 
+	 * @param subsidiaryNewDTO
 	 * @param sender
 	 * @param idCount
 	 * @param numberNext
 	 */
-	public static void createOther(Subsidiary subsidiary, Sender sender, Long idCount, Integer numberNext) {
-
+	public static void createOther(SubsidiaryNewDTO subsidiaryNewDTO, Sender sender, Integer numberNext) {
+		
 		String codSubsidiary = getCodSubsidiary(numberNext);
 
-		subsidiary.setCode(codSubsidiary);
+		subsidiaryNewDTO.setCode(codSubsidiary);
+
+		// La direccion de cada establecimiento sera pro defecto la del establecmiento
+		// principal
+		subsidiaryNewDTO.setAddress(subsidiaryNewDTO.getAddress() == null ? sender.getMatrixAddress() : subsidiaryNewDTO.getAddress());
+
+		subsidiaryNewDTO.setDateCreate(  FunctionUtil.convertDateToString( Calendar.getInstance().getTime()) );
+		subsidiaryNewDTO.setPrincipal(false);
+		subsidiaryNewDTO.setStatus(true);
+		subsidiaryNewDTO.setSocialReason(sender.getSocialReason());
 		
-		// La direccion de cada establecimiento sera pro defecto la del establecmiento principal 
-		subsidiary.setAddress(subsidiary.getAddress() ==null? sender.getMatrixAddress() :
-				subsidiary.getAddress());
-		
-		subsidiary.setDateCreate(new Date());
-		subsidiary.setPrincipal(false);
-		subsidiary.setStatus(true);
-		subsidiary.setSocialReason(sender.getSocialReason());
-		
-		// Agregar al establecmiento el Emisor
-		subsidiary.setSender(sender);
-		
-		
-		// Crear el primer Punto de emision	y agregar al establecimiento recien creado
-		// Pasamos Null para que valide como el primer punto de emiion de este establecimiento
-		subsidiary.addEmissionPoint(AdminEmissionPoint.create(null, sender.getRuc()));
 	}
 
 	/**

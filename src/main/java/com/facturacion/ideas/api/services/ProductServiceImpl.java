@@ -145,9 +145,13 @@ public class ProductServiceImpl implements IProductService {
 
 		try {
 
-			Subsidiary subsidiary = subsidiaryService.findById(ide).orElseThrow(
-					() -> new NotFoundException("Id: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+			/*
+			 * Subsidiary subsidiary = subsidiaryService.findById(ide).orElseThrow( () ->
+			 * new NotFoundException("Id: " + ide +
+			 * ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+			 */
 
+			Subsidiary subsidiary = null;
 			return subsidiary;
 
 		} catch (DataAccessException e) {
@@ -198,11 +202,10 @@ public class ProductServiceImpl implements IProductService {
 	@Override
 	public ProductInformationDTO findProductInforById(Long idProducto, Long ide) {
 
-		
 		try {
 
 			ProductInformation productInformation = productInformationRepository.findByIdProductoAndBy(idProducto, ide)
-					.orElseThrow( () ->  new NotFoundException("idProducto: " + idProducto + " ó idDetailsProduto :" + ide
+					.orElseThrow(() -> new NotFoundException("idProducto: " + idProducto + " ó idDetailsProduto :" + ide
 							+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
 			return productMapper.mapperProInformationToDTO(productInformation);
