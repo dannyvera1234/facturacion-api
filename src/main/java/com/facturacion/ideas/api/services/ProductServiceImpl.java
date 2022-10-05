@@ -22,6 +22,7 @@ import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IProductMapper;
 import com.facturacion.ideas.api.repositories.IProductInformationRepository;
 import com.facturacion.ideas.api.repositories.IProductRepository;
+import com.facturacion.ideas.api.repositories.ISubsidiaryRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 @Service
@@ -32,7 +33,7 @@ public class ProductServiceImpl implements IProductService {
 	private IProductRepository productRepository;
 
 	@Autowired
-	private ISubsidiaryService subsidiaryService;
+	private ISubsidiaryRepository subsidiaryRepository;
 
 	@Autowired
 	private IProductMapper productMapper;
@@ -145,13 +146,9 @@ public class ProductServiceImpl implements IProductService {
 
 		try {
 
-			/*
-			 * Subsidiary subsidiary = subsidiaryService.findById(ide).orElseThrow( () ->
-			 * new NotFoundException("Id: " + ide +
-			 * ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-			 */
+			Subsidiary subsidiary = subsidiaryRepository.findById(ide).orElseThrow(
+					() -> new NotFoundException("Id: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			Subsidiary subsidiary = null;
 			return subsidiary;
 
 		} catch (DataAccessException e) {
@@ -241,9 +238,29 @@ public class ProductServiceImpl implements IProductService {
 	}
 
 	@Override
-	public ProductInformationDTO updateProductInfo(Long ide) {
+	public ProductInformationDTO updateProductInfo(ProductInformationDTO productInformationDTO, Long ide) {
 
-		return null;
+		try {
+
+			ProductInformation productInformation = productInformationRepository.findById(ide)
+					.orElseThrow(() -> new NotFoundException(""));
+
+			productInformation
+					.setAttribute(productInformationDTO.getAttribute() == null ? productInformation.getAttribute()
+							: productInformationDTO.getAttribute());
+
+			productInformation.setValue(productInformationDTO.getValue() == null ? productInformation.getValue()
+					: productInformationDTO.getValue());
+
+			ProductInformation productInformationUpdated = productInformationRepository.save(productInformation);
+
+			return productMapper.mapperProInformationToDTO(productInformationUpdated);
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error actualizar  detalle producto", e);
+			throw new NotDataAccessException("Error actualizar detalle producto: " + e.getMessage());
+		}
+
 	}
 
 	@Override

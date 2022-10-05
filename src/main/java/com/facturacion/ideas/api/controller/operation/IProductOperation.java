@@ -45,6 +45,9 @@ public interface IProductOperation {
 	@DeleteMapping("/products/{id}/additional-details/{id-details}")
 	public ResponseEntity<String> deleteProductInformation(@PathVariable Long id , @PathVariable(name = "id-details") Long idDetails);
 
+	@PutMapping("/additional-details/{id}")
+	public ResponseEntity<ProductInformationDTO> updateProInformation(@RequestBody ProductInformationDTO productInformationDTO, @PathVariable Long id);
+	
 	
 	
 }

@@ -27,6 +27,6 @@ public interface IProductService {
 
 	String deleteProductInfoAllById(Long idProducto);
 
-	ProductInformationDTO updateProductInfo(Long ide);
+	ProductInformationDTO updateProductInfo(ProductInformationDTO productInformationDTO, Long ide);
 
 }

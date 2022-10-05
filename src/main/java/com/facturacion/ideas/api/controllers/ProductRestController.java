@@ -151,4 +151,20 @@ public class ProductRestController implements IProductOperation {
 		}
 	}
 
+	@Override
+	public ResponseEntity<ProductInformationDTO> updateProInformation(ProductInformationDTO productInformationDTO,
+			Long id) {
+
+		try {
+
+			ProductInformationDTO productInformationDTOUpdate = productService.updateProductInfo(productInformationDTO,
+					id);
+
+			return ResponseEntity.ok(productInformationDTOUpdate);
+
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+
 }
