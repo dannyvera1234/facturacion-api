@@ -11,8 +11,6 @@ public enum TypeTaxEnum {
 	ISD("6", "Impuesta a la Salida de Divisas");
 
 	private String description;
-
-	@JsonValue
 	private String code;
 
 	private TypeTaxEnum(String code, String description) {
@@ -24,6 +22,7 @@ public enum TypeTaxEnum {
 		return description;
 	}
 
+	@JsonValue
 	public String getCode() {
 		return code;
 	}

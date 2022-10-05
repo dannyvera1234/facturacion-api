@@ -66,6 +66,9 @@ public class Product implements Serializable {
 	@JoinColumn(name = "INF_FK_COD_PRO")
 	private List<ProductInformation> productInformations;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "product")
+	private List<TaxProduct> taxProducts;
+
 	public Product() {
 		super();
 		initData();
@@ -95,6 +98,7 @@ public class Product implements Serializable {
 	private void initData() {
 
 		productInformations = new ArrayList<>();
+		taxProducts = new ArrayList<>();
 	}
 
 	public Long getIde() {
@@ -185,17 +189,24 @@ public class Product implements Serializable {
 		return dateCreate;
 	}
 
-	
 	public void setProductInformations(List<ProductInformation> productInformations) {
 		this.productInformations = productInformations;
 	}
-	
+
 	public List<ProductInformation> getProductInformations() {
 		return productInformations;
 	}
 
 	public void addProductoInformation(ProductInformation productInformation) {
 		this.productInformations.add(productInformation);
+	}
+
+	public List<TaxProduct> getTaxProducts() {
+		return taxProducts;
+	}
+
+	public void addTaxProduct(TaxProduct taxProduct) {
+		this.taxProducts.add(taxProduct);
 	}
 
 	@Override

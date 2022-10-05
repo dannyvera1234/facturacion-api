@@ -5,9 +5,12 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -44,6 +47,10 @@ public class TaxValue implements Serializable {
 
 	@Column(name="IMV_MAR_POR_LIB")
 	private String porcentageMarkFree;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name="IMV_FK_COD_IMP")
+	private Tax tax;
 
 	public TaxValue(Long ide, String code, double porcentage, double retentionPorcentage, String typeTax,
 			String description, Date srtartDate, Date endDate, String porcentageMarkFree) {
@@ -131,6 +138,21 @@ public class TaxValue implements Serializable {
 		this.porcentageMarkFree = porcentageMarkFree;
 	}
 	
+	public void setTax(Tax tax) {
+		this.tax = tax;
+	}
+	
+	public Tax getTax() {
+		return tax;
+	}
+
+	@Override
+	public String toString() {
+		return "TaxValue [ide=" + ide + ", code=" + code + ", porcentage=" + porcentage + ", retentionPorcentage="
+				+ retentionPorcentage + ", typeTax=" + typeTax + ", description=" + description + ", srtartDate="
+				+ srtartDate + ", EndDate=" + EndDate + ", porcentageMarkFree=" + porcentageMarkFree + ", tax=" + tax.getIde()
+				+ "]";
+	}
 	
 
 }
