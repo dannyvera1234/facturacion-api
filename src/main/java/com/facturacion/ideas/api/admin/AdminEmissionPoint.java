@@ -1,40 +1,60 @@
 package com.facturacion.ideas.api.admin;
 
+import java.util.Calendar;
 import java.util.Date;
 
+import com.facturacion.ideas.api.dto.EmissionPointNewDTO;
 import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.util.ConstanteUtil;
+import com.facturacion.ideas.api.util.FunctionUtil;
 
 public class AdminEmissionPoint {
 
 	/**
 	 * Crear un nuevo {@link EmissionPoint}}
-	 * @param numberNext : Valor entero que corresponde al numero secuencial para el punto emision. </br>
-	 * 						Si {@link numberNext} es null, indica que es el primer {@link EmissionPoint} del establecimiento
-	 * @param rucSender : EL ruc de Sender que es dueña del establecimiento, se utilizara para generar
-	 * 					 la clave del EmissionPoint
+	 * 
+	 * @param numberNext : Valor entero que corresponde al numero secuencial para el
+	 *                   punto emision. </br>
+	 *                   Si {@link numberNext} es null, indica que es el primer
+	 *                   {@link EmissionPoint} del establecimiento
+	 * @param rucSender  : EL ruc de Sender que es dueña del establecimiento, se
+	 *                   utilizara para generar la clave del EmissionPoint
 	 * @return
 	 */
 	public static EmissionPoint create(Integer numberNext, String rucSender) {
 
 		EmissionPoint emissionPoint = new EmissionPoint();
-		
+
 		numberNext = getNumberNextEmissionPoint(numberNext);
-		
+
 		emissionPoint.setCodePoint(getCodEmissionPoint(numberNext));
 		emissionPoint.setDateRegister(new Date());
-		emissionPoint.setKeyPoint(rucSender +"_" +emissionPoint.getCodePoint());
+		emissionPoint.setKeyPoint(rucSender + "_" + emissionPoint.getCodePoint());
 		emissionPoint.setStatus(true);
 
 		return emissionPoint;
 	}
-	
+
+	public static EmissionPointNewDTO createEmissionPointNewDTO(Integer numberNext, String rucSender) {
+
+		EmissionPointNewDTO emissionPointNewDTO = new EmissionPointNewDTO();
+
+		numberNext = getNumberNextEmissionPoint(numberNext);
+
+		emissionPointNewDTO.setCodePoint(getCodEmissionPoint(numberNext));
+		emissionPointNewDTO.setDateRegister(FunctionUtil.convertDateToString(Calendar.getInstance().getTime()));
+		emissionPointNewDTO.setKeyPoint(rucSender + "_" + emissionPointNewDTO.getCodePoint());
+		//emissionPointNewDTO.setStatus(true);
+		return emissionPointNewDTO;
+	}
+
 	/**
-	 * Funcion que genera el codigo para un nuevo punto de emision .Si numEmissionPoint
-	 * es null ubicara el valor por defecto de {@link com.facturacion.ideas.api.util.ConstanteUtil#COD_DEFAULT_EMISSION_POINT}
+	 * Funcion que genera el codigo para un nuevo punto de emision .Si
+	 * numEmissionPoint es null ubicara el valor por defecto de
+	 * {@link com.facturacion.ideas.api.util.ConstanteUtil#COD_DEFAULT_EMISSION_POINT}
 	 * 
-	 * @param numEmissionPoint :  numero de punto emision a generar
-	 * @return  :
+	 * @param numEmissionPoint : numero de punto emision a generar
+	 * @return :
 	 */
 	private static String getCodEmissionPoint(Integer numEmissionPoint) {
 
@@ -55,7 +75,7 @@ public class AdminEmissionPoint {
 		return ConstanteUtil.COD_DEFAULT_EMISSION_POINT;
 
 	}
-	
+
 	private static Integer getNumberNextEmissionPoint(Integer numberNext) {
 
 		return numberNext == null ? 1 : (numberNext + 1);

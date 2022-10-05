@@ -163,6 +163,9 @@ public class Subsidiary implements Serializable {
 
 		this.employees.add(employee);
 	}
+	public List<EmissionPoint> getEmissionPoints() {
+		return emissionPoints;
+	}
 
 	@Override
 	public String toString() {

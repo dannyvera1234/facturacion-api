@@ -1,29 +1,20 @@
 package com.facturacion.ideas.api.controllers;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.facturacion.ideas.api.admin.AdminEmissionPoint;
 import com.facturacion.ideas.api.controller.operation.IEmissionPointOperation;
-import com.facturacion.ideas.api.entities.CodeDocument;
-import com.facturacion.ideas.api.entities.Count;
+import com.facturacion.ideas.api.dto.EmissionPointNewDTO;
+import com.facturacion.ideas.api.dto.EmissionPointResponseDTO;
 import com.facturacion.ideas.api.entities.EmissionPoint;
-import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
-import com.facturacion.ideas.api.exeption.NotFoundException;
-import com.facturacion.ideas.api.services.ICodeDocumentService;
 import com.facturacion.ideas.api.services.IEmissionPointService;
-import com.facturacion.ideas.api.services.ISubsidiaryService;
-import com.facturacion.ideas.api.util.ConstanteUtil;
-import com.facturacion.ideas.api.util.FunctionUtil;
 
 /**
  * RestController que expone servicios web para la entidad {@link EmissionPoint}
@@ -32,7 +23,7 @@ import com.facturacion.ideas.api.util.FunctionUtil;
  *
  */
 @RestController
-@RequestMapping("/facturacion/subsidiarys/{codigo}/emissions")
+@RequestMapping("/facturacion")
 public class EmissionPointController implements IEmissionPointOperation {
 
 	private static final Logger LOGGER = LogManager.getLogger(EmissionPointController.class);
@@ -40,101 +31,94 @@ public class EmissionPointController implements IEmissionPointOperation {
 	@Autowired
 	private IEmissionPointService emissionPointService;
 
-	@Autowired
-	private ISubsidiaryService subsidiaryService;
-
-	@Autowired
-	private ICodeDocumentService codeDocumentService;
-
 	@Override
-	public ResponseEntity<?> save(Long codigo, EmissionPoint emissionPoint) {
+	public ResponseEntity<EmissionPointResponseDTO> save(Long idSubsidiary, EmissionPointNewDTO emissionPointNewDTO) {
 
-		LOGGER.info("Id Establecimiento para el PuntoEmision: " + codigo);
+		LOGGER.info("Id Establecimiento para el PuntoEmision: " + idSubsidiary);
 
 		try {
 
-			// Optional<Subsidiary> subsidiaryOptional = subsidiaryService.findById(codigo);
+			EmissionPointResponseDTO emissionPointResponseDTO = emissionPointService.save(emissionPointNewDTO,
+					idSubsidiary);
 
-			Optional<Subsidiary> subsidiaryOptional = null;
+			return ResponseEntity.ok(emissionPointResponseDTO);
+		} catch (NotDataAccessException e) {
 
-			if (!subsidiaryOptional.isEmpty()) {
-
-				Subsidiary subsidiaryCurrent = subsidiaryOptional.get();
-
-				Count countCurrent = subsidiaryCurrent.getSender().getCount();
-
-				// Consultar en CodeDocument , el registro del establecimiento consultado pero
-				// que tenga el id de Cuenta
-
-				// codigo del establecimiento al cual se desea agregar un nuevo punto de emision
-				String codeSubsidiary = subsidiaryCurrent.getCode();
-
-				// Obtiene el codigo de la cuenta a la que pertenece el Establecimiento
-				// consultado
-				Long codeCount = countCurrent.getIde();
-
-				// Obtiene el registro de CodeDocument, para poder obtener el numero
-				// de punto de emision del establecimiento y poder generar el siguiente
-				// secuencial
-				Optional<CodeDocument> codeOptional = codeDocumentService.findByCodeCountAndCodeSubsidiary(codeCount,
-						codeSubsidiary);
-
-				if (!codeOptional.isEmpty()) {
-
-					CodeDocument codeDocumentCurrent = codeOptional.get();
-
-					// Crear el EmissionPoint
-					emissionPoint = AdminEmissionPoint.create(codeDocumentCurrent.getNumEmissionPoint(),
-							countCurrent.getRuc());
-
-					emissionPoint.setSubsidiary(subsidiaryCurrent);
-
-					// Guardar el nuevo EmissionPoint
-					EmissionPoint emissionPointSave = emissionPointService.save(emissionPoint);
-
-					// Actualizar el numero secuencial del punto Emision del establecimiento
-					codeDocumentCurrent.setNumEmissionPoint(codeDocumentCurrent.getNumEmissionPoint() + 1);
-					codeDocumentService.save(codeDocumentCurrent);
-
-					return FunctionUtil.getResponseEntity(HttpStatus.CREATED, emissionPointSave);
-
-				} else
-
-					throw new NotFoundException("numero-emision: " + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-
-			} else
-				throw new NotFoundException(
-						"establecimiento: " + codigo + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-			LOGGER.error("Error  guardar Punto emision:", e);
-
-			throw new NotDataAccessException("Error guardar Punto emision: " + e.getMessage());
+			throw new NotDataAccessException(e.getMessage());
 		}
 	}
 
 	@Override
-	public ResponseEntity<?> findAll(Long codigo) {
-		// TODO Auto-generated method stub
-		return null;
+	public ResponseEntity<List<EmissionPointResponseDTO>> findAll(Long codigo) {
+		LOGGER.info("Id Establecimiento listtar PuntoEmision: " + codigo);
+		try {
+
+			List<EmissionPointResponseDTO> emissionPointResponseDTO = emissionPointService.listAll(codigo);
+
+			return ResponseEntity.ok(emissionPointResponseDTO);
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
 	}
 
 	@Override
-	public ResponseEntity<?> findById(Long codigo, Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public ResponseEntity<EmissionPointResponseDTO> findById(Long id) {
+		LOGGER.info("Id PuntoEmision: " + id);
+		try {
+
+			EmissionPointResponseDTO emissionPointResponseDTO = emissionPointService.findById(id);
+
+			return ResponseEntity.ok(emissionPointResponseDTO);
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
 	}
 
 	@Override
-	public ResponseEntity<?> deleteById(Long codigo, Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public ResponseEntity<String> deleteById(Long id) {
+
+		try {
+
+			emissionPointService.deleteById(id);
+			return ResponseEntity.noContent().build();
+
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+		}
+
 	}
 
 	@Override
-	public ResponseEntity<?> update(EmissionPoint emissionPoint, Long codigo, Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public ResponseEntity<EmissionPointResponseDTO> update(EmissionPointNewDTO emissionPointNewDTO, Long id) {
+
+		LOGGER.info("Id codePoint actualizar : " + id);
+		try {
+
+			EmissionPointResponseDTO emissionPointResponseDTO = emissionPointService.update(emissionPointNewDTO, id);
+
+			return ResponseEntity.ok(emissionPointResponseDTO);
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+
+	@Override
+	public ResponseEntity<EmissionPointResponseDTO> findByCodeAndSubsidiary(Long codigo, String codePoint) {
+
+		LOGGER.info("Id Establecimiento : " + codigo + " codePoint: " + codePoint);
+		try {
+
+			EmissionPointResponseDTO emissionPointResponseDTO = emissionPointService.findByCodeAndSubsidiary(codePoint,
+					codigo);
+
+			return ResponseEntity.ok(emissionPointResponseDTO);
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
 	}
 
 }

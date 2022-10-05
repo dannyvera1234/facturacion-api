@@ -1,5 +1,7 @@
 package com.facturacion.ideas.api.controller.operation;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,11 +12,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.facturacion.ideas.api.controllers.SubsidiaryRestController;
+import com.facturacion.ideas.api.dto.EmissionPointNewDTO;
+import com.facturacion.ideas.api.dto.EmissionPointResponseDTO;
 import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Subsidiary;
 
 /**
- * Interface que define los contratos que debe realizar el {@link SubsidiaryRestController}
+ * Interface que define los contratos que debe realizar el
+ * {@link SubsidiaryRestController}
+ * 
  * @author Ronny Chamba
  *
  */
@@ -22,49 +28,60 @@ import com.facturacion.ideas.api.entities.Subsidiary;
 public interface IEmissionPointOperation {
 
 	/**
-	 * Inserta un nuevo {@link EmissionPoint} para un {@link Subsidiary} en particular
-	 * @param codigo : Id de  {@link Subsidiary}
+	 * Inserta un nuevo {@link EmissionPoint} para un {@link Subsidiary} en
+	 * particular
+	 * 
+	 * @param codigo        : Id de {@link Subsidiary}
 	 * @param emissionPoint : El objeto {@link EmissionPoint} a insertar
-	 * @return 
+	 * @return
 	 */
-	@PostMapping
-	public ResponseEntity<?> save(@PathVariable Long codigo, @RequestBody EmissionPoint emissionPoint);
+	@PostMapping("subsidiarys/{id}/emissions")
+	public ResponseEntity<EmissionPointResponseDTO> save(@PathVariable(name = "id") Long idSubsidiary,
+			@RequestBody EmissionPointNewDTO emissionPointNewDTO);
 
 	/**
 	 * Recupera todos los {@link EmissionPoint}
+	 * 
 	 * @param codigo : Codigo del {@link Subsidiary}
 	 * @return
 	 */
-	@GetMapping
-	public ResponseEntity<?> findAll(@PathVariable Long codigo);
+	@GetMapping("subsidiarys/{id}/emissions")
+	public ResponseEntity<List<EmissionPointResponseDTO>> findAll(@PathVariable(name = "id") Long codigo);
+
+	@GetMapping("subsidiarys/{id}/emissions/{code-point}")
+	public ResponseEntity<EmissionPointResponseDTO> findByCodeAndSubsidiary(@PathVariable(name = "id") Long codigo,
+			@PathVariable(name = "code-point") String codePoint);
 
 	/**
 	 * Recupera un unico {@link EmissionPoint} de un {@link Subsidiary}
+	 * 
 	 * @param codigo : Id del {@link Subsidiary}
-	 * @param id : Id del {@link EmissionPoint} a recuperar
+	 * @param id     : Id del {@link EmissionPoint} a recuperar
 	 * @return
 	 */
-	@GetMapping("/{id}")
-	public ResponseEntity<?> findById(@PathVariable Long codigo, @PathVariable Long id);
+	@GetMapping("/emissions/{id}")
+	public ResponseEntity<EmissionPointResponseDTO> findById(@PathVariable Long id);
 
 	/**
 	 * Eliminar un {@link EmissionPoint} de un {@link Subsidiary}
+	 * 
 	 * @param codigo : Id del {@link Subsidiary}
-	 * @param id : Id del {@link EmissionPoint} a eliminar
+	 * @param id     : Id del {@link EmissionPoint} a eliminar
 	 * @return
 	 */
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteById(@PathVariable Long codigo, @PathVariable Long id);
+	@DeleteMapping("/emissions/{id}")
+	public ResponseEntity<String> deleteById(@PathVariable Long id);
 
 	/***
 	 * Actualizar un {@link EmissionPoint}
+	 * 
 	 * @param emissionPoint : Los nuevos datos
-	 * @param codigo : Id del {@link Subsidiary}
-	 * @param id : Id del {@link EmissionPoint} a actualizar
+	 * @param codigo        : Id del {@link Subsidiary}
+	 * @param id            : Id del {@link EmissionPoint} a actualizar
 	 * @return
 	 */
-	@PutMapping("/{id}")
-	public ResponseEntity<?> update(@RequestBody EmissionPoint emissionPoint, @PathVariable Long codigo,
+	@PutMapping("/emissions/{id}")
+	public ResponseEntity<EmissionPointResponseDTO> update(@RequestBody EmissionPointNewDTO emissionPointNewDTO,
 			@PathVariable Long id);
 
 }
