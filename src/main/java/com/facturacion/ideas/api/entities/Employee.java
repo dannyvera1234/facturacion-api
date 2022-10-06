@@ -15,7 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.facturacion.ideas.api.enums.RolEnum;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "empleados")
@@ -43,8 +42,11 @@ public class Employee implements Serializable {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "EMP_FK_COD_EST")
-	// @JsonBackReference
 	private Subsidiary subsidiary;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "EMP_FK_COD_EMI")
+	private Sender sender;
 
 	public Employee() {
 
@@ -100,20 +102,27 @@ public class Employee implements Serializable {
 		this.subsidiary = subsidiary;
 	}
 
-	
 	public String getTelephone() {
 		return telephone;
 	}
+
 	public void setTelephone(String telephone) {
 		this.telephone = telephone;
 	}
 
+	public Sender getSender() {
+		return sender;
+	}
+	
+	public void setSender(Sender sender) {
+		this.sender = sender;
+	}
+	
+	
 	@Override
 	public String toString() {
 		return "Employee [ide=" + ide + ", name=" + name + ", telephone=" + telephone + ", cedula=" + cedula + ", rol="
 				+ rol + ", subsidiary=" + subsidiary + "]";
 	}
-	
-
 
 }

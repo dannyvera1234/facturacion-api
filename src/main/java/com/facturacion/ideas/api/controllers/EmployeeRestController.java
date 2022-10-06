@@ -95,4 +95,20 @@ public class EmployeeRestController implements IEmployeeOperation {
 
 	}
 
+	@Override
+	public ResponseEntity<List<EmployeeDTO>> findAllBySubsidiary(Long id) {
+	
+		LOGGER.info("Establecimiento empleados buscar: "  + id);
+		try {
+
+			List<EmployeeDTO> employeeDTOs = employeeService.findByIdSubsidiary(id);
+
+			return  ResponseEntity.ok(employeeDTOs);
+
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+
 }

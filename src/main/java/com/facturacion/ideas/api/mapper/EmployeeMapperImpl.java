@@ -1,5 +1,9 @@
 package com.facturacion.ideas.api.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 import com.facturacion.ideas.api.dto.EmployeeDTO;
@@ -40,6 +44,19 @@ public class EmployeeMapperImpl implements IEmployeeMapper {
 		employeeDTO.setSubsidiary(employee.getSubsidiary().getSocialReason());
 
 		return employeeDTO;
+	}
+
+	@Override
+	public List<EmployeeDTO> mapperToDTO(List<Employee> employees) {
+
+		List<EmployeeDTO> employeeDTOs = new ArrayList<>();
+
+		if (employees.size() > 0) {
+
+			employeeDTOs = employees.stream().map(item -> mapperToDTO(item)).collect(Collectors.toList());
+		}
+
+		return employeeDTOs;
 	}
 
 }

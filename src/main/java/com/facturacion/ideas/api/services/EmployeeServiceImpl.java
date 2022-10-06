@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.dto.EmployeeDTO;
 import com.facturacion.ideas.api.entities.Employee;
+import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.enums.RolEnum;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
@@ -45,13 +46,31 @@ public class EmployeeServiceImpl implements IEmployeeService {
 			Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
 					"id:" + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			if (employeExistPrivate(employeeDTO.getCedula()).isPresent()) {
+			// Obtener el emisor del etablecimiento
+			Sender sender = subsidiary.getSender();
 
-				throw new DuplicatedResourceException("Cedula: " + employeeDTO.getCedula()
-						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+			
+			// Verificar si el empleado ya pertene a la empresa o emisor
+			if (employeeRepository.existsBySender(sender)) {
+
+				throw new DuplicatedResourceException("Empleado con cedula: " + employeeDTO.getCedula()
+						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION + " , mismo emisor");
+				
 			}
 
+			
+			/*
+			// Verificar si la cedula ya esta registrada en el establecimiento
+			if (employeeRepository.existsByCedulaAndSubsidiary(employeeDTO.getCedula(), subsidiary)) {
+
+				throw new DuplicatedResourceException("Cedula: " + employeeDTO.getCedula()
+						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION
+						+ "  empleado esta registrado en un establecimiento");
+
+			}*/
+
 			Employee employee = employeeMapper.mapperToEntity(employeeDTO);
+			employee.setSender(sender);
 			employee.setSubsidiary(subsidiary);
 
 			// Persistir empleado
@@ -152,41 +171,6 @@ public class EmployeeServiceImpl implements IEmployeeService {
 	}
 
 	@Transactional(readOnly = true)
-	private Employee findByCedulaPrivate(String cedula) {
-		try {
-
-			Employee employee = employeeRepository.findByCedula(cedula).orElseThrow(() -> new NotFoundException(
-					"cedula: " + cedula + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-
-			return employee;
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error buscar empleado cedula", e);
-
-			throw new NotDataAccessException("Error buscar empleado: " + e.getMessage());
-
-		}
-
-	}
-
-	@Transactional(readOnly = true)
-	private Optional<Employee> employeExistPrivate(String cedula) {
-		try {
-
-			return employeeRepository.findByCedula(cedula);
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error buscar empleado cedula", e);
-
-			throw new NotDataAccessException("Error buscar empleado: " + e.getMessage());
-
-		}
-
-	}
-
-	@Transactional(readOnly = true)
 	private Employee findByIdPrivate(Long ide) {
 		try {
 
@@ -201,6 +185,27 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
 			throw new NotDataAccessException("Error buscar empleado: " + e.getMessage());
 
+		}
+
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EmployeeDTO> findByIdSubsidiary(Long idSubsidiary) {
+
+		try {
+
+			Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
+					"establecimiento: " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			List<Employee> employees = subsidiary.getEmployees();
+
+			return employeeMapper.mapperToDTO(employees);
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error listar empleado establecimiento", e);
+
+			throw new NotDataAccessException("Error listar empleado establecimiento: " + e.getMessage());
 		}
 
 	}

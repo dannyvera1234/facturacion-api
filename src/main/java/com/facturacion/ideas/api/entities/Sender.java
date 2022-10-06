@@ -84,6 +84,9 @@ public class Sender implements Serializable {
 	@JsonManagedReference
 	private List<Subsidiary> subsidiarys;
 
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
+	private List<Employee> employees;
+
 	public Sender() {
 		super();
 		initData();
@@ -113,6 +116,8 @@ public class Sender implements Serializable {
 	private void initData() {
 
 		subsidiarys = new ArrayList<>();
+
+		employees = new ArrayList<>();
 
 	}
 
@@ -247,6 +252,15 @@ public class Sender implements Serializable {
 
 		subsidiary.setSender(this);
 		this.subsidiarys.add(subsidiary);
+	}
+
+	public List<Employee> getEmployees() {
+		return employees;
+	}
+
+	public void addEmployee(Employee employee) {
+
+		this.addEmployee(employee);
 	}
 
 	@Override

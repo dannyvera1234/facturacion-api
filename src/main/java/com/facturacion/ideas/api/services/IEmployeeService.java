@@ -8,7 +8,10 @@ public interface IEmployeeService {
 
 	EmployeeDTO save(EmployeeDTO employeeDTO, Long idSubsidiary);
 
-	EmployeeDTO findById(Long id);	
+	EmployeeDTO findById(Long id);
+		
+	
+	List<EmployeeDTO> findByIdSubsidiary(Long idSubsidiary);	
 
 	List<EmployeeDTO> findByAll();
 

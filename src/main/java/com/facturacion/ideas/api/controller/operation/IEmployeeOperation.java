@@ -17,6 +17,9 @@ public interface IEmployeeOperation {
 	@PostMapping("/subsidiarys/{id}/employees")
 	public ResponseEntity<EmployeeDTO> save(@RequestBody EmployeeDTO employeeDTO, @PathVariable Long id);
 
+	@GetMapping("/subsidiarys/{id}/employees")
+	public ResponseEntity<List<EmployeeDTO>> findAllBySubsidiary(@PathVariable Long id);
+
 	@GetMapping("/employees/{id}")
 	public ResponseEntity<EmployeeDTO> findById(@PathVariable Long id);
 
