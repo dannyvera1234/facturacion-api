@@ -13,8 +13,8 @@ public class DriverNewDTO extends PersonNewDTO implements Serializable {
 	}
 
 	public DriverNewDTO(Long ide, String typeIdentification, String numberIdentification, String socialReason,
-			String email, String placa) {
-		super(ide, typeIdentification, numberIdentification, socialReason, email);
+			String email, String address, String placa) {
+		super(ide, typeIdentification, numberIdentification, socialReason, email, address);
 		this.placa = placa;
 	}
 

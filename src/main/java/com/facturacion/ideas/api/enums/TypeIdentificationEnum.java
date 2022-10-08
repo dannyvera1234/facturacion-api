@@ -22,12 +22,12 @@ public enum TypeIdentificationEnum {
 
 	public static TypeIdentificationEnum getTipoCompradorEnum(String codigo) {
 
-		TypeIdentificationEnum tipoComprador = TypeIdentificationEnum.CONSUMIDOR_FINAL;
+		TypeIdentificationEnum tipoComprador = TypeIdentificationEnum.CEDULA;
 
 		if (codigo != null) {
 
 			tipoComprador = getListTypeIdentificationEnum().stream().filter(item -> item.getCode().equals(codigo))
-					.findFirst().orElse(TypeIdentificationEnum.CONSUMIDOR_FINAL);
+					.findFirst().orElse(TypeIdentificationEnum.CEDULA);
 
 		}
 		return tipoComprador;

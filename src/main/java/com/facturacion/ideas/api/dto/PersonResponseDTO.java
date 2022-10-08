@@ -16,16 +16,19 @@ public abstract class PersonResponseDTO implements Serializable {
 
 	private String email;
 
+	private String address;
+
 	public PersonResponseDTO() {
 		super();
 	}
 
-	public PersonResponseDTO(Long ide, String numberIdentification, String socialReason, String email) {
+	public PersonResponseDTO(Long ide, String numberIdentification, String socialReason, String email, String address) {
 		super();
 		this.ide = ide;
 		this.numberIdentification = numberIdentification;
 		this.socialReason = socialReason;
 		this.email = email;
+		this.address = address;
 	}
 
 	public Long getIde() {
@@ -60,10 +63,18 @@ public abstract class PersonResponseDTO implements Serializable {
 		this.email = email;
 	}
 
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
 	@Override
 	public String toString() {
 		return "PersonResponseDTO [ide=" + ide + ", numberIdentification=" + numberIdentification + ", socialReason="
-				+ socialReason + ", email=" + email + "]";
+				+ socialReason + ", email=" + email + ", address=" + address + "]";
 	}
 
 }

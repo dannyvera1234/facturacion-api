@@ -24,8 +24,8 @@ public class Driver extends Person implements Serializable {
 	}
 
 	public Driver(Long ide, TypeIdentificationEnum typeIdentification, String numberIdentification, String socialReason,
-			String email, String placa) {
-		super(ide, typeIdentification, numberIdentification, socialReason, email);
+			String email, String address, String placa) {
+		super(ide, typeIdentification, numberIdentification, socialReason, email, address);
 		this.placa = placa;
 	}
 
@@ -42,6 +42,4 @@ public class Driver extends Person implements Serializable {
 		return "Driver [placa=" + placa + ", toString()=" + super.toString() + "]";
 	}
 
-	
-	
 }

@@ -5,8 +5,6 @@ import java.io.Serializable;
 public class CustomerResponseDTO extends PersonResponseDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private String address;
-
 	private String tlfConvencional;
 
 	// private String extTlfConvencional;
@@ -20,18 +18,9 @@ public class CustomerResponseDTO extends PersonResponseDTO implements Serializab
 
 	public CustomerResponseDTO(Long ide, String numberIdentification, String socialReason, String email, String address,
 			String tlfConvencional, String cellPhone) {
-		super(ide, numberIdentification, socialReason, email);
-		this.address = address;
+		super(ide, numberIdentification, socialReason, email, address);
 		this.tlfConvencional = tlfConvencional;
 		this.cellPhone = cellPhone;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
 	}
 
 	public String getTlfConvencional() {
@@ -56,8 +45,8 @@ public class CustomerResponseDTO extends PersonResponseDTO implements Serializab
 
 	@Override
 	public String toString() {
-		return "CustomerResponseDTO [address=" + address + ", tlfConvencional=" + tlfConvencional + ", cellPhone="
-				+ cellPhone + ", toString()=" + super.toString() + "]";
+		return "CustomerResponseDTO [tlfConvencional=" + tlfConvencional + ", cellPhone=" + cellPhone + ", toString()="
+				+ super.toString() + "]";
 	}
 
 }

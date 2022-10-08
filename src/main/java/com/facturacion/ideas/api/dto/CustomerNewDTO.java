@@ -6,8 +6,6 @@ public class CustomerNewDTO extends PersonNewDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String address;
-
 	private String tlfConvencional;
 
 	private String extTlfConvencional;
@@ -23,20 +21,11 @@ public class CustomerNewDTO extends PersonNewDTO implements Serializable {
 	public CustomerNewDTO(Long ide, String typeIdentification, String numberIdentification, String socialReason,
 			String email, String address, String tlfConvencional, String extTlfConvencional, String cellPhone,
 			String typeCustomer) {
-		super(ide, typeIdentification, numberIdentification, socialReason, email);
-		this.address = address;
+		super(ide, typeIdentification, numberIdentification, socialReason, email, address);
 		this.tlfConvencional = tlfConvencional;
 		this.extTlfConvencional = extTlfConvencional;
 		this.cellPhone = cellPhone;
 		this.typeCustomer = typeCustomer;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
 	}
 
 	public String getTlfConvencional() {
@@ -73,12 +62,9 @@ public class CustomerNewDTO extends PersonNewDTO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "CustomerNewDTO [address=" + address + ", tlfConvencional=" + tlfConvencional + ", extTlfConvencional="
-				+ extTlfConvencional + ", cellPhone=" + cellPhone + ", typeCustomer=" + typeCustomer + ", toString()="
-				+ super.toString() + "]";
+		return "CustomerNewDTO [tlfConvencional=" + tlfConvencional + ", extTlfConvencional=" + extTlfConvencional
+				+ ", cellPhone=" + cellPhone + ", typeCustomer=" + typeCustomer + ", toString()=" + super.toString()
+				+ "]";
 	}
-	
-	
-	
 
 }

@@ -5,8 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.facturacion.ideas.api.dto.CustomerNewDTO;
+import com.facturacion.ideas.api.dto.CustomerResponseDTO;
 import com.facturacion.ideas.api.dto.DriverNewDTO;
-import com.facturacion.ideas.api.dto.PersonNewDTO;
+import com.facturacion.ideas.api.dto.DriverResponseDTO;
 import com.facturacion.ideas.api.dto.PersonResponseDTO;
 import com.facturacion.ideas.api.entities.Customer;
 import com.facturacion.ideas.api.entities.Driver;
@@ -18,54 +19,80 @@ import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 public class PersonMapperImpl implements IPersonMapper {
 
 	@Override
-	public Person mapperToEntity(PersonNewDTO personNewDTO) {
+	public Customer mapperToEntity(CustomerNewDTO personNewDTO) {
 
-		Person person = new Person();
+		Customer person = new Customer();
 
 		person.setIde(personNewDTO.getIde());
 		person.setTipoIdentificacion(
 				TypeIdentificationEnum.getTipoCompradorEnum(personNewDTO.getNumberIdentification()));
 		person.setEmail(personNewDTO.getEmail());
-
 		person.setNumeroIdentificacion(personNewDTO.getNumberIdentification());
 		person.setRazonSocial(personNewDTO.getSocialReason());
+		person.setAddress(personNewDTO.getAddress());
 
-		if (personNewDTO instanceof CustomerNewDTO) {
-
-			CustomerNewDTO customerNewDTO = (CustomerNewDTO) personNewDTO;
-
-			Customer customer = (Customer) person;
-			customer.setAddress(customerNewDTO.getAddress());
-			customer.setCellPhone(customerNewDTO.getCellPhone());
-			customer.setTlfConvencional(customerNewDTO.getTlfConvencional());
-			customer.setExtTlfConvencional(customerNewDTO.getExtTlfConvencional());
-			customer.setTypeCustomer(TypeCustomerEnum.getTypeCustomerEnum(customerNewDTO.getTypeCustomer()));
-
-			person = customer;
-
-		} else if (personNewDTO instanceof DriverNewDTO) {
-
-			DriverNewDTO driverNewDTO = (DriverNewDTO) personNewDTO;
-
-			Driver driver = (Driver) person;
-
-			driver.setPlaca(driverNewDTO.getPlaca());
-			person = driver;
-		}
+		// Customer
+		person.setCellPhone(personNewDTO.getCellPhone());
+		person.setTlfConvencional(personNewDTO.getTlfConvencional());
+		person.setExtTlfConvencional(personNewDTO.getExtTlfConvencional());
+		person.setTypeCustomer(TypeCustomerEnum.getTypeCustomerEnum(personNewDTO.getTypeCustomer()));
 
 		return person;
 	}
 
 	@Override
-	public PersonResponseDTO mapperToDTO(Person person) {
-		// TODO Auto-generated method stub
-		return null;
+	public CustomerResponseDTO mapperToDTO(Customer person) {
+
+		CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO();
+
+		customerResponseDTO.setIde(person.getIde());
+		customerResponseDTO.setEmail(person.getEmail());
+		customerResponseDTO.setNumberIdentification(person.getNumeroIdentificacion());
+		customerResponseDTO.setSocialReason(person.getRazonSocial());
+		customerResponseDTO.setAddress(person.getAddress());
+		customerResponseDTO.setCellPhone(person.getCellPhone());
+		customerResponseDTO.setTlfConvencional(person.getTlfConvencional());
+		return customerResponseDTO;
 	}
 
 	@Override
 	public List<PersonResponseDTO> mapperToDTO(List<Person> persons) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Driver mapperToEntity(DriverNewDTO personNewDTO) {
+
+		Driver person = new Driver();
+
+		person.setIde(personNewDTO.getIde());
+		person.setTipoIdentificacion(
+				TypeIdentificationEnum.getTipoCompradorEnum(personNewDTO.getNumberIdentification()));
+		person.setEmail(personNewDTO.getEmail());
+		person.setNumeroIdentificacion(personNewDTO.getNumberIdentification());
+		person.setRazonSocial(personNewDTO.getSocialReason());
+		person.setAddress(personNewDTO.getAddress());
+ 
+		// Driver
+		person.setPlaca(personNewDTO.getPlaca());
+
+		return person;
+
+	}
+
+	@Override
+	public DriverResponseDTO mapperToDTO(Driver person) {
+
+		DriverResponseDTO driverResponseDTO = new DriverResponseDTO();
+
+		driverResponseDTO.setIde(person.getIde());
+		driverResponseDTO.setEmail(person.getEmail());
+		driverResponseDTO.setNumberIdentification(person.getNumeroIdentificacion());
+		driverResponseDTO.setSocialReason(person.getRazonSocial());
+		driverResponseDTO.setAddress(person.getAddress());
+		driverResponseDTO.setPlaca(person.getPlaca());
+		return driverResponseDTO;
 	}
 
 }

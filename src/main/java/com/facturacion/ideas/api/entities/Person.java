@@ -42,6 +42,9 @@ public class Person implements Serializable {
 	@Column(name = "PER_EMA")
 	private String email;
 
+	@Column(name = "PER_DIR")
+	private String address;
+
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "person")
 	private List<DetailsPerson> detailsPersons;
 
@@ -50,15 +53,15 @@ public class Person implements Serializable {
 		initData();
 	}
 
-	public Person(Long ide, TypeIdentificationEnum typeIdentification, String numberIdentification, String socialReason,
-			String email) {
+	public Person(Long ide, TypeIdentificationEnum typeIdentification, String numberIdentification, String socialReason, String email,
+			String address) {
 		super();
 		this.ide = ide;
 		this.typeIdentification = typeIdentification.getCode();
 		this.numberIdentification = numberIdentification;
 		this.socialReason = socialReason;
 		this.email = email;
-		initData();
+		this.address = address;
 	}
 
 	private void initData() {
@@ -115,10 +118,20 @@ public class Person implements Serializable {
 		this.detailsPersons.add(detailsPerson);
 	}
 
+	public String getAddress() {
+		return address;
+	}
+	
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
+	
 	@Override
 	public String toString() {
 		return "Person [ide=" + ide + ", typeIdentification=" + typeIdentification + ", numberIdentification="
-				+ numberIdentification + ", socialReason=" + socialReason + ", email=" + email + "]";
+				+ numberIdentification + ", socialReason=" + socialReason + ", email=" + email + ", address=" + address
+				+ "]";
 	}
 
 }

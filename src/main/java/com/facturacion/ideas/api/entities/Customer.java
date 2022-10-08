@@ -17,9 +17,6 @@ public class Customer extends Person implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "CLI_DIR")
-	private String address;
-
 	@Column(name = "CLI_TLF_CON")
 	private String tlfConvencional;
 
@@ -39,20 +36,11 @@ public class Customer extends Person implements Serializable {
 	public Customer(Long ide, TypeIdentificationEnum typeIdentification, String numberIdentification,
 			String socialReason, String email, String address, String tlfConvencional, String extTlfConvencional,
 			String cellPhone, TypeCustomerEnum typeCustomer) {
-		super(ide, typeIdentification, numberIdentification, socialReason, email);
-		this.address = address;
+		super(ide, typeIdentification, numberIdentification, socialReason, email, address);
 		this.tlfConvencional = tlfConvencional;
 		this.extTlfConvencional = extTlfConvencional;
 		this.cellPhone = cellPhone;
 		this.typeCustomer = typeCustomer.getCode();
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
 	}
 
 	public String getTlfConvencional() {
@@ -89,11 +77,9 @@ public class Customer extends Person implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Customer [address=" + address + ", tlfConvencional=" + tlfConvencional + ", extTlfConvencional="
-				+ extTlfConvencional + ", cellPhone=" + cellPhone + ", typeCustomer=" + typeCustomer + ", toString()="
-				+ super.toString() + "]";
+		return "Customer[tlfConvencional=" + tlfConvencional + ", extTlfConvencional=" + extTlfConvencional
+				+ ", cellPhone=" + cellPhone + ", typeCustomer=" + typeCustomer + ", toString()=" + super.toString()
+				+ "]";
 	}
-
-
 
 }
