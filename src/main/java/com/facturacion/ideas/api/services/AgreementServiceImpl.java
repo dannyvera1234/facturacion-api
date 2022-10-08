@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.facturacion.ideas.api.dto.AgreementDTO;
 import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.enums.TypeAgreementEnum;
+import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
@@ -35,14 +36,21 @@ public class AgreementServiceImpl implements IAgreementService {
 	public AgreementDTO save(AgreementDTO agreementDTO) {
 
 		try {
-			
+
+			// Validar si el nombre del plan esta correcto
+			if (TypeAgreementEnum.getTypeAgreementEnum(agreementDTO.getTypeAgreement())== null) {
+
+				throw new BadRequestException("Nombre Plan: " +  agreementDTO.getTypeAgreement() + 
+						" es incorrecto");
+			}
+
 			Agreement agreementSear = agreementRepository
 					.findByTypeAgreement(TypeAgreementEnum.getTypeAgreementEnum(agreementDTO.getTypeAgreement()))
 					.orElse(null);
 
 			if (agreementSear != null) {
 
-				throw new DuplicatedResourceException("codigo : " + agreementSear.getCodigo()
+				throw new DuplicatedResourceException("Plan : " + agreementSear.getTypeAgreement()
 						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 			}
 

@@ -39,7 +39,7 @@ public class CountServiceImpl implements ICountService {
 
 	@Autowired
 	private ILoginRepository loginRepository;
-	
+
 	@Autowired
 	private ICodeDocumentRepository codeDocumentRepository;
 
@@ -54,29 +54,6 @@ public class CountServiceImpl implements ICountService {
 
 	@Autowired
 	private IDetailsAgreementMapper detailsAgreementMapper;
-
-	@Override
-	@Transactional
-	public CountResponseDTO saveCount(CountNewDTO countNewDTO) {
-
-		try {
-
-			Count count = countRepository.findByRuc(null).orElse(null);
-
-			// Ya existe el ruc
-			if (count != null)
-				throw new DuplicatedResourceException(
-						"ruc: " + countNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
-
-			Count countSaved = countRepository.save(countMapper.mapperToEntity(countNewDTO));
-			return countMapper.mapperToDTO(countSaved);
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error guardar cuenta", e);
-			throw new NotDataAccessException("Error guardar cuenta: " + e.getMessage());
-		}
-
-	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -238,7 +215,8 @@ public class CountServiceImpl implements ICountService {
 			Agreement agreement = agreementRepository.findById(codeAgreement).orElseThrow(() -> new NotFoundException(
 					"codigo plan: " + codeAgreement + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			DetailsAggrement detailsAggrement = AdminDetailsAggrement.create(agreement.getTypeAgreement());
+			// Corregir este metodo con respecto al valor entero
+			DetailsAggrement detailsAggrement = AdminDetailsAggrement.create(agreement.getTypeAgreement(), 1);
 			detailsAggrement.setGreement(agreement);
 			detailsAggrement.setCount(count);
 
@@ -252,4 +230,5 @@ public class CountServiceImpl implements ICountService {
 			throw new NotDataAccessException("Error guardar detailsAgreement" + e.getMessage());
 		}
 	}
+
 }

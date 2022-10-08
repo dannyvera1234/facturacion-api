@@ -20,6 +20,7 @@ public class DetailsAgreementMapperImpl implements IDetailsAgreementMapper {
 		DetailsAggrement detailsAggrement = new DetailsAggrement();
 
 		detailsAggrement.setStatus(detailsAgreementDTO.isStatus());
+		detailsAggrement.setAmount(detailsAgreementDTO.getAmount());
 
 		detailsAggrement.setDateStart(FunctionUtil.convertStringToDate(detailsAgreementDTO.getDateStart()));
 
@@ -35,6 +36,7 @@ public class DetailsAgreementMapperImpl implements IDetailsAgreementMapper {
 
 		detailsAgreementDTO.setIde(detailsAggrement.getIde());
 
+		detailsAgreementDTO.setAmount(detailsAggrement.getAmount());
 		detailsAgreementDTO.setStatus(detailsAggrement.isStatus());
 
 		detailsAgreementDTO.setDateStart(FunctionUtil.convertDateToString(detailsAggrement.getDateStart()));

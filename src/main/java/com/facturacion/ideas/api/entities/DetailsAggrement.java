@@ -29,6 +29,9 @@ public class DetailsAggrement implements Serializable {
 
 	@Column(name = "CTP_FEC_FIN")
 	private Date dateEnd;
+	
+	@Column(name="CTP_CAN")
+	private int  amount;
 
 	@Column(name = "CTP_EST")
 	private boolean status;
@@ -104,6 +107,15 @@ public class DetailsAggrement implements Serializable {
 	public Count getCount() {
 		return count;
 	}
+	
+	public int getAmount() {
+		return amount;
+	}
+	
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+	
 
 	@Override
 	public String toString() {

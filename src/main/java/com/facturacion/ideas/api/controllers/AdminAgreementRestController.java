@@ -27,9 +27,9 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 @CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
 @RestController
 @RequestMapping("/facturacion/admin/agreements")
-public class AgreementRestController implements IAgreementOperation {
+public class AdminAgreementRestController implements IAgreementOperation {
 
-	private static final Logger LOGGER = LogManager.getLogger(AgreementRestController.class);
+	private static final Logger LOGGER = LogManager.getLogger(AdminAgreementRestController.class);
 
 	@Autowired
 	private IAgreementService agreementService;

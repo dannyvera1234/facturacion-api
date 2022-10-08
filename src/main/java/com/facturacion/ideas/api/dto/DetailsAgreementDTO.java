@@ -2,7 +2,7 @@ package com.facturacion.ideas.api.dto;
 
 import java.io.Serializable;
 
-public class DetailsAgreementDTO implements Serializable {
+public class DetailsAgreementDTO implements Serializable, Comparable<DetailsAgreementDTO> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -13,6 +13,8 @@ public class DetailsAgreementDTO implements Serializable {
 	private String dateEnd;
 
 	private boolean status;
+
+	private int amount;
 
 	private String agreement;
 
@@ -68,10 +70,24 @@ public class DetailsAgreementDTO implements Serializable {
 		this.agreement = agreement;
 	}
 
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+
+	public int getAmount() {
+		return amount;
+	}
+
 	@Override
 	public String toString() {
 		return "DetailsAgreementDTO [ide=" + ide + ", dateStart=" + dateStart + ", dateEnd=" + dateEnd + ", status="
 				+ status + "]";
+	}
+
+	@Override
+	public int compareTo(DetailsAgreementDTO o) {
+
+		return -Long.compare(this.getIde(), o.getIde());
 	}
 
 }

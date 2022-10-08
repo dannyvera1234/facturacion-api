@@ -35,16 +35,6 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 public interface ICountOperation {
 
 	/**
-	 * Inserta una nueva {@link Count} en la Base de Datos
-	 * 
-	 * @param count : Objeto a insertar
-	 * @return : Respuesta
-	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@PostMapping
-	public ResponseEntity<CountResponseDTO> save(@RequestBody CountNewDTO countNewDTO);
-
-	/**
 	 * Recupera todas las {@link Count} regisradas en Base de Datos
 	 * 
 	 * @return Respuesta

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.facturacion.ideas.api.controller.operation.ICountOperation;
@@ -19,7 +20,6 @@ import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.ICountService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
-
 
 /**
  * RestController que expone servicios web para las entidades {@link Count} ,
@@ -37,21 +37,6 @@ public class CountRestController implements ICountOperation {
 
 	@Autowired
 	private ICountService countService;
-
-	@Override
-	public ResponseEntity<CountResponseDTO> save(CountNewDTO countNewDTO) {
-
-		LOGGER.info("Cuenta a guardar: " + countNewDTO);
-
-		try {
-			CountResponseDTO countResponseDTO = countService.saveCount(countNewDTO);
-			return ResponseEntity.ok(countResponseDTO);
-
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-
-		}
-	}
 
 	@Override
 	public ResponseEntity<CountResponseDTO> findById(Long id) {

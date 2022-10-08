@@ -16,17 +16,24 @@ public class CountResponseDTO implements Serializable {
 
 	private String rol;
 
-	public CountResponseDTO() {
-		super();
-	}
+	private String aggrement;
 
-	public CountResponseDTO(Long ide, String ruc, boolean estado, String fechaRegistro, String rol) {
+	private int amount;
+
+	public CountResponseDTO(Long ide, String ruc, boolean estado, String fechaRegistro, String rol, String aggrement,
+			int amount) {
 		super();
 		this.ide = ide;
 		this.ruc = ruc;
 		this.estado = estado;
 		this.fechaRegistro = fechaRegistro;
 		this.rol = rol;
+		this.aggrement = aggrement;
+		this.amount = amount;
+	}
+
+	public CountResponseDTO() {
+		super();
 	}
 
 	public Long getIde() {
@@ -67,6 +74,22 @@ public class CountResponseDTO implements Serializable {
 
 	public void setRol(String rol) {
 		this.rol = rol;
+	}
+
+	public String getAggrement() {
+		return aggrement;
+	}
+
+	public void setAggrement(String aggrement) {
+		this.aggrement = aggrement;
+	}
+
+	public int getAmount() {
+		return amount;
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
 	}
 
 }

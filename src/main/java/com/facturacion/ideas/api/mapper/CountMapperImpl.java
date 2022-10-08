@@ -1,13 +1,16 @@
 package com.facturacion.ideas.api.mapper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.facturacion.ideas.api.dto.CountNewDTO;
 import com.facturacion.ideas.api.dto.CountResponseDTO;
+import com.facturacion.ideas.api.dto.DetailsAgreementDTO;
 import com.facturacion.ideas.api.dto.LoginDTO;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Login;
@@ -16,6 +19,9 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 
 @Component
 public class CountMapperImpl implements ICountMapper {
+
+	@Autowired
+	private IDetailsAgreementMapper detailsAgreementMapper;
 
 	@Override
 	public Count mapperToEntity(CountNewDTO countNewDTO) {
@@ -36,6 +42,22 @@ public class CountMapperImpl implements ICountMapper {
 
 		countResponseDTO.setIde(count.getIde());
 		countResponseDTO.setRuc(count.getRuc());
+
+		List<DetailsAgreementDTO> detailsAgreementDTOs = detailsAgreementMapper
+				.mapperToDTO(count.getDetailsAggrement());
+
+		if (detailsAgreementDTOs.size() > 0) {
+
+			// Ordenar plan contrarado para obtener el ultimo plan contratado
+			Collections.sort(detailsAgreementDTOs);
+
+			// Obtengo el ultimo plan contratado
+
+			DetailsAgreementDTO detailsAgreementDTO = detailsAgreementDTOs.get(0);
+			countResponseDTO.setAggrement(detailsAgreementDTO.getAgreement());
+			countResponseDTO.setAmount(detailsAgreementDTO.getAmount());
+		}
+
 		countResponseDTO.setRol(count.getRol().name());
 		countResponseDTO.setFechaRegistro(FunctionUtil.convertDateToString(count.getFechaRegistro()));
 		countResponseDTO.setEstado(count.isEstado());

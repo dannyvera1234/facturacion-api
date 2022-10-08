@@ -6,7 +6,7 @@ public class CountNewDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private int ide;
+	private Long ide;
 
 	private String ruc;
 
@@ -18,7 +18,15 @@ public class CountNewDTO implements Serializable {
 
 	private String rol;
 
-	public CountNewDTO(int ide, String ruc, String password, boolean estado, String fechaRegistro, String rol) {
+	private Long idAgreement;
+
+	private int amount;
+
+	public CountNewDTO() {
+	}
+
+	public CountNewDTO(Long ide, String ruc, String password, boolean estado, String fechaRegistro, String rol,
+			Long idAgreement, int amount) {
 		super();
 		this.ide = ide;
 		this.ruc = ruc;
@@ -26,13 +34,15 @@ public class CountNewDTO implements Serializable {
 		this.estado = estado;
 		this.fechaRegistro = fechaRegistro;
 		this.rol = rol;
+		this.idAgreement = idAgreement;
+		this.amount = amount;
 	}
 
-	public int getIde() {
+	public Long getIde() {
 		return ide;
 	}
 
-	public void setIde(int ide) {
+	public void setIde(Long ide) {
 		this.ide = ide;
 	}
 
@@ -74,6 +84,22 @@ public class CountNewDTO implements Serializable {
 
 	public void setRol(String rol) {
 		this.rol = rol;
+	}
+
+	public void setIdAgreement(Long idAgreement) {
+		this.idAgreement = idAgreement;
+	}
+
+	public Long getIdAgreement() {
+		return idAgreement;
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+
+	public int getAmount() {
+		return amount;
 	}
 
 	@Override

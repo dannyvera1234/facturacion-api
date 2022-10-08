@@ -9,9 +9,6 @@ import com.facturacion.ideas.api.dto.LoginDTO;
 
 public interface ICountService {
 
-	// Count
-	CountResponseDTO saveCount(CountNewDTO countNewDTO);
-
 	CountResponseDTO findCountByRuc(String ruc);
 
 	CountResponseDTO findCountsById(Long id);
@@ -19,16 +16,15 @@ public interface ICountService {
 	List<CountResponseDTO> findCountAll();
 
 	void deleteCountById(Long id);
-
+	
 	CountResponseDTO updateCount(CountNewDTO countNewDTO, Long idCount);
+	
 
 	// AgreementDetails
 	DetailsAgreementDTO saveDetailsAgreementDTO(Long idCount, Long coddeAgreement);
-	
-	
+
 	LoginDTO saveLoginIn(Long idCount);
 
 	List<LoginDTO> findAllLogin(Long idCount);
-
 
 }

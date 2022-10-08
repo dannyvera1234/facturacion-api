@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.facturacion.ideas.api.controllers.AgreementRestController;
+import com.facturacion.ideas.api.controllers.AdminAgreementRestController;
 import com.facturacion.ideas.api.dto.AgreementDTO;
 import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.util.FunctionUtil;
 /**
- *  Interface que define los contratos que debe realizar el {@link AgreementRestController}
+ *  Interface que define los contratos que debe realizar el {@link AdminAgreementRestController}
  * @author Ronny Chamba
  *
  */
