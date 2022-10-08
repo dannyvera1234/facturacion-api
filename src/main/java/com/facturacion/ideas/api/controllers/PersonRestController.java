@@ -2,6 +2,7 @@ package com.facturacion.ideas.api.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +16,9 @@ import com.facturacion.ideas.api.dto.DriverNewDTO;
 import com.facturacion.ideas.api.dto.DriverResponseDTO;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.IPersonService;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 
+@CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
 @RestController
 @RequestMapping("/facturacion")
 public class PersonRestController {

@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.facturacion.ideas.api.controller.operation.ICountOperation;
@@ -17,6 +18,7 @@ import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.ICountService;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 
 
 /**
@@ -26,6 +28,7 @@ import com.facturacion.ideas.api.services.ICountService;
  * @author Ronny Chamba
  *
  */
+@CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
 @RestController
 @RequestMapping("/facturacion/counts")
 public class CountRestController implements ICountOperation {

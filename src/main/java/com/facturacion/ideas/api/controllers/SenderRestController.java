@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.facturacion.ideas.api.controller.operation.ISenderOperation;
@@ -15,12 +16,15 @@ import com.facturacion.ideas.api.dto.SenderResponseDTO;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.ISenderService;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 /**
  * RestController que expone servicios web para la entidad {@link Sender}
  * 
  * @author Ronny Chamba
  *
  */
+
+@CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
 @RestController
 @RequestMapping("/facturacion")
 public class SenderRestController implements ISenderOperation {
