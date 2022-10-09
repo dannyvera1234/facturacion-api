@@ -16,6 +16,7 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 @Component
 public class EmissionPointMapperImpl implements IEmissionPointMapper {
 
+	
 	@Override
 	public EmissionPoint mapperToEntity(EmissionPointNewDTO emissionPointNewDTO) throws ParseException {
 
@@ -55,5 +56,4 @@ public class EmissionPointMapperImpl implements IEmissionPointMapper {
 
 		return emissionPointResponseDTOs;
 	}
-
 }

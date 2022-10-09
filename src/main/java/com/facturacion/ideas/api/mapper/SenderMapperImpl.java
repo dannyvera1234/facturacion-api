@@ -9,6 +9,7 @@ import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.dto.SenderResponseDTO;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.enums.ProvinceEnum;
+import com.facturacion.ideas.api.enums.TypeEnvironmentEnum;
 
 @Component
 public class SenderMapperImpl implements ISenderMapper {
@@ -41,6 +42,7 @@ public class SenderMapperImpl implements ISenderMapper {
 		sender.setAccountancy(senderNewDTO.getAccountancy());
 
 		sender.setProvince(senderNewDTO.getProvince());
+		
 
 		return sender;
 	}
@@ -49,10 +51,13 @@ public class SenderMapperImpl implements ISenderMapper {
 	public SenderResponseDTO mapperToDTO(Sender sender) {
 
 		SenderResponseDTO senderResponseDTO = new SenderResponseDTO();
+	
 		senderResponseDTO.setFullNameSocialReason(sender.getSocialReason() + " " + sender.getCommercialName());
 		senderResponseDTO.setRuc(sender.getRuc());
+		senderResponseDTO.setTypeSender( sender.getTypeSender().name());
 		senderResponseDTO.setMatrixAddress(sender.getMatrixAddress());
 		senderResponseDTO.setAccountancy(sender.getAccountancy().name());
+		senderResponseDTO.setTypeEnvironment(  TypeEnvironmentEnum.getTypeEnvironmentEnum( sender.getTypeEnvironment()).name());
 		senderResponseDTO.setRimpe(sender.isRimpe());
 
 		senderResponseDTO.setProvince(
@@ -60,6 +65,7 @@ public class SenderMapperImpl implements ISenderMapper {
 
 		senderResponseDTO.setSpecialContributor(sender.getSpecialContributor());
 
+		senderResponseDTO.setRol( sender.getCount().getRol().name());
 		return senderResponseDTO;
 	}
 

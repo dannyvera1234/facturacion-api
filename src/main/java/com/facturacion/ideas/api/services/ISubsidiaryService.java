@@ -17,5 +17,6 @@ public interface ISubsidiaryService {
 	SubsidiaryResponseDTO findById(Long ide);
 	
 	List<SubsidiaryResponseDTO> findByCodeAndSender(String code, Long idSender);
+	
 
 }

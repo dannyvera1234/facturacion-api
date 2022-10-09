@@ -3,6 +3,8 @@ package com.facturacion.ideas.api.repositories;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
@@ -18,4 +20,13 @@ public interface ISubsidiaryRepository extends JpaRepository<Subsidiary, Long> {
 	 * ) List<Subsidiary> findByCodeAndSenderPrivate(String code, Long ideSender);
 	 */
 
+	
+	/**
+	 * Busca los establecimiento  y punto emision de un emisor en particular
+	 * @return
+	 */
+	
+	@Query("select distinct s from Subsidiary s left join fetch s.emissionPoints e where s.sender.id= :idSender")
+	List<Subsidiary> fetchBySenderWithEmissionPoint(@Param("idSender") Long idSender);
+	
 }

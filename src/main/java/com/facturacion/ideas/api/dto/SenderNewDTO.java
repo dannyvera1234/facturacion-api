@@ -37,6 +37,7 @@ public class SenderNewDTO implements Serializable {
 	private boolean rimpe;
 	
 	private ProvinceEnum province;
+	
 
 	public SenderNewDTO(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
 			String specialContributor, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,

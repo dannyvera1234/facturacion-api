@@ -32,13 +32,13 @@ public class AdminCountRestController {
 	private IAdminService adminService;
 
 	@PostMapping("/counts")
-	public ResponseEntity<CountResponseDTO> saveCount( @RequestBody CountNewDTO countNewDTO) {
+	public ResponseEntity<CountResponseDTO> saveCount(@RequestBody CountNewDTO countNewDTO) {
 
 		LOGGER.info("Cuenta a guardar: " + countNewDTO);
 
 		try {
 			CountResponseDTO countResponseDTO = adminService.saveCount(countNewDTO);
-			return ResponseEntity.ok(countResponseDTO); 
+			return ResponseEntity.ok(countResponseDTO);
 
 		} catch (NotDataAccessException e) {
 			throw new NotDataAccessException(e.getMessage());
@@ -76,5 +76,6 @@ public class AdminCountRestController {
 		}
 
 	}
+
 
 }

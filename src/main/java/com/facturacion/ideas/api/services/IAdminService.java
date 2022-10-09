@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.facturacion.ideas.api.dto.CountNewDTO;
 import com.facturacion.ideas.api.dto.CountResponseDTO;
+import com.facturacion.ideas.api.dto.SenderResponseDTO;
+import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 
 public interface IAdminService {
 	
@@ -12,4 +14,11 @@ public interface IAdminService {
 	List<CountResponseDTO> fetchByWithAgreement();
 	
 	CountResponseDTO updateCountStatus(Long ide);
+	
+	SenderResponseDTO   findByCount(Long idCount);
+	
+	List<SubsidiaryAndEmissionPointDTO> fetchBySenderWithEmissionPoint(Long idSender);
+		
+	
+	
 }

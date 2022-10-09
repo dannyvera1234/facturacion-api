@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import com.facturacion.ideas.api.dto.SubsidiaryNewDTO;
 import com.facturacion.ideas.api.dto.SubsidiaryResponseDTO;
 import com.facturacion.ideas.api.entities.Subsidiary;
@@ -14,6 +16,9 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 
 @Component
 public class SubsidiaryMapperImpl implements ISubsidiaryMapper {
+
+	@Autowired
+	private IEmissionPointMapper emissionPointMapper;
 
 	@Override
 	public Subsidiary mapperToEntity(SubsidiaryNewDTO subsidiaryNewDTO) throws ParseException {
@@ -25,8 +30,7 @@ public class SubsidiaryMapperImpl implements ISubsidiaryMapper {
 		subsidiary.setPrincipal(subsidiaryNewDTO.isPrincipal());
 		subsidiary.setSocialReason(subsidiaryNewDTO.getSocialReason());
 		subsidiary.setStatus(subsidiaryNewDTO.isStatus());
-		
-		
+
 		subsidiary.setDateCreate(FunctionUtil.convertStringToDate(subsidiaryNewDTO.getDateCreate()));
 		return subsidiary;
 	}
@@ -56,6 +60,32 @@ public class SubsidiaryMapperImpl implements ISubsidiaryMapper {
 		}
 
 		return subsidiaryResponseDTOs;
+	}
+
+	/**
+	 * Mapea los eatablecimiento pero ademas los punto de emision
+	 */
+	@Override
+	public List<SubsidiaryAndEmissionPointDTO> mapperToDTOAndEmissionPoint(List<Subsidiary> subsidiaries) {
+
+		List<SubsidiaryAndEmissionPointDTO> subsidiaryResponseDTOs = new ArrayList<>();
+
+		subsidiaries.stream().forEach(item -> {
+
+			SubsidiaryAndEmissionPointDTO subsidiaryDTO = new SubsidiaryAndEmissionPointDTO();
+
+			subsidiaryDTO.setCode(item.getCode());
+
+			subsidiaryDTO.setStatus(item.isStatus());
+
+			subsidiaryDTO.setEmissionPointResponseDTO(emissionPointMapper.mapperToDTO(item.getEmissionPoints()));
+
+			subsidiaryResponseDTOs.add(subsidiaryDTO);
+
+		});
+
+		return subsidiaryResponseDTOs;
+
 	}
 
 }

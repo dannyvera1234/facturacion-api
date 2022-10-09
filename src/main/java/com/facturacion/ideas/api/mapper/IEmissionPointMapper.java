@@ -14,4 +14,5 @@ public interface IEmissionPointMapper {
 	EmissionPointResponseDTO mapperToDTO(EmissionPoint emissionPoint);
 
 	List<EmissionPointResponseDTO> mapperToDTO(List<EmissionPoint> emissionPoints);
+	
 }

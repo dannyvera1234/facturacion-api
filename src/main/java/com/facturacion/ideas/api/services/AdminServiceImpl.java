@@ -12,16 +12,24 @@ import org.springframework.transaction.annotation.Transactional;
 import com.facturacion.ideas.api.admin.AdminDetailsAggrement;
 import com.facturacion.ideas.api.dto.CountNewDTO;
 import com.facturacion.ideas.api.dto.CountResponseDTO;
+import com.facturacion.ideas.api.dto.SenderResponseDTO;
+import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import com.facturacion.ideas.api.entities.Agreement;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.DetailsAggrement;
+import com.facturacion.ideas.api.entities.Sender;
+import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.ICountMapper;
+import com.facturacion.ideas.api.mapper.ISenderMapper;
+import com.facturacion.ideas.api.mapper.ISubsidiaryMapper;
 import com.facturacion.ideas.api.repositories.IAgreementRepository;
 import com.facturacion.ideas.api.repositories.ICountRepository;
 import com.facturacion.ideas.api.repositories.IDetailsAgreementRepository;
+import com.facturacion.ideas.api.repositories.ISenderRepository;
+import com.facturacion.ideas.api.repositories.ISubsidiaryRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 @Service
@@ -33,14 +41,26 @@ public class AdminServiceImpl implements IAdminService {
 	private ICountRepository countRepository;
 
 	@Autowired
-	private ICountMapper countMapper;
-
-	@Autowired
 	private IAgreementRepository agreementRepository;
 
 	@Autowired
 	private IDetailsAgreementRepository detailsAgreementRepository;
 
+	@Autowired
+	private ISenderRepository senderRepository;
+	
+	@Autowired
+	private ISubsidiaryRepository subsidiaryRepository;
+
+	@Autowired
+	private ISubsidiaryMapper subsidiaryMapper;
+
+	@Autowired
+	private ISenderMapper senderMapper;
+	
+	@Autowired
+	private ICountMapper countMapper;
+	
 	@Override
 	@Transactional
 	public CountResponseDTO saveCount(CountNewDTO countNewDTO) {
@@ -115,6 +135,52 @@ public class AdminServiceImpl implements IAdminService {
 			throw new NotDataAccessException("Error actualizar estado cuenta" + e.getMessage());
 
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public SenderResponseDTO findByCount(Long idCount) {
+
+		try {
+
+			Sender sender = senderRepository.fetchByWithCount(idCount).orElseThrow(() -> new NotFoundException(
+					"Cuenta id: " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			return senderMapper.mapperToDTO(sender);
+
+		} catch (DataAccessException e) {
+
+			LOGGER.info("Error buscar emisor por cuenta", e);
+			throw new NotDataAccessException("Error al busca emisor por cuenta" + e.getMessage());
+
+		}
+
+	}
+
+	@Override
+	public List<SubsidiaryAndEmissionPointDTO> fetchBySenderWithEmissionPoint(Long idSender) {
+
+		try {
+
+			List<Subsidiary> subsidiaries = subsidiaryRepository.fetchBySenderWithEmissionPoint(idSender);
+
+			if (subsidiaries.size() < 1) {
+				throw new NotFoundException(
+						"Emisor id " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+			}
+
+			List<SubsidiaryAndEmissionPointDTO> subsidiaryResponseDTOs = subsidiaryMapper
+					.mapperToDTOAndEmissionPoint(subsidiaries);
+
+			return subsidiaryResponseDTOs;
+
+		} catch (DataAccessException e) {
+
+			LOGGER.info("Error listar sender punto emision", e);
+			throw new NotDataAccessException("Error listar sender punto emision" + e.getMessage());
+
+		}
+
 	}
 
 }

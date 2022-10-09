@@ -16,8 +16,10 @@ public class SubsidiaryResponseDTO implements Serializable {
 
 	private String dateCreate;
 
+
 	public SubsidiaryResponseDTO() {
 		super();
+
 	}
 
 	public SubsidiaryResponseDTO(String code, String socialReason, String address, boolean status, String dateCreate) {
@@ -27,6 +29,7 @@ public class SubsidiaryResponseDTO implements Serializable {
 		this.address = address;
 		this.status = status;
 		this.dateCreate = dateCreate;
+
 	}
 
 	public String getCode() {
@@ -68,7 +71,6 @@ public class SubsidiaryResponseDTO implements Serializable {
 	public void setDateCreate(String dateCreate) {
 		this.dateCreate = dateCreate;
 	}
-
 	@Override
 	public String toString() {
 		return "SubsidiaryResponseDTO [code=" + code + ", socialReason=" + socialReason + ", address=" + address

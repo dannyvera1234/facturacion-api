@@ -16,13 +16,17 @@ public class SenderResponseDTO implements Serializable {
 
 	private String accountancy;
 
-	// private String typeSender;
+	private String typeSender;
 
 	// private String logo;
 
 	private boolean rimpe;
 
 	private String province;
+
+	private String typeEnvironment;
+
+	private String rol;
 
 	public SenderResponseDTO() {
 		super();
@@ -94,6 +98,30 @@ public class SenderResponseDTO implements Serializable {
 
 	public void setProvince(String province) {
 		this.province = province;
+	}
+
+	public String getTypeSender() {
+		return typeSender;
+	}
+
+	public void setTypeSender(String typeSender) {
+		this.typeSender = typeSender;
+	}
+
+	public String getTypeEnvironment() {
+		return typeEnvironment;
+	}
+
+	public void setTypeEnvironment(String typeEnvironment) {
+		this.typeEnvironment = typeEnvironment;
+	}
+
+	public String getRol() {
+		return rol;
+	}
+
+	public void setRol(String rol) {
+		this.rol = rol;
 	}
 
 	@Override

@@ -16,5 +16,7 @@ public interface ISenderService {
 	SenderResponseDTO findById(Long id);
 
 	List<SenderResponseDTO> findAll();
+	
+
 
 }
