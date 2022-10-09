@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.facturacion.ideas.api.controller.operation.IEmployeeOperation;
 import com.facturacion.ideas.api.dto.EmployeeDTO;
+import com.facturacion.ideas.api.dto.EmployeeResponseDTO;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.IEmployeeService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
@@ -29,14 +30,14 @@ public class EmployeeRestController implements IEmployeeOperation {
 	private IEmployeeService employeeService;
 
 	@Override
-	public ResponseEntity<EmployeeDTO> save(EmployeeDTO employeeDTO, Long id) {
+	public ResponseEntity<EmployeeResponseDTO> save(EmployeeDTO employeeDTO, Long id) {
 
 		LOGGER.info("Empleado a guardar: " + employeeDTO);
 		try {
 
-			EmployeeDTO employeeDTOSaved = employeeService.save(employeeDTO, id);
+			EmployeeResponseDTO employeeDTOSaved = employeeService.save(employeeDTO, id);
 
-			return new ResponseEntity<EmployeeDTO>(employeeDTOSaved, HttpStatus.CREATED);
+			return new ResponseEntity<EmployeeResponseDTO>(employeeDTOSaved, HttpStatus.CREATED);
 
 		} catch (NotDataAccessException e) {
 
@@ -46,22 +47,22 @@ public class EmployeeRestController implements IEmployeeOperation {
 	}
 
 	@Override
-	public ResponseEntity<EmployeeDTO> findById(Long id) {
+	public ResponseEntity<EmployeeResponseDTO> findById(Long id) {
 
-		EmployeeDTO employeeDTO = employeeService.findById(id);
+		EmployeeResponseDTO employeeDTO = employeeService.findById(id);
 
-		return new ResponseEntity<EmployeeDTO>(employeeDTO, HttpStatus.OK);
+		return new ResponseEntity<EmployeeResponseDTO>(employeeDTO, HttpStatus.OK);
 
 	}
 
 	@Override
-	public ResponseEntity<List<EmployeeDTO>> findByAll() {
+	public ResponseEntity<List<EmployeeResponseDTO>> findByAll() {
 
 		try {
 
-			List<EmployeeDTO> employeeDTOs = employeeService.findByAll();
+			List<EmployeeResponseDTO> employeeDTOs = employeeService.findByAll();
 
-			return new ResponseEntity<List<EmployeeDTO>>(employeeDTOs, HttpStatus.OK);
+			return new ResponseEntity<List<EmployeeResponseDTO>>(employeeDTOs, HttpStatus.OK);
 
 		} catch (NotDataAccessException e) {
 			throw new NotDataAccessException(e.getMessage());
@@ -83,13 +84,13 @@ public class EmployeeRestController implements IEmployeeOperation {
 	}
 
 	@Override
-	public ResponseEntity<EmployeeDTO> update(EmployeeDTO employeeDTO, Long id) {
+	public ResponseEntity<EmployeeResponseDTO> update(EmployeeDTO employeeDTO, Long id) {
 
 		try {
 
-			EmployeeDTO employeeDTOSaved = employeeService.update(employeeDTO, id);
+			EmployeeResponseDTO employeeDTOSaved = employeeService.update(employeeDTO, id);
 
-			return new ResponseEntity<EmployeeDTO>(employeeDTOSaved, HttpStatus.OK);
+			return new ResponseEntity<EmployeeResponseDTO>(employeeDTOSaved, HttpStatus.OK);
 
 		} catch (NotDataAccessException e) {
 
@@ -99,14 +100,14 @@ public class EmployeeRestController implements IEmployeeOperation {
 	}
 
 	@Override
-	public ResponseEntity<List<EmployeeDTO>> findAllBySubsidiary(Long id) {
-	
-		LOGGER.info("Establecimiento empleados buscar: "  + id);
+	public ResponseEntity<List<EmployeeResponseDTO>> findAllBySennders(Long id) {
+
+		LOGGER.info("Emisor empleados buscar: " + id);
 		try {
 
-			List<EmployeeDTO> employeeDTOs = employeeService.findByIdSubsidiary(id);
+			List<EmployeeResponseDTO> employeeDTOs = employeeService.findByIdSenders(id);
 
-			return  ResponseEntity.ok(employeeDTOs);
+			return ResponseEntity.ok(employeeDTOs);
 
 		} catch (NotDataAccessException e) {
 

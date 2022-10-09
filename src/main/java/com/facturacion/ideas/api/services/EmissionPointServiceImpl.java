@@ -21,6 +21,7 @@ import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IEmissionPointMapper;
 import com.facturacion.ideas.api.repositories.ICodeDocumentRepository;
 import com.facturacion.ideas.api.repositories.IEmissionPointRepository;
+import com.facturacion.ideas.api.repositories.IEmployeeRepository;
 import com.facturacion.ideas.api.repositories.ISubsidiaryRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
@@ -39,6 +40,9 @@ public class EmissionPointServiceImpl implements IEmissionPointService {
 
 	@Autowired
 	private IEmissionPointMapper emissionPointMapper;
+
+	@Autowired
+	private IEmployeeRepository employeeRepository;
 
 	@Override
 	@Transactional
@@ -69,21 +73,24 @@ public class EmissionPointServiceImpl implements IEmissionPointService {
 					.orElseThrow(() -> new NotFoundException(
 							"numero-emision: " + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			// obttener ell estado,
-			boolean status = emissionPointNewDTO.isStatus();
-
 			// Crear el EmissionPoint
-			emissionPointNewDTO = AdminEmissionPoint.createEmissionPointNewDTO(codeDocument.getNumEmissionPoint(),
-					count.getRuc());
+			EmissionPointNewDTO emissionPointSavedDTO = AdminEmissionPoint
+					.createEmissionPointNewDTO(codeDocument.getNumEmissionPoint(), count.getRuc());
 
-			emissionPointNewDTO.setStatus(status);
+			emissionPointSavedDTO.setStatus(emissionPointNewDTO.isStatus());
 
-			EmissionPoint emissionPoint = emissionPointMapper.mapperToEntity(emissionPointNewDTO);
+			EmissionPoint emissionPoint = emissionPointMapper.mapperToEntity(emissionPointSavedDTO);
 			emissionPoint.setSubsidiary(subsidiary);
 
-			if (emissionPointNewDTO.getIdEmployee() != null) {
+			// Aqui consultar el empleado y si existe agregarlo al punto emision
+			Long idEmpleado = emissionPointNewDTO.getIdEmployee();
 
-				// Aqui consultar el empleado y si existe agregarlo al punto emision
+			if (idEmpleado != null) {
+
+				// Asignar empelado al punto emision
+				emissionPoint.setEmployee(employeeRepository.findById(idEmpleado)
+						.orElseThrow(() -> new NotFoundException("Empleado id: " + idEmpleado + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+
 			}
 
 			EmissionPoint emissionPointSaved = emissionPointRepository.save(emissionPoint);
@@ -110,7 +117,6 @@ public class EmissionPointServiceImpl implements IEmissionPointService {
 
 		try {
 
-			
 			EmissionPoint emissionPoint = emissionPointRepository.findById(id).orElseThrow(
 
 					() -> new NotFoundException(

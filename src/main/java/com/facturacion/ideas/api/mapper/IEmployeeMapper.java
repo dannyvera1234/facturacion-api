@@ -3,14 +3,15 @@ package com.facturacion.ideas.api.mapper;
 import java.util.List;
 
 import com.facturacion.ideas.api.dto.EmployeeDTO;
+import com.facturacion.ideas.api.dto.EmployeeResponseDTO;
 import com.facturacion.ideas.api.entities.Employee;
 
 public interface IEmployeeMapper {
 
 	Employee mapperToEntity(EmployeeDTO employeeDTO);
 
-	EmployeeDTO mapperToDTO(Employee employee);
+	EmployeeResponseDTO mapperToDTO(Employee employee);
 	
-	List<EmployeeDTO> mapperToDTO(List<Employee> employees);
+	List<EmployeeResponseDTO> mapperToDTO(List<Employee> employees);
 
 }

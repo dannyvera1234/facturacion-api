@@ -1,7 +1,6 @@
 package com.facturacion.ideas.api.services;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.dto.EmployeeDTO;
+import com.facturacion.ideas.api.dto.EmployeeResponseDTO;
 import com.facturacion.ideas.api.entities.Employee;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
@@ -21,6 +21,7 @@ import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IEmployeeMapper;
 import com.facturacion.ideas.api.repositories.IEmployeeRepository;
+import com.facturacion.ideas.api.repositories.ISenderRepository;
 import com.facturacion.ideas.api.repositories.ISubsidiaryRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
@@ -38,40 +39,59 @@ public class EmployeeServiceImpl implements IEmployeeService {
 	@Autowired
 	private ISubsidiaryRepository subsidiaryRepository;
 
+	@Autowired
+	private ISenderRepository senderRepository;
+
 	@Override
-	public EmployeeDTO save(EmployeeDTO employeeDTO, Long idSubsidiary) {
+	public EmployeeResponseDTO save(EmployeeDTO employeeDTO, Long idSennder) {
 
 		try {
 
-			Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
-					"id:" + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-
+			/*
+			 * Subsidiary subsidiary =
+			 * subsidiaryRepository.findById(idSennder).orElseThrow(() -> new
+			 * NotFoundException( "id:" + idSennder +
+			 * ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+			 */
 			// Obtener el emisor del etablecimiento
-			Sender sender = subsidiary.getSender();
+			Sender sender = senderRepository.findById(idSennder).orElseThrow(
+					() -> new NotFoundException("id:" + idSennder + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			
 			// Verificar si el empleado ya pertene a la empresa o emisor
 			if (employeeRepository.existsBySender(sender)) {
 
 				throw new DuplicatedResourceException("Empleado con cedula: " + employeeDTO.getCedula()
 						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION + " , mismo emisor");
-				
+
 			}
 
-			
 			/*
-			// Verificar si la cedula ya esta registrada en el establecimiento
-			if (employeeRepository.existsByCedulaAndSubsidiary(employeeDTO.getCedula(), subsidiary)) {
-
-				throw new DuplicatedResourceException("Cedula: " + employeeDTO.getCedula()
-						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION
-						+ "  empleado esta registrado en un establecimiento");
-
-			}*/
+			 * // Verificar si la cedula ya esta registrada en el establecimiento if
+			 * (employeeRepository.existsByCedulaAndSubsidiary(employeeDTO.getCedula(),
+			 * subsidiary)) {
+			 * 
+			 * throw new DuplicatedResourceException("Cedula: " + employeeDTO.getCedula() +
+			 * ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION +
+			 * "  empleado esta registrado en un establecimiento");
+			 * 
+			 * }
+			 */
 
 			Employee employee = employeeMapper.mapperToEntity(employeeDTO);
+
+			Long idSubsidiary = employeeDTO.getSubsidiary();
+
+			if (idSubsidiary != null) {
+
+				Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary)
+						.orElseThrow(() -> new NotFoundException("Establecimiento id: " + idSubsidiary));
+
+				// Asingnar establecimiento al empleado
+				employee.setSubsidiary(subsidiary);
+
+			}
+
 			employee.setSender(sender);
-			employee.setSubsidiary(subsidiary);
 
 			// Persistir empleado
 			Employee employeeSaved = employeeRepository.save(employee);
@@ -88,20 +108,28 @@ public class EmployeeServiceImpl implements IEmployeeService {
 	}
 
 	@Override
-	public EmployeeDTO findById(Long id) {
+	public EmployeeResponseDTO findById(Long id) {
+		try {
 
-		EmployeeDTO employeeDTO = employeeMapper.mapperToDTO(findByIdPrivate(id));
+			EmployeeResponseDTO employeeDTO = employeeMapper.mapperToDTO(findByIdPrivate(id));
 
-		return employeeDTO;
+			return employeeDTO;
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error buscar empleado", e);
+
+			throw new NotDataAccessException("Error buscar empleado: " + e.getMessage());
+		}
+
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<EmployeeDTO> findByAll() {
+	public List<EmployeeResponseDTO> findByAll() {
 
 		try {
 
-			List<EmployeeDTO> employeeDTOs = employeeRepository.findAll().stream()
+			List<EmployeeResponseDTO> employeeDTOs = employeeRepository.findAll().stream()
 					.map(item -> employeeMapper.mapperToDTO(item)).collect(Collectors.toList());
 
 			return employeeDTOs;
@@ -138,7 +166,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
 	@Override
 	@Transactional
-	public EmployeeDTO update(EmployeeDTO employeeDTO, Long id) {
+	public EmployeeResponseDTO update(EmployeeDTO employeeDTO, Long id) {
 
 		Employee employee = findByIdPrivate(id);
 
@@ -191,21 +219,21 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<EmployeeDTO> findByIdSubsidiary(Long idSubsidiary) {
+	public List<EmployeeResponseDTO> findByIdSenders(Long idSender) {
 
 		try {
 
-			Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
-					"establecimiento: " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+			Sender emisor = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
+					"Emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			List<Employee> employees = subsidiary.getEmployees();
+			List<Employee> employees = emisor.getEmployees();
 
 			return employeeMapper.mapperToDTO(employees);
 
 		} catch (DataAccessException e) {
-			LOGGER.error("Error listar empleado establecimiento", e);
+			LOGGER.error("Error listar empleado emisor", e);
 
-			throw new NotDataAccessException("Error listar empleado establecimiento: " + e.getMessage());
+			throw new NotDataAccessException("Error listar empleado emisor: " + e.getMessage());
 		}
 
 	}

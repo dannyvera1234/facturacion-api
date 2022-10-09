@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.facturacion.ideas.api.dto.EmployeeDTO;
+import com.facturacion.ideas.api.dto.EmployeeResponseDTO;
 import com.facturacion.ideas.api.entities.Employee;
+import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.enums.RolEnum;
 
 @Component
@@ -32,24 +34,27 @@ public class EmployeeMapperImpl implements IEmployeeMapper {
 	}
 
 	@Override
-	public EmployeeDTO mapperToDTO(Employee employee) {
+	public EmployeeResponseDTO mapperToDTO(Employee employee) {
 
-		EmployeeDTO employeeDTO = new EmployeeDTO();
+		EmployeeResponseDTO employeeResponseDTO = new EmployeeResponseDTO();
 
-		employeeDTO.setIde(employee.getIde());
-		employeeDTO.setCedula(employee.getCedula());
-		employeeDTO.setName(employee.getName());
-		employeeDTO.setTelephone(employee.getTelephone());
-		employeeDTO.setRol(employee.getRol().name());
-		employeeDTO.setSubsidiary(employee.getSubsidiary().getSocialReason());
+		employeeResponseDTO.setIde(employee.getIde());
+		employeeResponseDTO.setCedula(employee.getCedula());
+		employeeResponseDTO.setName(employee.getName());
+		employeeResponseDTO.setTelephone(employee.getTelephone());
+		employeeResponseDTO.setRol(employee.getRol().name());
+		
+		
+		Subsidiary subsidiary = employee.getSubsidiary();
+		employeeResponseDTO.setSubsidiary( subsidiary == null ? "No Asignado" : subsidiary.getSocialReason());
 
-		return employeeDTO;
+		return employeeResponseDTO;
 	}
 
 	@Override
-	public List<EmployeeDTO> mapperToDTO(List<Employee> employees) {
+	public List<EmployeeResponseDTO> mapperToDTO(List<Employee> employees) {
 
-		List<EmployeeDTO> employeeDTOs = new ArrayList<>();
+		List<EmployeeResponseDTO> employeeDTOs = new ArrayList<>();
 
 		if (employees.size() > 0) {
 

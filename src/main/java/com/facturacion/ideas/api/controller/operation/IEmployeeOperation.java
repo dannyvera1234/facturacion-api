@@ -11,25 +11,26 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.facturacion.ideas.api.dto.EmployeeDTO;
+import com.facturacion.ideas.api.dto.EmployeeResponseDTO;
 
 public interface IEmployeeOperation {
 
-	@PostMapping("/subsidiarys/{id}/employees")
-	public ResponseEntity<EmployeeDTO> save(@RequestBody EmployeeDTO employeeDTO, @PathVariable Long id);
+	@PostMapping("/senders/{id}/employees")
+	public ResponseEntity<EmployeeResponseDTO> save(@RequestBody EmployeeDTO employeeDTO, @PathVariable Long id);
 
-	@GetMapping("/subsidiarys/{id}/employees")
-	public ResponseEntity<List<EmployeeDTO>> findAllBySubsidiary(@PathVariable Long id);
+	@GetMapping("/senders/{id}/employees")
+	public ResponseEntity<List<EmployeeResponseDTO>> findAllBySennders(@PathVariable Long id);
 
 	@GetMapping("/employees/{id}")
-	public ResponseEntity<EmployeeDTO> findById(@PathVariable Long id);
+	public ResponseEntity<EmployeeResponseDTO> findById(@PathVariable Long id);
 
 	@GetMapping("/employees")
-	public ResponseEntity<List<EmployeeDTO>> findByAll();
+	public ResponseEntity<List<EmployeeResponseDTO>> findByAll();
 
 	@DeleteMapping("/employees/{id}")
 	public ResponseEntity<String> deleteById(@PathVariable Long id);
 
 	@PutMapping("/employees/{id}")
-	public ResponseEntity<EmployeeDTO> update(@RequestBody EmployeeDTO employeeDTO, @PathVariable Long id);
+	public ResponseEntity<EmployeeResponseDTO> update(@RequestBody EmployeeDTO employeeDTO, @PathVariable Long id);
 
 }

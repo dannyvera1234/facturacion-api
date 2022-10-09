@@ -84,7 +84,9 @@ public class EmissionPointNewDTO implements Serializable {
 	@Override
 	public String toString() {
 		return "EmissionPointNewDTO [ide=" + ide + ", codePoint=" + codePoint + ", status=" + status + ", dateRegister="
-				+ dateRegister + ", keyPoint=" + keyPoint + "]";
+				+ dateRegister + ", keyPoint=" + keyPoint + ", idEmployee=" + idEmployee + "]";
 	}
+
+
 
 }

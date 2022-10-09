@@ -40,6 +40,8 @@ public class EmissionPointController implements IEmissionPointOperation {
 
 		LOGGER.info("Id Establecimiento para el PuntoEmision: " + idSubsidiary);
 
+		LOGGER.info("Punto emision guardar: " + emissionPointNewDTO);
+	
 		try {
 
 			EmissionPointResponseDTO emissionPointResponseDTO = emissionPointService.save(emissionPointNewDTO,

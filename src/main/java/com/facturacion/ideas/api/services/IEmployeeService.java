@@ -3,20 +3,21 @@ package com.facturacion.ideas.api.services;
 import java.util.List;
 
 import com.facturacion.ideas.api.dto.EmployeeDTO;
+import com.facturacion.ideas.api.dto.EmployeeResponseDTO;
 
 public interface IEmployeeService {
 
-	EmployeeDTO save(EmployeeDTO employeeDTO, Long idSubsidiary);
+	EmployeeResponseDTO save(EmployeeDTO employeeDTO, Long idSender);
 
-	EmployeeDTO findById(Long id);
+	EmployeeResponseDTO findById(Long id);
 		
 	
-	List<EmployeeDTO> findByIdSubsidiary(Long idSubsidiary);	
+	List<EmployeeResponseDTO> findByIdSenders(Long idSubsidiary);	
 
-	List<EmployeeDTO> findByAll();
+	List<EmployeeResponseDTO> findByAll();
 
 	String deleteById(Long id);
 
-	EmployeeDTO update(EmployeeDTO employeeDTO, Long id);
+	EmployeeResponseDTO update(EmployeeDTO employeeDTO, Long id);
 
 }
