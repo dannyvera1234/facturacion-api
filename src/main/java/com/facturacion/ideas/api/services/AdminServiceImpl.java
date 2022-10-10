@@ -26,6 +26,7 @@ import com.facturacion.ideas.api.mapper.ICountMapper;
 import com.facturacion.ideas.api.mapper.ISenderMapper;
 import com.facturacion.ideas.api.mapper.ISubsidiaryMapper;
 import com.facturacion.ideas.api.repositories.IAgreementRepository;
+import com.facturacion.ideas.api.repositories.ICodeDocumentRepository;
 import com.facturacion.ideas.api.repositories.ICountRepository;
 import com.facturacion.ideas.api.repositories.IDetailsAgreementRepository;
 import com.facturacion.ideas.api.repositories.ISenderRepository;
@@ -61,6 +62,8 @@ public class AdminServiceImpl implements IAdminService {
 	@Autowired
 	private ICountMapper countMapper;
 	
+	@Autowired
+	private ICodeDocumentRepository codeDocumentRepository;
 	@Override
 	@Transactional
 	public CountResponseDTO saveCount(CountNewDTO countNewDTO) {
@@ -144,7 +147,7 @@ public class AdminServiceImpl implements IAdminService {
 		try {
 
 			Sender sender = senderRepository.fetchByWithCount(idCount).orElseThrow(() -> new NotFoundException(
-					"Cuenta id: " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+					"Cuenta id: " + idCount + " No tiene registrado un emisor"));
 
 			return senderMapper.mapperToDTO(sender);
 
@@ -181,6 +184,34 @@ public class AdminServiceImpl implements IAdminService {
 
 		}
 
+	}
+
+	@Override
+	@Transactional
+	public void deleteCountById(Long id) {
+	
+		try {
+
+			Count count = countRepository.findById(id).orElseThrow(
+					() -> new NotFoundException("id: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			Long ide = count.getIde();
+
+			countRepository.deleteById(ide);
+
+			// Eliminar los registros en la CodeDocument, que
+			// esten relacionados con la cuenta recientemente elimnada
+			codeDocumentRepository.deleteByCodeCount(ide);
+
+		} catch (DataAccessException e) {
+
+			LOGGER.info("Erro eliminar cuenta", e);
+			throw new NotDataAccessException("Erro eliminar cuenta" + e.getMessage());
+
+		}
+		
+		
+		
 	}
 
 }

@@ -17,6 +17,8 @@ public interface IAdminService {
 	
 	SenderResponseDTO   findByCount(Long idCount);
 	
+	void deleteCountById(Long id);
+	
 	List<SubsidiaryAndEmissionPointDTO> fetchBySenderWithEmissionPoint(Long idSender);
 		
 	
