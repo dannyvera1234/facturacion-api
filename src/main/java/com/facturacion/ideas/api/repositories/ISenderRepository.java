@@ -22,7 +22,5 @@ public interface ISenderRepository extends JpaRepository<Sender, Long> {
 	@Query("select s from Sender s left join fetch s.count c where s.count.id= :idCount")
 	Optional<Sender> fetchByWithCount(@Param("idCount") Long idCount);
 	
-	
-	
 
 }

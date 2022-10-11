@@ -1,6 +1,6 @@
 package com.facturacion.ideas.api.services;
 
-import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -211,7 +211,7 @@ public class PersonServiceImpl implements IPersonService {
 		} catch (DataAccessException e) {
 			LOGGER.error("Error guardar transportista: ", e);
 			throw new NotDataAccessException("Error guardar tranportista: " + e.getMessage());
-		} 
+		}
 
 	}
 
@@ -241,6 +241,54 @@ public class PersonServiceImpl implements IPersonService {
 			throw new NotDataAccessException("Error al eliminar persona: " + e.getMessage());
 		}
 
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CustomerResponseDTO> findAllCustomerBySender(Long idSender) {
+
+		try {
+
+			// Verificar si existe el emisor
+			if (!senderRepository.existsById(idSender)) {
+
+				throw new NotFoundException("Emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+			}
+
+			List<Customer> customers = customerRepository.findAllBySender(idSender);
+
+			return personMapper.mapperToDTOCustomer(customers);
+
+		} catch (DataAccessException e) {
+
+			LOGGER.error("Error listar clientes", e);
+			throw new NotDataAccessException("Error listar clientes: " + e.getMessage());
+
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<DriverResponseDTO> findAllDriverBySender(Long idSender) {
+
+		try {
+
+			// Verificar si existe el emisor
+			if (!senderRepository.existsById(idSender)) {
+
+				throw new NotFoundException("Emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+			}
+
+			List<Driver> drivers = driverRepository.findAllBySender(idSender);
+
+			return personMapper.mapperToDTODriver(drivers);
+
+		} catch (DataAccessException e) {
+
+			LOGGER.error("Error listar transportistas", e);
+			throw new NotDataAccessException("Error listar transportistas: " + e.getMessage());
+
+		}
 	}
 
 }

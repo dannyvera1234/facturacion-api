@@ -1,6 +1,8 @@
 package com.facturacion.ideas.api.mapper;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -56,12 +58,6 @@ public class PersonMapperImpl implements IPersonMapper {
 	}
 
 	@Override
-	public List<PersonResponseDTO> mapperToDTO(List<Person> persons) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Driver mapperToEntity(DriverNewDTO personNewDTO) {
 
 		Driver person = new Driver();
@@ -73,7 +69,7 @@ public class PersonMapperImpl implements IPersonMapper {
 		person.setNumeroIdentificacion(personNewDTO.getNumberIdentification());
 		person.setRazonSocial(personNewDTO.getSocialReason());
 		person.setAddress(personNewDTO.getAddress());
- 
+
 		// Driver
 		person.setPlaca(personNewDTO.getPlaca());
 
@@ -93,6 +89,31 @@ public class PersonMapperImpl implements IPersonMapper {
 		driverResponseDTO.setAddress(person.getAddress());
 		driverResponseDTO.setPlaca(person.getPlaca());
 		return driverResponseDTO;
+	}
+
+	@Override
+	public List<CustomerResponseDTO> mapperToDTOCustomer(List<Customer> customers) {
+
+		List<CustomerResponseDTO> customerResponseDTOs = new ArrayList<>();
+
+		if (customers.size() > 0) {
+			customerResponseDTOs = customers.stream().map(item -> mapperToDTO(item)).collect(Collectors.toList());
+		}
+
+		return customerResponseDTOs;
+
+	}
+
+	@Override
+	public List<DriverResponseDTO> mapperToDTODriver(List<Driver> drivers) {
+
+		List<DriverResponseDTO> driverResponseDTOs = new ArrayList<>();
+
+		if (drivers.size() > 0) {
+			driverResponseDTOs = drivers.stream().map(item -> mapperToDTO(item)).collect(Collectors.toList());
+		}
+
+		return driverResponseDTOs;
 	}
 
 }

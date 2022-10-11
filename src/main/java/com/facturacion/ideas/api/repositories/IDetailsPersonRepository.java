@@ -17,4 +17,5 @@ public interface IDetailsPersonRepository extends JpaRepository<DetailsPerson, L
 	// Si existe devuelve el valor entero 1
 	@Query(value = "SELECT  true FROM DETALLE_PERSONAS WHERE DEP_FK_COD_EMI = :idSender AND DEP_FK_COD_PER = :idPerson", nativeQuery = true)
 	Optional<Boolean> existsByPersonAndSenderNative(@Param("idPerson") Long idPerson, @Param("idSender") Long idSender);
+	
 }

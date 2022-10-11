@@ -35,7 +35,7 @@ public class Invoice extends Document implements Serializable {
 
 	// en DeatailsInvoiceProduct se agregar el ide de esta factura
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "DTF_COD_FAC")
+	@JoinColumn(name = "DTF_FK_COD_FAC")
 	private List<DeatailsInvoiceProduct> deatailsInvoiceProducts;
 
 	public Invoice() {

@@ -1,9 +1,12 @@
 package com.facturacion.ideas.api.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +45,21 @@ public class PersonRestController {
 
 	}
 
+	@GetMapping("/senders/{id}/customers")
+	public ResponseEntity<List<CustomerResponseDTO>> findAllCustomers(@PathVariable(name = "id") Long idSender) {
+
+		try {
+
+			List<CustomerResponseDTO> customerResponseDTOs = personService.findAllCustomerBySender(idSender);
+
+			return ResponseEntity.ok(customerResponseDTOs);
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
+
+	}
+
 	@PostMapping("/senders/{id}/drivers")
 	public ResponseEntity<DriverResponseDTO> saveDriver(@RequestBody DriverNewDTO driverNewDTO,
 			@PathVariable(name = "id") Long idSender) {
@@ -51,6 +69,21 @@ public class PersonRestController {
 			DriverResponseDTO driverResponseDTO = personService.save(driverNewDTO, idSender);
 
 			return ResponseEntity.ok(driverResponseDTO);
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
+
+	}
+
+	@GetMapping("/senders/{id}/drivers")
+	public ResponseEntity<List<DriverResponseDTO>> findAllDrivers(@PathVariable(name = "id") Long idSender) {
+
+		try {
+
+			List<DriverResponseDTO> customerResponseDTOs = personService.findAllDriverBySender(idSender);
+
+			return ResponseEntity.ok(customerResponseDTOs);
 		} catch (NotDataAccessException e) {
 
 			throw new NotDataAccessException(e.getMessage());
