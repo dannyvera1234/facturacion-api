@@ -52,10 +52,10 @@ public class EmployeeServiceImpl implements IEmployeeService {
 					"Emisor id: " + idSennder + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
 			// Verificar si el empleado ya pertene a la empresa | emisor
-			if (employeeRepository.existsByCedulaAndSender( employeeDTO.getCedula(), sender)) {
+			if (employeeRepository.existsByCedulaAndSender(employeeDTO.getCedula(), sender)) {
 
 				throw new DuplicatedResourceException("Empleado con cedula: " + employeeDTO.getCedula()
-						+ " ya pertenece al emisor "+ sender.getSocialReason());
+						+ " ya pertenece al emisor " + sender.getSocialReason());
 
 			}
 
@@ -66,11 +66,12 @@ public class EmployeeServiceImpl implements IEmployeeService {
 			// Si al empleado se le asigno un establecimiento
 			if (idSubsidiary != null) {
 
-				// Validar que existe el establecimiento, ademas que este asociado con el emisor.
+				// Validar que existe el establecimiento, ademas que este asociado con el
+				// emisor.
 				// para asegurarse que establecimiento sea del mismo emisor
 				Subsidiary subsidiary = subsidiaryRepository.findByIdeAndSender(idSubsidiary, sender)
-						.orElseThrow(() -> new NotFoundException("Emisor " +  sender.getSocialReason() + 
-								 " no tiene registrado un establecimiento con id :" + idSubsidiary));
+						.orElseThrow(() -> new NotFoundException("Emisor " + sender.getSocialReason()
+								+ " no tiene registrado un establecimiento con id :" + idSubsidiary));
 
 				// Asingnar establecimiento al empleado
 				employee.setSubsidiary(subsidiary);
@@ -170,6 +171,23 @@ public class EmployeeServiceImpl implements IEmployeeService {
 				}
 
 			}
+
+			// Si se asigna un establecimiento
+			if (employeeDTO.getSubsidiary() != null) {
+				
+			
+				// Obtener el establecimiento que se desea asigna al empleado, esté debe corresponder al mismo emisor del empleado a actualizar	
+				Subsidiary subsidiary = subsidiaryRepository.findByIdeAndSender(employeeDTO.getSubsidiary(), employee.getSender())
+						.orElseThrow(() -> new NotFoundException("Establecimiento " + employeeDTO.getSubsidiary()
+								+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+	
+				// Asignar establecimiento al empleado
+				employee.setSubsidiary(subsidiary);
+
+			}
+			// Dejar si un establecimiento al empleado
+			else
+				employee.setSubsidiary(null);
 
 			Employee employeeSaved = employeeRepository.save(employee);
 
