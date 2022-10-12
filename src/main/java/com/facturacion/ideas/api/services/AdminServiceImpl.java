@@ -85,11 +85,14 @@ public class AdminServiceImpl implements IAdminService {
 			DetailsAggrement detailsAggrement = AdminDetailsAggrement.create(agreement.getTypeAgreement(),
 					countNewDTO.getAmount());
 			detailsAggrement.setGreement(agreement);
+			
+			// Alla a la cuenta que paso le agrego este detalle
 			detailsAggrement.setCount(countSaved);
 
 			detailsAgreementRepository.save(detailsAggrement);
-
+			
 			return countMapper.mapperToDTO(countSaved);
+			
 		} catch (DataAccessException e) {
 
 			LOGGER.error("Error guardar cuenta", e);

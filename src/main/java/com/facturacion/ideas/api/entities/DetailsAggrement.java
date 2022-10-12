@@ -101,7 +101,10 @@ public class DetailsAggrement implements Serializable {
 		this.greement = greement;
 	}
 	public void setCount(Count count) {
+		
 		this.count = count;
+		// Asignar detalle a la cuenta
+		this.count.addDetailsAggrement(this);
 	}
 	
 	public Count getCount() {

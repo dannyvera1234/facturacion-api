@@ -10,10 +10,8 @@ import com.facturacion.ideas.api.dto.CustomerNewDTO;
 import com.facturacion.ideas.api.dto.CustomerResponseDTO;
 import com.facturacion.ideas.api.dto.DriverNewDTO;
 import com.facturacion.ideas.api.dto.DriverResponseDTO;
-import com.facturacion.ideas.api.dto.PersonResponseDTO;
 import com.facturacion.ideas.api.entities.Customer;
 import com.facturacion.ideas.api.entities.Driver;
-import com.facturacion.ideas.api.entities.Person;
 import com.facturacion.ideas.api.enums.TypeCustomerEnum;
 import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 
@@ -27,7 +25,7 @@ public class PersonMapperImpl implements IPersonMapper {
 
 		person.setIde(personNewDTO.getIde());
 		person.setTipoIdentificacion(
-				TypeIdentificationEnum.getTipoCompradorEnum(personNewDTO.getNumberIdentification()));
+				TypeIdentificationEnum.getTipoCompradorEnum(personNewDTO.getTypeIdentification()));
 		person.setEmail(personNewDTO.getEmail());
 		person.setNumeroIdentificacion(personNewDTO.getNumberIdentification());
 		person.setRazonSocial(personNewDTO.getSocialReason());

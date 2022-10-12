@@ -47,44 +47,30 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
 		try {
 
-			/*
-			 * Subsidiary subsidiary =
-			 * subsidiaryRepository.findById(idSennder).orElseThrow(() -> new
-			 * NotFoundException( "id:" + idSennder +
-			 * ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-			 */
 			// Obtener el emisor del etablecimiento
-			Sender sender = senderRepository.findById(idSennder).orElseThrow(
-					() -> new NotFoundException("id:" + idSennder + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+			Sender sender = senderRepository.findById(idSennder).orElseThrow(() -> new NotFoundException(
+					"Emisor id: " + idSennder + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			// Verificar si el empleado ya pertene a la empresa o emisor
-			if (employeeRepository.existsBySender(sender)) {
+			// Verificar si el empleado ya pertene a la empresa | emisor
+			if (employeeRepository.existsByCedulaAndSender( employeeDTO.getCedula(), sender)) {
 
 				throw new DuplicatedResourceException("Empleado con cedula: " + employeeDTO.getCedula()
-						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION + " , mismo emisor");
+						+ " ya pertenece al emisor "+ sender.getSocialReason());
 
 			}
-
-			/*
-			 * // Verificar si la cedula ya esta registrada en el establecimiento if
-			 * (employeeRepository.existsByCedulaAndSubsidiary(employeeDTO.getCedula(),
-			 * subsidiary)) {
-			 * 
-			 * throw new DuplicatedResourceException("Cedula: " + employeeDTO.getCedula() +
-			 * ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION +
-			 * "  empleado esta registrado en un establecimiento");
-			 * 
-			 * }
-			 */
 
 			Employee employee = employeeMapper.mapperToEntity(employeeDTO);
 
 			Long idSubsidiary = employeeDTO.getSubsidiary();
 
+			// Si al empleado se le asigno un establecimiento
 			if (idSubsidiary != null) {
 
-				Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary)
-						.orElseThrow(() -> new NotFoundException("Establecimiento id: " + idSubsidiary));
+				// Validar que existe el establecimiento, ademas que este asociado con el emisor.
+				// para asegurarse que establecimiento sea del mismo emisor
+				Subsidiary subsidiary = subsidiaryRepository.findByIdeAndSender(idSubsidiary, sender)
+						.orElseThrow(() -> new NotFoundException("Emisor " +  sender.getSocialReason() + 
+								 " no tiene registrado un establecimiento con id :" + idSubsidiary));
 
 				// Asingnar establecimiento al empleado
 				employee.setSubsidiary(subsidiary);

@@ -42,7 +42,7 @@ public class CountMapperImpl implements ICountMapper {
 
 		countResponseDTO.setIde(count.getIde());
 		countResponseDTO.setRuc(count.getRuc());
-
+		
 		List<DetailsAgreementDTO> detailsAgreementDTOs = detailsAgreementMapper
 				.mapperToDTO(count.getDetailsAggrement());
 
