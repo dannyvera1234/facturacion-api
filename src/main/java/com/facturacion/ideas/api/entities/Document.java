@@ -87,8 +87,8 @@ public  abstract class Document implements Serializable {
 		return typeDocument;
 	}
 
-	public void setTypeDocument(String typeDocument) {
-		this.typeDocument = typeDocument;
+	public void setTypeDocument(TypeDocumentEnum typeDocument) {
+		this.typeDocument = typeDocument.getCode();
 	}
 
 	public String getNumberSecuencial() {
