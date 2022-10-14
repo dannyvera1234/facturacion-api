@@ -42,12 +42,12 @@ public enum TypeDocumentEnum {
 
 	public static TypeDocumentEnum getTypeDocumentEnum(String codigo) {
 
-		TypeDocumentEnum tipoDocumentoEnum = TypeDocumentEnum.FACTURA;
+		TypeDocumentEnum tipoDocumentoEnum = null;
 
 		if (codigo != null) {
 
 			tipoDocumentoEnum = getListTypeDocumentEnum().stream().filter(item -> item.getCode().equals(codigo))
-					.findAny().orElse(TypeDocumentEnum.FACTURA);
+					.findAny().orElse(null);
 
 		}
 

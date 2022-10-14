@@ -102,12 +102,28 @@ public abstract class DocumentNewDTO implements Serializable {
 		this.dateEmission = dateEmission;
 	}
 
-				public String getTypoEmision() {
-					return typoEmision;
+	public String getTypoEmision() {
+		return typoEmision;
 	}
 
 	public void setTypoEmision(String typoEmision) {
 		this.typoEmision = typoEmision;
+	}
+
+	public Long getIdPerson() {
+		return idPerson;
+	}
+
+	public void setIdPerson(Long idPerson) {
+		this.idPerson = idPerson;
+	}
+
+	public Long getIdEmissionPoint() {
+		return idEmissionPoint;
+	}
+
+	public void setIdEmissionPoint(Long idEmissionPoint) {
+		this.idEmissionPoint = idEmissionPoint;
 	}
 
 	@Override
@@ -117,7 +133,5 @@ public abstract class DocumentNewDTO implements Serializable {
 				+ ", dateAutorization=" + dateAutorization + ", dateEmission=" + dateEmission + ", typoEmision="
 				+ typoEmision + ", idPerson=" + idPerson + ", idEmissionPoint=" + idEmissionPoint + "]";
 	}
-
-
 
 }

@@ -46,7 +46,7 @@ public class EmployeeMapperImpl implements IEmployeeMapper {
 		
 		
 		Subsidiary subsidiary = employee.getSubsidiary();
-		employeeResponseDTO.setSubsidiary( subsidiary == null ? "No Asignado" : subsidiary.getSocialReason());
+		employeeResponseDTO.setSubsidiary( subsidiary == null ? "No Asignado" : subsidiary.getCode() );
 
 		return employeeResponseDTO;
 	}

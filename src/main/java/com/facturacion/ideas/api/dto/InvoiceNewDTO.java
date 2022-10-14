@@ -6,6 +6,8 @@ public class InvoiceNewDTO extends DocumentNewDTO {
 
 	private String remissionGuideNumber;
 
+	private ValueInvoiceNewDTO valueInvoiceNewDTO;
+
 	public InvoiceNewDTO() {
 		super();
 	}
@@ -24,6 +26,14 @@ public class InvoiceNewDTO extends DocumentNewDTO {
 
 	public void setRemissionGuideNumber(String remissionGuideNumber) {
 		this.remissionGuideNumber = remissionGuideNumber;
+	}
+
+	public ValueInvoiceNewDTO getValueInvoiceNewDTO() {
+		return valueInvoiceNewDTO;
+	}
+
+	public void setValueInvoiceNewDTO(ValueInvoiceNewDTO valueInvoiceNewDTO) {
+		this.valueInvoiceNewDTO = valueInvoiceNewDTO;
 	}
 
 	@Override

@@ -14,4 +14,7 @@ public class ConstanteUtil {
 	public static final String CROOS_ORIGIN = "http://localhost:4200";
 	
 	public static final String DATE_FORMAT_DEFAULT = "yyyy-MM-dd";
+	
+	// Formato para generar la clave de acceso de los comprobantes
+	public static final String DATE_FORMAT_KEY_ACCESS = "ddMMyyyy";
 }
