@@ -91,22 +91,50 @@ public class PersonRestController {
 
 	}
 
+
 	/**
-	 * En si, solo se elimina el registro de la rleacion emisor/personas en
+	 * En si, solo se elimina el registro de la relaacion emisor/personas en
 	 * DetailsPerson, pero la persona sigue registrada en el sistema, solo que ahora
 	 * ya no esta realacion con un emisor
-	 * 
-	 * @param idSender
+	 * @param idSender : El id del Emisor
+	 * @param idCustomers : Id del Cliente
 	 * @return
 	 */
-	@DeleteMapping("/details-person/{id}")
-	public ResponseEntity<CustomerResponseDTO> deleteById(@PathVariable(name = "id") Long idDetailsPerson) {
+	@DeleteMapping("/senders/{id}/customers/{id-customer}")
+	public ResponseEntity<String> deleteCustomersById(
+					@PathVariable(name = "id") Long idSender,
+					@PathVariable(name = "id-customer") Long idCustomer){
 
 		try {
-
-			personService.deleteById(idDetailsPerson);
+			personService.deleteById(idSender, idCustomer);
 
 			return ResponseEntity.noContent().build();
+			
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
+
+	}
+	
+	/**
+	 * En si, solo se elimina el registro de la relaacion emisor/persona en
+	 * DetailsPerson, pero la persona sigue registrada en el sistema, solo que ahora
+	 * ya no esta realacion con un emisor
+	 * @param idSender : id del Emisor
+	 * @param idDriver : id del Transportistas
+	 * @return
+	 */
+	@DeleteMapping("/senders/{id}/drivers/{id-driver}")
+	public ResponseEntity<String> deleteDriversById(
+					@PathVariable(name = "id") Long idSender,
+					@PathVariable(name = "id-driver") Long idDriver){
+
+		try {
+			personService.deleteById(idSender, idDriver);
+
+			return ResponseEntity.noContent().build();
+			
 		} catch (NotDataAccessException e) {
 
 			throw new NotDataAccessException(e.getMessage());

@@ -19,6 +19,6 @@ public interface IPersonService {
 
 	boolean existsByPersonAndSender(Long idPerson, Long IdSender);
 
-	void deleteById(Long idDetailsPerson);
+	void deleteById(Long idSender, Long idPerson);
 
 }

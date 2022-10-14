@@ -226,18 +226,24 @@ public class PersonServiceImpl implements IPersonService {
 
 	@Override
 	@Transactional
-	public void deleteById(Long idDetailsPerson) {
+	public void deleteById(Long idSender, Long idPerson) {
 
 		try {
-
-			DetailsPerson detailsPerson = detailsPersonRepository.findById(idDetailsPerson)
-					.orElseThrow(() -> new NotFoundException(
-							"Detalle Persona " + idDetailsPerson + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-
-			detailsPersonRepository.deleteById(detailsPerson.getIde());
+			// Verificar si existe el emisor
+			if (!senderRepository.existsById(idSender)){
+				throw new  NotFoundException(
+						"Emisor id " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+			}
+			
+			// Retorna el numero de registros eliminados, si es 0, indica que la Persona
+			// no esta asociado con un Emisor en DetallePersona
+			if (detailsPersonRepository.deleteBySenderAndPerson(idSender, idPerson)==0) {
+				throw new  NotFoundException(
+						"Persona id " + idPerson + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+			};
 		} catch (DataAccessException e) {
 
-			LOGGER.error("Error eliminar detailsPersona", e);
+			LOGGER.error("Error eliminar persona", e);
 			throw new NotDataAccessException("Error al eliminar persona: " + e.getMessage());
 		}
 
