@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -70,10 +69,10 @@ public class EmployeeRestController implements IEmployeeOperation {
 	}
 
 	@Override
-	public ResponseEntity<String> deleteById(@PathVariable Long id) {
+	public ResponseEntity<String> deleteById(Long idSender, Long idEmployee) {
 
 		try {
-			String message = employeeService.deleteById(id);
+			String message = employeeService.deleteById(idSender, idEmployee);
 
 			return new ResponseEntity<String>(message, HttpStatus.NO_CONTENT);
 
@@ -84,11 +83,12 @@ public class EmployeeRestController implements IEmployeeOperation {
 	}
 
 	@Override
-	public ResponseEntity<EmployeeResponseDTO> update(EmployeeDTO employeeDTO, Long id) {
+	public ResponseEntity<EmployeeResponseDTO> update(EmployeeDTO employeeDTO, Long idSender, 
+			Long idEmployee ) {
 
 		try {
 
-			EmployeeResponseDTO employeeDTOSaved = employeeService.update(employeeDTO, id);
+			EmployeeResponseDTO employeeDTOSaved = employeeService.update(employeeDTO, idSender, idEmployee);
 
 			return new ResponseEntity<EmployeeResponseDTO>(employeeDTOSaved, HttpStatus.OK);
 

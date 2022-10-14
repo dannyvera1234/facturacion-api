@@ -132,15 +132,22 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
 	@Override
 	@Transactional
-	public String deleteById(Long id) {
-
-		Employee employee = findByIdPrivate(id);
-
+	public String deleteById(Long idSender,  Long idEmployee) {
+		
 		try {
 
-			employeeRepository.delete(employee);
-
-			return "Empleado id " + id + " eliminado con exito";
+			// Verificar si el emisor existe
+			if (!senderRepository.existsById(idSender)) {
+				throw new NotFoundException("Emisor id "+ idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+			}
+		
+			// Retorna el numero de registros eliminados
+			if (employeeRepository.deleteBySender(idSender, idEmployee)==0) {
+				
+				throw new NotFoundException("Empleado id "+ idEmployee + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+			}
+		
+			return "Empleado id " + idEmployee + " eliminado con exito";
 
 		} catch (DataAccessException e) {
 
@@ -153,12 +160,19 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
 	@Override
 	@Transactional
-	public EmployeeResponseDTO update(EmployeeDTO employeeDTO, Long id) {
-
-		Employee employee = findByIdPrivate(id);
+	public EmployeeResponseDTO update(EmployeeDTO employeeDTO, Long idSender, Long idEmployee) {
 
 		try {
 
+			// Verificar que exista el emisor
+			if (!senderRepository.existsById(idSender)) {
+				throw new NotFoundException("Emisor id "+ idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+				
+			}
+			
+			Employee employee =  employeeRepository.findById(idEmployee).orElseThrow( () 
+					-> new NotFoundException("Empleado id " + idEmployee +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+			
 			employee.setTelephone(
 					employeeDTO.getTelephone() == null ? employee.getTelephone() : employeeDTO.getTelephone());
 

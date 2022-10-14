@@ -16,8 +16,8 @@ public interface IEmployeeService {
 
 	List<EmployeeResponseDTO> findByAll();
 
-	String deleteById(Long id);
+	String deleteById(Long idSender, Long idEmployee);
 
-	EmployeeResponseDTO update(EmployeeDTO employeeDTO, Long id);
+	EmployeeResponseDTO update(EmployeeDTO employeeDTO, Long idSender, Long idEmployee);
 
 }
