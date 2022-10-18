@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.facturacion.ideas.api.enums.TypeDocumentEnum;
+
 @Entity
 @Table(name="numeros_factura")
 public class InvoiceNumber implements Serializable {
@@ -23,6 +25,9 @@ public class InvoiceNumber implements Serializable {
 	@Column(name="NUF_COD")
 	private Long ide;
 
+	@Column(name="NUF_TIP_DOC")
+	private String typeDocument;
+	
 	@Column(name="NUF_NUM")
 	private int currentSequentialNumber;
 
@@ -30,9 +35,12 @@ public class InvoiceNumber implements Serializable {
 	@JoinColumn(name="NUF_FK_COD_EST")
 	private Subsidiary subsidiary;
 
-	public InvoiceNumber(Long ide, int currentSequentialNumber, Subsidiary subsidiary) {
+	
+
+	public InvoiceNumber(Long ide, String typeDocument, int currentSequentialNumber, Subsidiary subsidiary) {
 		super();
 		this.ide = ide;
+		this.typeDocument = typeDocument;
 		this.currentSequentialNumber = currentSequentialNumber;
 		this.subsidiary = subsidiary;
 	}
@@ -63,6 +71,14 @@ public class InvoiceNumber implements Serializable {
 
 	public void setSubsidiary(Subsidiary subsidiary) {
 		this.subsidiary = subsidiary;
+	}
+	
+	public String getTypeDocument() {
+		return typeDocument;
+	}
+
+	public void setTypeDocument(TypeDocumentEnum typeDocument) {
+		this.typeDocument = typeDocument.getCode();
 	}
 
 	@Override

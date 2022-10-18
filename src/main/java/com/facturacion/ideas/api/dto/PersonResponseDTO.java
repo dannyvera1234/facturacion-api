@@ -8,7 +8,7 @@ public abstract class PersonResponseDTO implements Serializable {
 
 	private Long ide;
 
-	// private String typeIdentification;
+	private String typeIdentification;
 
 	private String numberIdentification;
 
@@ -22,14 +22,19 @@ public abstract class PersonResponseDTO implements Serializable {
 		super();
 	}
 
-	public PersonResponseDTO(Long ide, String numberIdentification, String socialReason, String email, String address) {
+
+	public PersonResponseDTO(Long ide, String typeIdentification, String numberIdentification, String socialReason,
+			String email, String address) {
 		super();
 		this.ide = ide;
+		this.typeIdentification = typeIdentification;
 		this.numberIdentification = numberIdentification;
 		this.socialReason = socialReason;
 		this.email = email;
 		this.address = address;
 	}
+
+
 
 	public Long getIde() {
 		return ide;
@@ -71,10 +76,23 @@ public abstract class PersonResponseDTO implements Serializable {
 		this.address = address;
 	}
 
+	public String getTypeIdentification() {
+		return typeIdentification;
+	}
+
+	public void setTypeIdentification(String typeIdentification) {
+		this.typeIdentification = typeIdentification;
+	}
+
 	@Override
 	public String toString() {
-		return "PersonResponseDTO [ide=" + ide + ", numberIdentification=" + numberIdentification + ", socialReason="
-				+ socialReason + ", email=" + email + ", address=" + address + "]";
+		return "PersonResponseDTO [ide=" + ide + ", typeIdentification=" + typeIdentification
+				+ ", numberIdentification=" + numberIdentification + ", socialReason=" + socialReason + ", email="
+				+ email + ", address=" + address + "]";
 	}
+	
+	
+
+	
 
 }

@@ -24,8 +24,7 @@ public class PersonMapperImpl implements IPersonMapper {
 		Customer person = new Customer();
 
 		person.setIde(personNewDTO.getIde());
-		person.setTipoIdentificacion(
-				TypeIdentificationEnum.getTipoCompradorEnum(personNewDTO.getTypeIdentification()));
+		person.setTipoIdentificacion(TypeIdentificationEnum.getTipoCompradorEnum(personNewDTO.getTypeIdentification()));
 		person.setEmail(personNewDTO.getEmail());
 		person.setNumeroIdentificacion(personNewDTO.getNumberIdentification());
 		person.setRazonSocial(personNewDTO.getSocialReason());
@@ -47,11 +46,16 @@ public class PersonMapperImpl implements IPersonMapper {
 
 		customerResponseDTO.setIde(person.getIde());
 		customerResponseDTO.setEmail(person.getEmail());
+		customerResponseDTO.setTypeIdentification(TypeIdentificationEnum.getTipoCompradorEnum(person.getTipoIdentificacion()).name());
 		customerResponseDTO.setNumberIdentification(person.getNumeroIdentificacion());
 		customerResponseDTO.setSocialReason(person.getRazonSocial());
 		customerResponseDTO.setAddress(person.getAddress());
 		customerResponseDTO.setCellPhone(person.getCellPhone());
+		TypeCustomerEnum typeCustomerEnum = TypeCustomerEnum.getTypeCustomerEnum(person.getTypeCustomer());
+		customerResponseDTO.setTypeCustomer(typeCustomerEnum == null ? null : typeCustomerEnum.name());
 		customerResponseDTO.setTlfConvencional(person.getTlfConvencional());
+		
+		
 		return customerResponseDTO;
 	}
 
@@ -82,6 +86,7 @@ public class PersonMapperImpl implements IPersonMapper {
 
 		driverResponseDTO.setIde(person.getIde());
 		driverResponseDTO.setEmail(person.getEmail());
+		driverResponseDTO.setTypeIdentification(TypeIdentificationEnum.getTipoCompradorEnum(person.getTipoIdentificacion()).name());
 		driverResponseDTO.setNumberIdentification(person.getNumeroIdentificacion());
 		driverResponseDTO.setSocialReason(person.getRazonSocial());
 		driverResponseDTO.setAddress(person.getAddress());

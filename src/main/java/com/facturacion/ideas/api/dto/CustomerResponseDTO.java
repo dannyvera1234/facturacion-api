@@ -9,19 +9,24 @@ public class CustomerResponseDTO extends PersonResponseDTO implements Serializab
 
 	// private String extTlfConvencional;
 
-	// private String typeCustomer;
+	private String typeCustomer;
+	
 	private String cellPhone;
 
 	public CustomerResponseDTO() {
 		super();
 	}
 
-	public CustomerResponseDTO(Long ide, String numberIdentification, String socialReason, String email, String address,
-			String tlfConvencional, String cellPhone) {
-		super(ide, numberIdentification, socialReason, email, address);
+
+	public CustomerResponseDTO(Long ide, String typeIdentification, String numberIdentification, String socialReason,
+			String email, String address, String tlfConvencional, String typeCustomer, String cellPhone) {
+		super(ide, typeIdentification, numberIdentification, socialReason, email, address);
 		this.tlfConvencional = tlfConvencional;
+		this.typeCustomer = typeCustomer;
 		this.cellPhone = cellPhone;
 	}
+
+
 
 	public String getTlfConvencional() {
 		return tlfConvencional;
@@ -37,6 +42,15 @@ public class CustomerResponseDTO extends PersonResponseDTO implements Serializab
 
 	public void setCellPhone(String cellPhone) {
 		this.cellPhone = cellPhone;
+	}
+	
+
+	public String getTypeCustomer() {
+		return typeCustomer;
+	}
+
+	public void setTypeCustomer(String typeCustomer) {
+		this.typeCustomer = typeCustomer;
 	}
 
 	public static long getSerialversionuid() {

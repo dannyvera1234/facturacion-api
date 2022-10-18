@@ -12,9 +12,9 @@ public class DriverResponseDTO extends PersonResponseDTO implements Serializable
 		super();
 	}
 
-	public DriverResponseDTO(Long ide, String numberIdentification, String socialReason, String email, String address,
-			String placa) {
-		super(ide, numberIdentification, socialReason, email, address);
+	public DriverResponseDTO(Long ide, String typeIdentification, String numberIdentification, String socialReason,
+			String email, String address, String placa) {
+		super(ide, typeIdentification, numberIdentification, socialReason, email, address);
 		this.placa = placa;
 	}
 
