@@ -14,4 +14,6 @@ public interface IDocumentService {
 	
 	void  deletedById(Long id);
 	
+	int getCurrentSequentialNumberBySubsidiary(Long idSubsidiary);
+	
 }

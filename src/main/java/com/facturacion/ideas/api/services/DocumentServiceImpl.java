@@ -2,6 +2,7 @@ package com.facturacion.ideas.api.services;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,17 +10,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
+import com.facturacion.ideas.api.admin.AdminDocument;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
 import com.facturacion.ideas.api.dto.ValueInvoiceNewDTO;
 import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Invoice;
+import com.facturacion.ideas.api.entities.Sender;
+import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.entities.ValueInvoice;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IDocumentMapper;
-import com.facturacion.ideas.api.repositories.IDocumentRepository;
+import com.facturacion.ideas.api.mapper.ISenderMapper;
+import com.facturacion.ideas.api.mapper.SenderMapperImpl;
 import com.facturacion.ideas.api.repositories.IEmissionPointRepository;
+import com.facturacion.ideas.api.repositories.IInvoiceNumberRepository;
 import com.facturacion.ideas.api.repositories.IInvoiceRepository;
 import com.facturacion.ideas.api.repositories.IPersonRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
@@ -28,7 +34,7 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 public class DocumentServiceImpl implements IDocumentService {
 
 	private static final Logger LOGGER = LogManager.getLogger(DocumentServiceImpl.class);
-	
+
 	@Autowired
 	private IInvoiceRepository invoiceRepository;
 
@@ -37,6 +43,9 @@ public class DocumentServiceImpl implements IDocumentService {
 
 	@Autowired
 	private IEmissionPointRepository emissionPointRepository;
+
+	@Autowired
+	private IInvoiceNumberRepository invoiceNumberRepository;
 
 	@Autowired
 	private IDocumentMapper documentMapper;
@@ -76,18 +85,24 @@ public class DocumentServiceImpl implements IDocumentService {
 
 			EmissionPoint emissionPoint = emissionPointRepository.findById(invoiceNewDTO.getIdEmissionPoint())
 					.orElseThrow(() -> new NotFoundException("Punto Emisión id " + invoiceNewDTO.getIdEmissionPoint()
-					+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-			
+							+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
 			// El punto de emsion es boligatorio para la factuara
 			invoice.setEmissionPoint(emissionPoint);
 
-			
-			
-			
-			
+			Subsidiary subsidiary = emissionPoint.getSubsidiary();
+
+			Sender sender = subsidiary.getSender();
+
+			String keyAccess = AdminDocument.generateKeyAcces(invoiceNewDTO, sender, subsidiary, emissionPoint,
+					getCurrentSequentialNumberBySubsidiary(subsidiary.getIde()));
+
+			invoiceNewDTO.setKeyAccess(keyAccess);
+			invoiceNewDTO.setNumberAutorization(keyAccess);
+
 			Invoice invoiceSaved = invoiceRepository.save(invoice);
-			
-			return  documentMapper.mapperToDTO(invoiceSaved);
+
+			return documentMapper.mapperToDTO(invoiceSaved);
 
 		} catch (DataAccessException e) {
 			LOGGER.error("Error guardar factura", e);
@@ -109,6 +124,15 @@ public class DocumentServiceImpl implements IDocumentService {
 	public void deletedById(Long id) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public int getCurrentSequentialNumberBySubsidiary(Long idSubsidiary) {
+
+		int numberInvoiceOptional = invoiceNumberRepository.findMaxCurrentSequentialNumberBySubsidiary(idSubsidiary)
+				.orElse(1);
+
+		return numberInvoiceOptional;
 	}
 
 }

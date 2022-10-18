@@ -17,4 +17,9 @@ public class ConstanteUtil {
 	
 	// Formato para generar la clave de acceso de los comprobantes
 	public static final String DATE_FORMAT_KEY_ACCESS = "ddMMyyyy";
+	
+	// Codigo numerico para la generacion del clave de acceso, puede ser cualquier valor de 8 digitos
+	public static final String CODE_NUMERIC_KEY_ACCESS = "22040612";
+	
+	
 }
