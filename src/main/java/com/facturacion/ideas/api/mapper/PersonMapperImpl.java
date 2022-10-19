@@ -52,7 +52,7 @@ public class PersonMapperImpl implements IPersonMapper {
 		customerResponseDTO.setAddress(person.getAddress());
 		customerResponseDTO.setCellPhone(person.getCellPhone());
 		TypeCustomerEnum typeCustomerEnum = TypeCustomerEnum.getTypeCustomerEnum(person.getTypeCustomer());
-		customerResponseDTO.setTypeCustomer(typeCustomerEnum == null ? null : typeCustomerEnum.name());
+		customerResponseDTO.setTypeCustomer(typeCustomerEnum == null ? null : typeCustomerEnum.getDescripcion());
 		customerResponseDTO.setTlfConvencional(person.getTlfConvencional());
 		
 		

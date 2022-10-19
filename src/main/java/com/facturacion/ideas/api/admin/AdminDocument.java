@@ -17,7 +17,7 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 public class AdminDocument {
 
 	public static String generateKeyAcces(InvoiceNewDTO invoiceNewDTO, Sender sender, Subsidiary subsidiary,
-			EmissionPoint emissionPoint, int numeroInvoice) {
+			EmissionPoint emissionPoint) {
 
 		// * 1) Fecha Actual
 		String today = new SimpleDateFormat(ConstanteUtil.DATE_FORMAT_KEY_ACCESS)
@@ -43,18 +43,18 @@ public class AdminDocument {
 		String serie = subsidiary.getCode() + emissionPoint.getCodePoint();
 
 		// * 6 Numero de comprobante secuencial
-		String squentialNumberDocument = nextSquentialNumberDocument(numeroInvoice);
-		invoiceNewDTO.setNumberSecuencial(squentialNumberDocument);
-
+		String squentialNumberDocument =invoiceNewDTO.getNumberSecuencial();
+		
+		
 		// * 7 Codigo numerico
 		String codeNumeric = ConstanteUtil.CODE_NUMERIC_KEY_ACCESS;
 
 		// * 8 Tipo emission
-		String codeTypeEmission = sender.getTypeEmission();
-		invoiceNewDTO.setTypoEmision(squentialNumberDocument);
+		String codeTypeEmission =invoiceNewDTO.getTypoEmision();
+		// invoiceNewDTO.setTypoEmision(squentialNumberDocument);
 
 		String keyAccess = today + codeTypeDocument + ruc + codeTypeEnviroment + serie + squentialNumberDocument
-				+ codeTypeEmission + codeNumeric;
+				 + codeNumeric+ codeTypeEmission;
 
 		return generateCheckDigit(keyAccess);
 

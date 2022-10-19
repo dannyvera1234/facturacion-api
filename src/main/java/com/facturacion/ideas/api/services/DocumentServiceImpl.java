@@ -2,13 +2,13 @@ package com.facturacion.ideas.api.services;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.admin.AdminDocument;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
@@ -16,14 +16,14 @@ import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
 import com.facturacion.ideas.api.dto.ValueInvoiceNewDTO;
 import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Invoice;
+import com.facturacion.ideas.api.entities.InvoiceNumber;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.entities.ValueInvoice;
+import com.facturacion.ideas.api.enums.TypeDocumentEnum;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IDocumentMapper;
-import com.facturacion.ideas.api.mapper.ISenderMapper;
-import com.facturacion.ideas.api.mapper.SenderMapperImpl;
 import com.facturacion.ideas.api.repositories.IEmissionPointRepository;
 import com.facturacion.ideas.api.repositories.IInvoiceNumberRepository;
 import com.facturacion.ideas.api.repositories.IInvoiceRepository;
@@ -51,6 +51,7 @@ public class DocumentServiceImpl implements IDocumentService {
 	private IDocumentMapper documentMapper;
 
 	@Override
+	@Transactional
 	public InvoiceResposeDTO saveInvoice(InvoiceNewDTO invoiceNewDTO) {
 		try {
 
@@ -60,8 +61,40 @@ public class DocumentServiceImpl implements IDocumentService {
 			// Valores de la factura
 			ValueInvoice valueInvoice = documentMapper.mapperToEntity(invoiceNewDTO.getValueInvoiceNewDTO());
 
-			// Crear factura
+			// Buscar Punto de Emision y asignarlo a la factura
+			EmissionPoint emissionPoint = emissionPointRepository.findById(invoiceNewDTO.getIdEmissionPoint())
+					.orElseThrow(() -> new NotFoundException("Punto Emisión id " + invoiceNewDTO.getIdEmissionPoint()
+							+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+			// Establecimiento del punto emision
+			Subsidiary subsidiary = emissionPoint.getSubsidiary();
+
+			// Emisor punto emision
+			Sender sender = subsidiary.getSender();
+
+			// Numero actual del documento + 1, segun su tipo de documento
+			// IMPORTANTE: este numero se guardara en el factura valores
+			int numberSecuncial = (getCurrentSequentialNumberBySubsidiary(invoiceNewDTO.getTypeDocument(),
+					subsidiary.getIde())) + 1;
+
+			// Numero secuencia del Documento
+			invoiceNewDTO.setNumberSecuencial(AdminDocument.nextSquentialNumberDocument(numberSecuncial));
+
+			// Tipo de emision
+			invoiceNewDTO.setTypoEmision(sender.getTypeEmission());
+
+			String keyAccess = AdminDocument.generateKeyAcces(invoiceNewDTO, sender, subsidiary, emissionPoint);
+
+			LOGGER.info("Clave acceso documento: " + keyAccess + " Longitud : " + keyAccess.length());
+
+			invoiceNewDTO.setKeyAccess(keyAccess);
+			invoiceNewDTO.setNumberAutorization(keyAccess);
+
+			// Crear factura y mapear a Entitidad
 			Invoice invoice = documentMapper.mapperToEntity(invoiceNewDTO);
+
+			// El punto de emsion es boligatorio para la factuara
+			invoice.setEmissionPoint(emissionPoint);
 
 			// Agregar valores factura a la factura
 			invoice.setValueInvoice(valueInvoice);
@@ -81,26 +114,17 @@ public class DocumentServiceImpl implements IDocumentService {
 			} else
 				invoice.setPerson(null);
 
-			// Buscar Punto de Emision y asignarlo a la factura
-
-			EmissionPoint emissionPoint = emissionPointRepository.findById(invoiceNewDTO.getIdEmissionPoint())
-					.orElseThrow(() -> new NotFoundException("Punto Emisión id " + invoiceNewDTO.getIdEmissionPoint()
-							+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-
-			// El punto de emsion es boligatorio para la factuara
-			invoice.setEmissionPoint(emissionPoint);
-
-			Subsidiary subsidiary = emissionPoint.getSubsidiary();
-
-			Sender sender = subsidiary.getSender();
-
-			String keyAccess = AdminDocument.generateKeyAcces(invoiceNewDTO, sender, subsidiary, emissionPoint,
-					getCurrentSequentialNumberBySubsidiary(subsidiary.getIde()));
-
-			invoiceNewDTO.setKeyAccess(keyAccess);
-			invoiceNewDTO.setNumberAutorization(keyAccess);
-
+			// Persistir la factura
 			Invoice invoiceSaved = invoiceRepository.save(invoice);
+
+			// Actualizar datos del numero secuencial del documento generado
+			InvoiceNumber invoiceNumber = new InvoiceNumber();
+			invoiceNumber.setSubsidiary(subsidiary);
+			invoiceNumber.setCurrentSequentialNumber(numberSecuncial);
+			invoiceNumber.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(invoiceSaved.getTypeDocument()));
+
+			// Guardar
+			saveInvoiceNumber(invoiceNumber);
 
 			return documentMapper.mapperToDTO(invoiceSaved);
 
@@ -126,13 +150,47 @@ public class DocumentServiceImpl implements IDocumentService {
 
 	}
 
+	@Transactional(readOnly = true)
 	@Override
-	public int getCurrentSequentialNumberBySubsidiary(Long idSubsidiary) {
+	public int getCurrentSequentialNumberBySubsidiary(String codDocument, Long idSubsidiary) {
 
-		int numberInvoiceOptional = invoiceNumberRepository.findMaxCurrentSequentialNumberBySubsidiary(idSubsidiary)
-				.orElse(1);
+		int numberInvoiceOptional = invoiceNumberRepository
+				.findMaxCurrentSequentialNumberBySubsidiary(codDocument, idSubsidiary).orElse(0);
 
 		return numberInvoiceOptional;
+	}
+
+	@Override
+	@Transactional
+	public void saveInvoiceNumber(InvoiceNumber invoiceNumberCurrent) {
+
+		try {
+
+			
+			InvoiceNumber optionalInvoice = invoiceNumberRepository
+					.findByTypeDocumentAndSubsidiary(invoiceNumberCurrent.getTypeDocument(), invoiceNumberCurrent.getSubsidiary())
+					.orElse(null);
+
+			// Indica que un nuevo tipo de documento del emisor
+			if (optionalInvoice == null) {
+
+				// Nuevo registro
+				invoiceNumberRepository.save(invoiceNumberCurrent);
+			} else {
+
+				// Indica que debe actualizar el numero de documento
+				optionalInvoice.setCurrentSequentialNumber(invoiceNumberCurrent.getCurrentSequentialNumber());
+
+				// Actualizar
+				invoiceNumberRepository.save(optionalInvoice);
+			}
+
+		} catch (DataAccessException e) {
+			LOGGER.error("Error al guardar numero de factura", e);
+			throw new NotDataAccessException("Error al guardar numero factura");
+
+		}
+
 	}
 
 }

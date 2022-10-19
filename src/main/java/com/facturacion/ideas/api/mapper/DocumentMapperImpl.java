@@ -34,6 +34,7 @@ public class DocumentMapperImpl implements IDocumentMapper {
 		invoice.setDateAutorization(FunctionUtil.convertStringToDate(invoiceNewDTO.getDateAutorization()));
 		invoice.setDateEmission(FunctionUtil.convertStringToDate(invoiceNewDTO.getDateEmission()));
 		invoice.setTypoEmision(invoiceNewDTO.getTypoEmision());
+		invoice.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
 		return invoice;
 	}
 
@@ -47,7 +48,7 @@ public class DocumentMapperImpl implements IDocumentMapper {
 		invoiceResposeDTO.setKeyAccess(invoice.getKeyAccess());
 		// Es igual al keyAccess
 		invoiceResposeDTO.setNumberAutorization(invoice.getKeyAccess());
-
+		invoiceResposeDTO.setRemissionGuideNumber(invoice.getGuiaRemission());
 		invoiceResposeDTO.setDateAutorization(FunctionUtil.convertDateToString(invoice.getDateAutorization()));
 		invoiceResposeDTO.setDateEmission(FunctionUtil.convertDateToString(invoice.getDateEmission()));
 		invoiceResposeDTO.setTypoEmision(TypeEmissionEnum.getTypeEmissionEnum(invoice.getTypoEmision()).name());
