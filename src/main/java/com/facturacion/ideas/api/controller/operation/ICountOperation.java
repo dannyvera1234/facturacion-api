@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,13 +68,6 @@ public interface ICountOperation {
 	@PutMapping("/{id}")
 	public ResponseEntity<CountResponseDTO> update(@RequestBody CountNewDTO count, @PathVariable Long id);
 
-	/**
-	 * Elimina {@link Count} a traves de su Id
-	 * @param id : Id de la Count a eliminar
-	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteById(@PathVariable(required = false) Long id);
 
 	/**
 	 * Inserta un nuevo registro de {@link Login} en la Base de datos

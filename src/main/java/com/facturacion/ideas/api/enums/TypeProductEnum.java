@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TypeProductEnum {
 
-	BIEN("1"), SERVICIO("2");
+	BIEN("B"), SERVICIO("S");
 
 	private String code;
 

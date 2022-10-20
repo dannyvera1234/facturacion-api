@@ -1,8 +1,6 @@
 package com.facturacion.ideas.api.entities;
 
 import java.io.Serializable;
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -40,20 +38,27 @@ public class TaxValue implements Serializable {
 	private String description;
 
 	@Column(name="IMV_FEC_INI")
-	private Date srtartDate;
+	private String srtartDate;
 
 	@Column(name="IMV_FEC_FIN")
-	private Date EndDate;
+	private String endDate;
 
+	@Column(name="IMV_COD_ADM")
+	private  int codAdmin;
+	
 	@Column(name="IMV_MAR_POR_LIB")
 	private String porcentageMarkFree;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="IMV_FK_COD_IMP")
 	private Tax tax;
+	
+	public TaxValue() {
+		super();
+	}
 
 	public TaxValue(Long ide, String code, double porcentage, double retentionPorcentage, String typeTax,
-			String description, Date srtartDate, Date endDate, String porcentageMarkFree) {
+			String description, String srtartDate, String endDate, String porcentageMarkFree) {
 		super();
 		this.ide = ide;
 		this.code = code;
@@ -62,7 +67,7 @@ public class TaxValue implements Serializable {
 		this.typeTax = typeTax;
 		this.description = description;
 		this.srtartDate = srtartDate;
-		EndDate = endDate;
+		this.endDate = endDate;
 		this.porcentageMarkFree = porcentageMarkFree;
 	}
 
@@ -114,20 +119,20 @@ public class TaxValue implements Serializable {
 		this.description = description;
 	}
 
-	public Date getSrtartDate() {
+	public String getSrtartDate() {
 		return srtartDate;
 	}
 
-	public void setSrtartDate(Date srtartDate) {
+	public void setSrtartDate(String srtartDate) {
 		this.srtartDate = srtartDate;
 	}
 
-	public Date getEndDate() {
-		return EndDate;
+	public String getEndDate() {
+		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
-		EndDate = endDate;
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
 	}
 
 	public String getPorcentageMarkFree() {
@@ -146,13 +151,24 @@ public class TaxValue implements Serializable {
 		return tax;
 	}
 
+	
+	public int getCodAdmin() {
+		return codAdmin;
+	}
+
+	public void setCodAdmin(int codAdmin) {
+		this.codAdmin = codAdmin;
+	}
+
 	@Override
 	public String toString() {
 		return "TaxValue [ide=" + ide + ", code=" + code + ", porcentage=" + porcentage + ", retentionPorcentage="
 				+ retentionPorcentage + ", typeTax=" + typeTax + ", description=" + description + ", srtartDate="
-				+ srtartDate + ", EndDate=" + EndDate + ", porcentageMarkFree=" + porcentageMarkFree + ", tax=" + tax.getIde()
-				+ "]";
+				+ srtartDate + ", EndDate=" + endDate + ", codAdmin=" + codAdmin + ", porcentageMarkFree="
+				+ porcentageMarkFree + ", tax=" +  "]";
 	}
+
+	
 	
 
 }

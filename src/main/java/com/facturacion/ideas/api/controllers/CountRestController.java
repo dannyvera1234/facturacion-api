@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.facturacion.ideas.api.controller.operation.ICountOperation;
@@ -102,23 +101,6 @@ public class CountRestController implements ICountOperation {
 
 	}
 
-	@Override
-	public ResponseEntity<?> deleteById(Long id) {
-
-		LOGGER.info("Id Cuenta a eliminar: " + id);
-		try {
-
-			countService.deleteCountById(id);
-
-			return ResponseEntity.noContent().build();
-
-		} catch (NotDataAccessException e) {
-
-			throw new NotDataAccessException(e.getMessage());
-
-		}
-
-	}
 
 	@Override
 	public ResponseEntity<LoginDTO> saveLogin(Long idCount) {

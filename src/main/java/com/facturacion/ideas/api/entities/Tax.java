@@ -8,9 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.facturacion.ideas.api.enums.TypeTaxEnum;
-
 @Entity
 @Table(name = "impuestos")
 public class Tax implements Serializable {
@@ -28,10 +25,14 @@ public class Tax implements Serializable {
 	@Column(name = "IMP_TAIM_EST")
 	private String status;
 
-	public Tax(Long ide, TypeTaxEnum typeTax, String status) {
+	public Tax() {
+		super();
+	}
+
+	public Tax(Long ide, String typeTax, String status) {
 		super();
 		this.ide = ide;
-		this.typeTax = typeTax.getCode();
+		this.typeTax = typeTax;
 		this.status = status;
 
 	}
@@ -48,8 +49,8 @@ public class Tax implements Serializable {
 		return typeTax;
 	}
 
-	public void setTypeTax(TypeTaxEnum typeTax) {
-		this.typeTax = typeTax.getCode();
+	public void setTypeTax(String typeTax) {
+		this.typeTax = typeTax;
 	}
 
 	public String getStatus() {
