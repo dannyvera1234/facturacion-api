@@ -18,7 +18,7 @@ import javax.persistence.Table;
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
 
 @Entity
-@Table(name = "documentos")
+@Table(name = "DOCUMENTOS")
 @Inheritance(strategy = InheritanceType.JOINED)
 public  abstract class Document implements Serializable {
 

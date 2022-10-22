@@ -15,7 +15,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "logins")
+@Table(name = "LOGINS")
 public class Login implements Serializable{
 
 	private static final long serialVersionUID = 1L;

@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "formas_pago")
+@Table(name = "FORMAS_PAGO")
 public class Payment implements Serializable {
 
 	private static final long serialVersionUID = 1L;

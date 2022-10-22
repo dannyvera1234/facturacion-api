@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
 
 @Entity
-@Table(name="numeros_factura")
+@Table(name="NUMEROS_FACTURA")
 public class InvoiceNumber implements Serializable {
 
 	private static final long serialVersionUID = 1L;

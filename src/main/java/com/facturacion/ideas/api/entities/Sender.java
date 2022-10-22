@@ -26,7 +26,7 @@ import com.facturacion.ideas.api.enums.TypeSenderEnum;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-@Table(name = "emisores")
+@Table(name = "EMISORES")
 public class Sender implements Serializable {
 
 	private static final long serialVersionUID = 1L;

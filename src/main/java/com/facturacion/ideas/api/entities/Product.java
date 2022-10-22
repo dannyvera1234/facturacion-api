@@ -21,7 +21,7 @@ import javax.persistence.Table;
 import com.facturacion.ideas.api.enums.TypeProductEnum;
 
 @Entity
-@Table(name = "productos")
+@Table(name = "PRODUCTOS")
 public class Product implements Serializable {
 
 	private static final long serialVersionUID = 1L;

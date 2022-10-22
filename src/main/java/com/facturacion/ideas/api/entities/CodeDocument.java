@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "codigos_numeros")
+@Table(name = "CODIGOS_NUMEROS")
 public class CodeDocument implements Serializable {
 
 	private static final long serialVersionUID = 1L;

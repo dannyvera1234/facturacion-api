@@ -19,7 +19,7 @@ import javax.persistence.Table;
 import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 
 @Entity
-@Table(name = "personas")
+@Table(name = "PERSONAS")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Person implements Serializable {
 

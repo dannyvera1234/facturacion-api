@@ -11,7 +11,7 @@ import com.facturacion.ideas.api.enums.TypeCustomerEnum;
 import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 
 @Entity
-@Table(name = "clientes")
+@Table(name = "CLIENTES")
 @PrimaryKeyJoinColumn(referencedColumnName = "PER_COD", name = "CLI_PER")
 public class Customer extends Person implements Serializable {
 

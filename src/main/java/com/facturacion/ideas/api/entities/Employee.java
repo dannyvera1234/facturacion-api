@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import com.facturacion.ideas.api.enums.RolEnum;
 
 @Entity
-@Table(name = "empleados")
+@Table(name = "EMPLEADOS")
 public class Employee implements Serializable {
 
 	private static final long serialVersionUID = 1L;

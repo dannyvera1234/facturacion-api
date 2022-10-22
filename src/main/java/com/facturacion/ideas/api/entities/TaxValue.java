@@ -12,7 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="impuesto_valor")
+@Table(name="IMPUESTO_VALOR")
 public class TaxValue implements Serializable {
 
 	private static final long serialVersionUID = 1L;

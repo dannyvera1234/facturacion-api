@@ -14,7 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "contra_planes")
+@Table(name = "CONTRA_PLANES")
 public class DetailsAggrement implements Serializable {
 
 	private static final long serialVersionUID = 1L;

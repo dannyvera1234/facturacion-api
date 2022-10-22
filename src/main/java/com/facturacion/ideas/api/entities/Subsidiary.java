@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-@Table(name = "establecimientos")
+@Table(name = "ESTABLECIMIENTOS")
 public class Subsidiary implements Serializable {
 
 	private static final long serialVersionUID = 1L;

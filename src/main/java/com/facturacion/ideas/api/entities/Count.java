@@ -22,7 +22,7 @@ import com.facturacion.ideas.api.enums.RolEnum;
 
 
 @Entity
-@Table(name = "cuentas")
+@Table(name = "CUENTAS")
 public class Count implements Serializable {
 
 	private static final long serialVersionUID = 1L;

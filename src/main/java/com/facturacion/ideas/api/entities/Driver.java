@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 
 @Entity
-@Table(name = "transportistas")
+@Table(name = "TRANSPORTISTAS")
 @PrimaryKeyJoinColumn(referencedColumnName = "PER_COD", name = "TRA_PER")
 public class Driver extends Person implements Serializable {
 

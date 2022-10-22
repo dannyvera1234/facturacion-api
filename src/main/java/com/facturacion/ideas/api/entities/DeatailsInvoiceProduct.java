@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "detalle_factura")
+@Table(name = "DETALLE_FACTURA")
 public class DeatailsInvoiceProduct implements Serializable {
 
 	private static final long serialVersionUID = 1L;

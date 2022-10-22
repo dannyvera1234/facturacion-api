@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "factura_valores")
+@Table(name = "FACTURA_VALORES")
 public class ValueInvoice implements Serializable {
 
 	private static final long serialVersionUID = 1L;

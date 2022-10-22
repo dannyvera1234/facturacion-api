@@ -14,7 +14,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "facturas")
+@Table(name = "FACTURAS")
 @PrimaryKeyJoinColumn(referencedColumnName = "DOC_COD", name = "FAC_DOC")
 public class Invoice extends Document implements Serializable {
 
