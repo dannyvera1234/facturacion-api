@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,9 @@ import com.facturacion.ideas.api.dto.ProductInformationDTO;
 import com.facturacion.ideas.api.entities.Product;
 import com.facturacion.ideas.api.entities.ProductInformation;
 import com.facturacion.ideas.api.entities.Subsidiary;
+import com.facturacion.ideas.api.entities.TaxProduct;
+import com.facturacion.ideas.api.entities.TaxValue;
+import com.facturacion.ideas.api.enums.QuestionEnum;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
@@ -23,6 +27,7 @@ import com.facturacion.ideas.api.mapper.IProductMapper;
 import com.facturacion.ideas.api.repositories.IProductInformationRepository;
 import com.facturacion.ideas.api.repositories.IProductRepository;
 import com.facturacion.ideas.api.repositories.ISubsidiaryRepository;
+import com.facturacion.ideas.api.repositories.ITaxValueRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 @Service
@@ -36,6 +41,9 @@ public class ProductServiceImpl implements IProductService {
 	private ISubsidiaryRepository subsidiaryRepository;
 
 	@Autowired
+	private ITaxValueRepository taxValueRepository;
+	
+	@Autowired
 	private IProductMapper productMapper;
 
 	@Autowired
@@ -46,7 +54,14 @@ public class ProductServiceImpl implements IProductService {
 	public ProductDTO save(ProductDTO productDTO, Long idSubsidiary) {
 
 		Subsidiary subsidiary = findSubsidiaryByIdPrivate(idSubsidiary);
+		
+		// Verifica existencia del Producto
 		isExistProductBySubsidiary(productDTO.getCodePrivate(), subsidiary.getIde());
+		
+		
+		
+		
+		
 
 		// Verificar si el numero informaion adicional del producto no exceden en 3
 		// registros
@@ -56,9 +71,88 @@ public class ProductServiceImpl implements IProductService {
 
 		try {
 
-			Product product = productMapper.mapperToEntity(productDTO);
+			Product product = productMapper.mapperToEntity(productDTO);		
+			
 			product.setSubsidiary(subsidiary);
 
+			
+			// LIsta para guardar los impuesto de productos
+			List<TaxProduct> taxValues = new ArrayList<>();
+			
+			// Asignar impuestos al producto
+			
+			// Indica que si se le asigno un impuesto
+			if (product.getIva() != null) {
+				
+				// Obtener el code del impuesto valor, este valor no es que se guardara en la bd
+				String codeImpuesto = product.getIva();
+				
+				// reempalzar codigo iva por, SI Indica que si tiene iva
+				product.setIva(QuestionEnum.SI.name());
+				
+	
+				TaxValue taxValue = taxValueRepository.findByCode(codeImpuesto).orElseThrow(
+						() -> new NotFoundException("Iva con codigo " +  codeImpuesto +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+				
+				TaxProduct taxProductIva = new TaxProduct();
+				
+				taxProductIva.setProduct(product);
+				taxProductIva.setTaxValue(taxValue);
+				
+				taxValues.add(taxProductIva);
+				
+			}else product.setIva(QuestionEnum.NO.name());
+			
+			
+			// Indica que si se le asigno un impuesto
+			if (product.getIce() != null) {
+				
+				// Obtener el codigo del impuesto valor, este valor no es que se guardara en la bd
+				String codeImpuesto = product.getIce();
+				
+				// reempalzar codigo iva por, SI Indica que si tiene iva
+				product.setIce(QuestionEnum.SI.name());
+				
+	
+				TaxValue taxValue = taxValueRepository.findByCode(codeImpuesto).orElseThrow(
+						() -> new NotFoundException("ICE con codigo " +  codeImpuesto +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+				
+				TaxProduct taxProduct = new TaxProduct();
+				
+				taxProduct.setProduct(product);
+				taxProduct.setTaxValue(taxValue);
+				
+				taxValues.add(taxProduct);
+				
+			}else product.setIce(QuestionEnum.NO.name());
+			
+			
+			// Indica que si se le asigno un impuesto
+			if (product.getIrbpnr() != null) {
+				
+				// Obtener el codigo del impuesto valor, este valor no es que se guardara en la bd
+				String codeImpuesto = product.getIrbpnr();
+				
+				// reempalzar codigo iva por, SI Indica que si tiene iva
+				product.setIrbpnr(QuestionEnum.SI.name());
+				
+	
+				TaxValue taxValue = taxValueRepository.findByCode(codeImpuesto).orElseThrow(
+						() -> new NotFoundException("IRBPN con codigo " +  codeImpuesto +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+				
+				TaxProduct taxProduct = new TaxProduct();
+				
+				taxProduct.setProduct(product);
+				taxProduct.setTaxValue(taxValue);
+				
+				taxValues.add(taxProduct);
+				
+			}else product.setIrbpnr(QuestionEnum.NO.name());
+			
+			
+			// Asignar lista de impuesto al producto
+			product.setTaxProducts(taxValues);
+			
 			ProductDTO productDTOSaved = productMapper.mapperToDTO(productRepository.save(product));
 
 			return productDTOSaved;

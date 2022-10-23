@@ -204,6 +204,10 @@ public class Product implements Serializable {
 	public List<TaxProduct> getTaxProducts() {
 		return taxProducts;
 	}
+	
+	public void setTaxProducts(List<TaxProduct> taxProducts) {
+		this.taxProducts = taxProducts;
+	}
 
 	public void addTaxProduct(TaxProduct taxProduct) {
 		this.taxProducts.add(taxProduct);

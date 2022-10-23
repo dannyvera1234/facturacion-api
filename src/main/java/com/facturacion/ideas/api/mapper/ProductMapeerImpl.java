@@ -34,6 +34,8 @@ public class ProductMapeerImpl implements IProductMapper {
 		}
 
 		product.setTypeProductEnum(TypeProductEnum.getTypeProductEnum(productDTO.getTypeProductEnum()));
+	
+		// Si llega null, quiere decir que no selecciono algun tipo Impuesto
 		product.setIva(productDTO.getIva());
 		product.setIce(productDTO.getIce());
 		product.setIrbpnr(productDTO.getIrbpnr());

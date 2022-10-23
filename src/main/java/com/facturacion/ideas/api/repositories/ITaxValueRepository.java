@@ -1,6 +1,7 @@
 package com.facturacion.ideas.api.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -42,6 +43,11 @@ public interface ITaxValueRepository extends JpaRepository<TaxValue, Long> {
 	// select * from impuesto_valor where codigo_impuesto=5 and TIPO_IMPUESTO='B'
 	@Query("SELECT tv FROM TaxValue tv WHERE tv.tax.ide= 5 AND tv.typeTax='B'")
 	List<TaxValue> findAllIRBPNR();
+	
+	
+	
+	// Obtiene un impuesto valor mediante si codigo, no ide del registro plz
+	Optional<TaxValue> findByCode(String code);
 	
 	
 }
