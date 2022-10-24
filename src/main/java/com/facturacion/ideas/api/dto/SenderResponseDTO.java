@@ -14,6 +14,8 @@ public class SenderResponseDTO implements Serializable {
 
 	private String specialContributor;
 
+	private String  retentionAgent;
+	
 	private String accountancy;
 
 	private String typeSender;
@@ -33,12 +35,13 @@ public class SenderResponseDTO implements Serializable {
 	}
 
 	public SenderResponseDTO(String ruc, String fullNameSocialReason, String matrixAddress, String specialContributor,
-			String accountancy, boolean rimpe, String province) {
+			 String  retentionAgent,String accountancy, boolean rimpe, String province) {
 		super();
 		this.ruc = ruc;
 		this.fullNameSocialReason = fullNameSocialReason;
 		this.matrixAddress = matrixAddress;
 		this.specialContributor = specialContributor;
+		this.retentionAgent = retentionAgent;
 		this.accountancy = accountancy;
 		this.rimpe = rimpe;
 		this.province = province;
@@ -74,6 +77,15 @@ public class SenderResponseDTO implements Serializable {
 
 	public void setSpecialContributor(String specialContributor) {
 		this.specialContributor = specialContributor;
+	}
+	
+
+	public String getRetentionAgent() {
+		return retentionAgent;
+	}
+
+	public void setRetentionAgent(String retentionAgent) {
+		this.retentionAgent = retentionAgent;
 	}
 
 	public String getAccountancy() {
@@ -127,7 +139,7 @@ public class SenderResponseDTO implements Serializable {
 	@Override
 	public String toString() {
 		return "SenderResponseDTO [ruc=" + ruc + ", fullNameSocialReason=" + fullNameSocialReason + ", matrixAddress="
-				+ matrixAddress + ", specialContributor=" + specialContributor + ", accountancy=" + accountancy
+				+ matrixAddress + ", specialContributor=" + specialContributor + ", retentionAgent= " +retentionAgent+  ", accountancy=" + accountancy
 				+ ", rimpe=" + rimpe + ", province=" + province + "]";
 	}
 

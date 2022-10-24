@@ -50,6 +50,9 @@ public class Sender implements Serializable {
 
 	@Column(name = "EMI_CON_ESP")
 	private String specialContributor;
+	
+	@Column(name="EMI_AGE_RET")
+	private String  retentionAgent;
 
 	@Column(name = "EMI_OBL_CON")
 	@Enumerated(EnumType.STRING)
@@ -96,7 +99,7 @@ public class Sender implements Serializable {
 	}
 
 	public Sender(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
-			String specialContributor, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
+			String specialContributor, String  retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
 			TypeEnvironmentEnum typeEnvironment, TypeEmissionEnum typeEmission, boolean rimpe, ProvinceEnum province) {
 		super();
 		this.ide = ide;
@@ -105,6 +108,7 @@ public class Sender implements Serializable {
 		this.commercialName = commercialName;
 		this.matrixAddress = matrixAddress;
 		this.specialContributor = specialContributor;
+		this.retentionAgent = retentionAgent;
 		this.accountancy = accountancy;
 		this.typeSender = typeSender;
 		this.logo = logo;
@@ -172,6 +176,15 @@ public class Sender implements Serializable {
 
 	public void setSpecialContributor(String specialContributor) {
 		this.specialContributor = specialContributor;
+	}
+
+	
+	public String getRetentionAgent() {
+		return retentionAgent;
+	}
+
+	public void setRetentionAgent(String retentionAgent) {
+		this.retentionAgent = retentionAgent;
 	}
 
 	public QuestionEnum getAccountancy() {
@@ -281,7 +294,7 @@ public class Sender implements Serializable {
 	public String toString() {
 		return "Sender [ide=" + ide + ", ruc=" + ruc + ", socialReason=" + socialReason + ", commercialName="
 				+ commercialName + ", matrixAddress=" + matrixAddress + ", specialContributor=" + specialContributor
-				+ ", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
+				+ "retentionAgent = " + retentionAgent +  ", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
 				+ ", typeEnvironment=" + typeEnvironment + ", typeEmission=" + typeEmission + ", rimpe=" + rimpe
 				+ ", province=" + province + "]";
 	}

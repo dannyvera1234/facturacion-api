@@ -23,6 +23,8 @@ public class SenderNewDTO implements Serializable {
 	private String matrixAddress;
 
 	private String specialContributor;
+	
+	private String  retentionAgent;
 
 	private QuestionEnum accountancy;
 	
@@ -40,7 +42,7 @@ public class SenderNewDTO implements Serializable {
 	
 
 	public SenderNewDTO(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
-			String specialContributor, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
+			String specialContributor,String  retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
 			TypeEnvironmentEnum typeEnvironment, TypeEmissionEnum typeEmission, boolean rimpe, ProvinceEnum province) {
 		super();
 		this.ide = ide;
@@ -49,6 +51,7 @@ public class SenderNewDTO implements Serializable {
 		this.commercialName = commercialName;
 		this.matrixAddress = matrixAddress;
 		this.specialContributor = specialContributor;
+		this.retentionAgent = retentionAgent;
 		this.accountancy = accountancy;
 		this.typeSender = typeSender;
 		this.logo = logo;
@@ -104,6 +107,16 @@ public class SenderNewDTO implements Serializable {
 
 	public void setSpecialContributor(String specialContributor) {
 		this.specialContributor = specialContributor;
+	}
+	
+	
+
+	public String getRetentionAgent() {
+		return retentionAgent;
+	}
+
+	public void setRetentionAgent(String retentionAgent) {
+		this.retentionAgent = retentionAgent;
 	}
 
 	public QuestionEnum getAccountancy() {
@@ -166,7 +179,7 @@ public class SenderNewDTO implements Serializable {
 	public String toString() {
 		return "SenderNewDTO [ide=" + ide + ", ruc=" + ruc + ", socialReason=" + socialReason + ", commercialName="
 				+ commercialName + ", matrixAddress=" + matrixAddress + ", specialContributor=" + specialContributor
-				+ ", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
+				+  "retentionAgent" + retentionAgent+", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
 				+ ", typeEnvironment=" + typeEnvironment.getCode() + ", typeEmission=" + typeEmission.getCode() + ", rimpe=" + rimpe
 				+ ", province=" + province.getName() + "]";
 	}

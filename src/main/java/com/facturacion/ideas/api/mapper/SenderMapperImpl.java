@@ -30,6 +30,8 @@ public class SenderMapperImpl implements ISenderMapper {
 		sender.setMatrixAddress(senderNewDTO.getMatrixAddress());
 
 		sender.setSpecialContributor(senderNewDTO.getSpecialContributor());
+		
+		sender.setRetentionAgent(senderNewDTO.getRetentionAgent());
 
 		sender.setRimpe(senderNewDTO.isRimpe());
 
@@ -64,6 +66,7 @@ public class SenderMapperImpl implements ISenderMapper {
 				sender.getProvince() == null ? null : ProvinceEnum.getProvinceEnum(sender.getProvince()).getName());
 
 		senderResponseDTO.setSpecialContributor(sender.getSpecialContributor());
+		senderResponseDTO.setRetentionAgent( sender.getRetentionAgent());
 
 		senderResponseDTO.setRol( sender.getCount().getRol().name());
 		return senderResponseDTO;
