@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.facturacion.ideas.api.documents.InfoTributaria;
+import com.facturacion.ideas.api.documents.factura.Factura;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Sender;
@@ -125,5 +127,53 @@ public class AdminDocument {
 		return numberInvoiceDefault;
 
 	}
+	
+	/**
+	 * Crear una Factura
+	 * @param invoiceNewDTO : La informacion de la factura
+	 * @return
+	 */
+	public static Factura generarFactura(InvoiceNewDTO invoiceNewDTO) {
+		
+		Factura factura = new Factura();
+	
+		return null;
+		
+		
+	}
+	
+	
+	public static InfoTributaria createInfoTributaria(InvoiceNewDTO invoiceNewDTO) {
+		
+		InfoTributaria infoTributaria = new InfoTributaria();
+		
+		infoTributaria.setSecuencial(invoiceNewDTO.getNumberSecuencial());
+		//infoTributaria.setAmbiente( invoiceNewDTO.GET);
+		
+		infoTributaria.setTipoEmision(invoiceNewDTO.getTypoEmision());
+		//infoTributaria.setRazonSocial(invoiceNewDTO.get);
+		
+		//infoTributaria.setRuc( invoiceNewDTO.getRuc);
+		
+		infoTributaria.setCodDoc( invoiceNewDTO.getTypeDocument());
+		// infoTributaria.setEstab(invoiceNewDTO.getes);
+		
+		// infoTributaria.setPtoEmi(invoiceNewDTO.getP);
+		
+		// infoTributaria.setDirMatriz(invoiceNewDTO.getD);
+		
+		//infoTributaria.setContribuyenteRimpe(invoiceNewDTO.get);
+		
+		// infoTributaria.setAgenteRetencion(invoiceNewDTO.get);
+		
+		infoTributaria.setClaveAcceso(invoiceNewDTO.getKeyAccess());
+		
+		
+		
+		
+		return infoTributaria;
+	}
+	
+	
 
 }

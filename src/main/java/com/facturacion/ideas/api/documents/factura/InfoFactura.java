@@ -59,7 +59,8 @@ public class InfoFactura {
 	
 	private String moneda;
 	
-	private Pagos pago;
+	private Pagos pagos;
+
 
 	public String getFechaEmision() {
 		return fechaEmision;
@@ -197,12 +198,12 @@ public class InfoFactura {
 		this.moneda = moneda;
 	}
 
-	public Pagos getPago() {
-		return pago;
+	public Pagos getPagos() {
+		return pagos;
 	}
 
-	public void setPago(Pagos pago) {
-		this.pago = pago;
+	public void setPagos(Pagos pagos) {
+		this.pagos = pagos;
 	}
 	
 }

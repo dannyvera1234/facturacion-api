@@ -11,16 +11,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.admin.AdminDocument;
+import com.facturacion.ideas.api.documents.InfoTributaria;
+import com.facturacion.ideas.api.documents.factura.InfoFactura;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
 import com.facturacion.ideas.api.dto.ValueInvoiceNewDTO;
 import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Invoice;
 import com.facturacion.ideas.api.entities.InvoiceNumber;
+import com.facturacion.ideas.api.entities.Person;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.entities.ValueInvoice;
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
+import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IDocumentMapper;
@@ -29,6 +33,7 @@ import com.facturacion.ideas.api.repositories.IInvoiceNumberRepository;
 import com.facturacion.ideas.api.repositories.IInvoiceRepository;
 import com.facturacion.ideas.api.repositories.IPersonRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
+import com.facturacion.ideas.api.util.FunctionUtil;
 
 @Service
 public class DocumentServiceImpl implements IDocumentService {
@@ -166,10 +171,8 @@ public class DocumentServiceImpl implements IDocumentService {
 
 		try {
 
-			
-			InvoiceNumber optionalInvoice = invoiceNumberRepository
-					.findByTypeDocumentAndSubsidiary(invoiceNumberCurrent.getTypeDocument(), invoiceNumberCurrent.getSubsidiary())
-					.orElse(null);
+			InvoiceNumber optionalInvoice = invoiceNumberRepository.findByTypeDocumentAndSubsidiary(
+					invoiceNumberCurrent.getTypeDocument(), invoiceNumberCurrent.getSubsidiary()).orElse(null);
 
 			// Indica que un nuevo tipo de documento del emisor
 			if (optionalInvoice == null) {
@@ -190,6 +193,96 @@ public class DocumentServiceImpl implements IDocumentService {
 			throw new NotDataAccessException("Error al guardar numero factura");
 
 		}
+
+	}
+
+	private InfoTributaria createInfoTributaria(Invoice invoiceSaved, Sender sender) {
+
+		InfoTributaria infoTributaria = new InfoTributaria();
+
+		infoTributaria.setSecuencial(invoiceSaved.getNumberSecuencial());
+		infoTributaria.setAmbiente(sender.getTypeEnvironment());
+		infoTributaria.setTipoEmision(sender.getTypeEmission());
+		infoTributaria.setRazonSocial(sender.getSocialReason());
+		infoTributaria.setRuc(sender.getRuc());
+		infoTributaria.setCodDoc(invoiceSaved.getTypeDocument());
+
+		// Seteo el valor que debe ir en la xml
+		if (sender.isRimpe())
+			infoTributaria.setContribuyenteRimpe(ConstanteUtil.TEXT_DEFAULT_REGIMEN_RIMPE);
+
+		// Falta agente de retencion en el emisor
+		// infoTributaria.setAgenteRetencion(null);
+
+		infoTributaria.setClaveAcceso(invoiceSaved.getKeyAccess());
+
+		if (sender.getCommercialName() != null && !sender.getCommercialName().isEmpty())
+			infoTributaria.setNombreComercial(sender.getCommercialName());
+
+		return infoTributaria;
+	}
+
+	/**
+	 * Hacer una consulta de union de la factura recien guardada, para traer todas
+	 * la data necesaria para evitar sobreecarga de consultas sql
+	 * 
+	 * @param invoiceSaved
+	 * @return
+	 */
+	private InfoFactura createInfoFactura(Invoice invoiceSaved) {
+
+		InfoFactura infoFactura = new InfoFactura();
+
+		infoFactura.setFechaEmision(FunctionUtil.convertDateToString(invoiceSaved.getDateEmission()));
+
+		// calcular
+		// infoFactura.setTotalSubsidio(null);
+
+		infoFactura.setDirEstablecimiento(invoiceSaved.getEmissionPoint().getSubsidiary().getAddress());
+
+		if (invoiceSaved.getGuiaRemission() != null && !invoiceSaved.getGuiaRemission().isEmpty())
+			infoFactura.setGuiaRemision(invoiceSaved.getGuiaRemission());
+
+		// Obtener el cliente de la factura Guardada
+		Person person = invoiceSaved.getPerson();
+
+		// factura se guardo como consumidor final
+		if (person == null) {
+
+			infoFactura.setTipoIdentificacionComprador(TypeIdentificationEnum.CONSUMIDOR_FINAL.getCode());
+			infoFactura.setRazonSocialComprador(ConstanteUtil.TEXT_DEFAULT_CONSUMIDOR_FINAL);
+			infoFactura.setIdentificacionComprador(ConstanteUtil.TEXT_DEFAULT_CODE_CONSUMIDOR_FINAL);
+			// Factura se guardo con un cliente
+		} else {
+
+			infoFactura.setTipoIdentificacionComprador(person.getTipoIdentificacion());
+			infoFactura.setRazonSocialComprador(person.getRazonSocial());
+			infoFactura.setIdentificacionComprador(person.getNumeroIdentificacion());
+
+			if (person.getAddress() != null && !person.getAddress().isEmpty())
+				infoFactura.setDireccionComprador(person.getAddress());
+
+		}
+
+		// infoFactura.setTotalSinImpuestos(null);
+		// infoFactura.setTotalDescuento(null);
+		// infoFactura.setPropina(null);
+
+		// infoFactura.setImporteTotal(null);
+		infoFactura.setMoneda(ConstanteUtil.TEXT_DEFAULT_MODEDA);
+		// infoFactura.setTotalConImpuestos(null);
+
+		// infoFactura.setPagos(null);
+
+		Sender sender = invoiceSaved.getEmissionPoint().getSubsidiary().getSender();
+
+		if (sender.getSpecialContributor() != null && !sender.getSpecialContributor().isEmpty())
+			infoFactura.setContribuyenteEspecial(sender.getSpecialContributor());
+
+		if (sender.getAccountancy() != null) 			
+			infoFactura.setObligadoContabilidad(sender.getAccountancy().name());
+		
+		return infoFactura;
 
 	}
 
