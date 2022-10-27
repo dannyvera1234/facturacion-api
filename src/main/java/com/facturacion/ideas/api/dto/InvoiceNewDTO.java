@@ -1,15 +1,22 @@
 package com.facturacion.ideas.api.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InvoiceNewDTO extends DocumentNewDTO {
 
 	private static final long serialVersionUID = 1L;
 
 	private String remissionGuideNumber;
 
+	private List<DeatailsInvoiceProductDTO> deatailsInvoiceProductDTOs;
+
 	private ValueInvoiceNewDTO valueInvoiceNewDTO;
 
 	public InvoiceNewDTO() {
+
 		super();
+		deatailsInvoiceProductDTOs = new ArrayList<>();
 	}
 
 	public InvoiceNewDTO(Long ide, String typeDocument, String numberSecuencial, String keyAccess,
@@ -18,6 +25,7 @@ public class InvoiceNewDTO extends DocumentNewDTO {
 		super(ide, typeDocument, numberSecuencial, keyAccess, numberAutorization, dateAutorization, dateEmission,
 				typoEmision, idPerson, idEmissionPoint);
 		this.remissionGuideNumber = remissionGuideNumber;
+		deatailsInvoiceProductDTOs = new ArrayList<>();
 	}
 
 	public String getRemissionGuideNumber() {
@@ -36,6 +44,12 @@ public class InvoiceNewDTO extends DocumentNewDTO {
 		this.valueInvoiceNewDTO = valueInvoiceNewDTO;
 	}
 
+	public List<DeatailsInvoiceProductDTO> getDeatailsInvoiceProductDTOs() {
+		return deatailsInvoiceProductDTOs;
+	}
+	public void addDeatailsInvoiceProductDTOs(DeatailsInvoiceProductDTO deatailsInvoiceProductDTO) {
+		 this.deatailsInvoiceProductDTOs.add(deatailsInvoiceProductDTO);
+	}
 	@Override
 	public String toString() {
 		return "InvoiceNewDTO [remissionGuideNumber=" + remissionGuideNumber + ", toString()=" + super.toString() + "]";

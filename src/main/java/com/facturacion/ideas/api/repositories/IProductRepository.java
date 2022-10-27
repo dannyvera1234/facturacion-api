@@ -22,4 +22,7 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
 	Optional<Boolean>  existProductoBySubsidiary(@Param("codePrivate") String codePrivate, @Param("subsidiary") Long subsidiary);
 
 	List<Product> findBySubsidiary(Subsidiary subsidiary);
+
+	List<Product> findByIdeIn(List<Long> ide);
+
 }

@@ -2,9 +2,11 @@ package com.facturacion.ideas.api.services;
 
 import java.util.List;
 
+import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
 import com.facturacion.ideas.api.entities.InvoiceNumber;
+import com.facturacion.ideas.api.entities.Product;
 
 public interface IDocumentService {
 	
@@ -18,5 +20,8 @@ public interface IDocumentService {
 	int getCurrentSequentialNumberBySubsidiary(String codDcoument, Long idSubsidiary);
 	
 	void saveInvoiceNumber(InvoiceNumber invoiceNumber);
+
+
+	List<Product> searchProductsDetailsByIds(List<Long> idsProducts);
 	
 }

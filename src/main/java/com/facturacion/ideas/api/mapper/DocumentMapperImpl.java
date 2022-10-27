@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.facturacion.ideas.api.dto.*;
+import com.facturacion.ideas.api.entities.DeatailsInvoiceProduct;
 import org.springframework.stereotype.Component;
 
-import com.facturacion.ideas.api.dto.InvoiceNewDTO;
-import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
-import com.facturacion.ideas.api.dto.ValueInvoiceNewDTO;
-import com.facturacion.ideas.api.dto.ValueInvoiceResponseDTO;
 import com.facturacion.ideas.api.entities.Invoice;
 import com.facturacion.ideas.api.entities.ValueInvoice;
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
@@ -104,6 +102,15 @@ public class DocumentMapperImpl implements IDocumentMapper {
 		valueInvoiceResponseDTO.setPropina(valueInvoice.getPropina());
 		valueInvoiceResponseDTO.setTotal(valueInvoice.getTotal());
 		return valueInvoiceResponseDTO;
+	}
+
+	@Override
+	public DeatailsInvoiceProduct mapperToEntity(DeatailsInvoiceProductDTO deatailsInvoiceProductDTO) {
+		DeatailsInvoiceProduct detaails = new DeatailsInvoiceProduct();
+		detaails.setIde(deatailsInvoiceProductDTO.getIde());
+		detaails.setAmount(deatailsInvoiceProductDTO.getAmount());
+		detaails.setSubtotal(deatailsInvoiceProductDTO.getSubtotal());
+		return detaails;
 	}
 
 }
