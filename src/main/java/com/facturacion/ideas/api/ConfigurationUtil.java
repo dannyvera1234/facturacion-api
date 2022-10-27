@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 @Configuration
 public class ConfigurationUtil {
 	
-	
 	/*Modulo para el roblema de serizalizacion y deserializacion
 	 * de objetos cuanto estan relacionados
 	 * 
