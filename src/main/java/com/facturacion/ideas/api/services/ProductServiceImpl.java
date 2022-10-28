@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.facturacion.ideas.api.admin.AdminProduct;
+import com.facturacion.ideas.api.enums.TypeTaxEnum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +20,6 @@ import com.facturacion.ideas.api.entities.ProductInformation;
 import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.entities.TaxProduct;
 import com.facturacion.ideas.api.entities.TaxValue;
-import com.facturacion.ideas.api.enums.QuestionEnum;
-import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
@@ -33,387 +33,321 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 @Service
 public class ProductServiceImpl implements IProductService {
 
-	private static final Logger LOGGER = LogManager.getLogger(ProductServiceImpl.class);
-	@Autowired
-	private IProductRepository productRepository;
-
-	@Autowired
-	private ISubsidiaryRepository subsidiaryRepository;
-
-	@Autowired
-	private ITaxValueRepository taxValueRepository;
-	
-	@Autowired
-	private IProductMapper productMapper;
-
-	@Autowired
-	private IProductInformationRepository productInformationRepository;
-
-	@Override
-	@Transactional
-	public ProductDTO save(ProductDTO productDTO, Long idSubsidiary) {
-
-		Subsidiary subsidiary = findSubsidiaryByIdPrivate(idSubsidiary);
-		
-		// Verifica existencia del Producto
-		isExistProductBySubsidiary(productDTO.getCodePrivate(), subsidiary.getIde());
-		
-		
-		
-		
-		
-
-		// Verificar si el numero informaion adicional del producto no exceden en 3
-		// registros
-		if (productDTO.getProductInformationDTOs().size() > 3)
-			throw new BadRequestException("Cantidad información adicional  producto exceden a 3 ; cantidad: "
-					+ productDTO.getProductInformationDTOs().size());
-
-		try {
-
-			Product product = productMapper.mapperToEntity(productDTO);		
-			
-			product.setSubsidiary(subsidiary);
-
-			
-			// LIsta para guardar los impuesto de productos
-			List<TaxProduct> taxValues = new ArrayList<>();
-			
-			// Asignar impuestos al producto
-			
-			// Indica que si se le asigno un impuesto
-			if (product.getIva() != null) {
-				
-				// Obtener el code del impuesto valor, este valor no es que se guardara en la bd
-				String codeImpuesto = product.getIva();
-				
-				// reempalzar codigo iva por, SI Indica que si tiene iva
-				product.setIva(QuestionEnum.SI.name());
-				
-	
-				TaxValue taxValue = taxValueRepository.findByCode(codeImpuesto).orElseThrow(
-						() -> new NotFoundException("Iva con codigo " +  codeImpuesto +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-				
-				TaxProduct taxProductIva = new TaxProduct();
-				
-				taxProductIva.setProduct(product);
-				taxProductIva.setTaxValue(taxValue);
-				
-				taxValues.add(taxProductIva);
-				
-			}else product.setIva(QuestionEnum.NO.name());
-			
-			
-			// Indica que si se le asigno un impuesto
-			if (product.getIce() != null) {
-				
-				// Obtener el codigo del impuesto valor, este valor no es que se guardara en la bd
-				String codeImpuesto = product.getIce();
-				
-				// reempalzar codigo iva por, SI Indica que si tiene iva
-				product.setIce(QuestionEnum.SI.name());
-				
-	
-				TaxValue taxValue = taxValueRepository.findByCode(codeImpuesto).orElseThrow(
-						() -> new NotFoundException("ICE con codigo " +  codeImpuesto +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-				
-				TaxProduct taxProduct = new TaxProduct();
-				
-				taxProduct.setProduct(product);
-				taxProduct.setTaxValue(taxValue);
-				
-				taxValues.add(taxProduct);
-				
-			}else product.setIce(QuestionEnum.NO.name());
-			
-			
-			// Indica que si se le asigno un impuesto
-			if (product.getIrbpnr() != null) {
-				
-				// Obtener el codigo del impuesto valor, este valor no es que se guardara en la bd
-				String codeImpuesto = product.getIrbpnr();
-				
-				// reempalzar codigo iva por, SI Indica que si tiene iva
-				product.setIrbpnr(QuestionEnum.SI.name());
-				
-	
-				TaxValue taxValue = taxValueRepository.findByCode(codeImpuesto).orElseThrow(
-						() -> new NotFoundException("IRBPN con codigo " +  codeImpuesto +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-				
-				TaxProduct taxProduct = new TaxProduct();
-				
-				taxProduct.setProduct(product);
-				taxProduct.setTaxValue(taxValue);
-				
-				taxValues.add(taxProduct);
-				
-			}else product.setIrbpnr(QuestionEnum.NO.name());
-			
-			
-			// Asignar lista de impuesto al producto
-			product.setTaxProducts(taxValues);
-			
-			ProductDTO productDTOSaved = productMapper.mapperToDTO(productRepository.save(product));
+    private static final Logger LOGGER = LogManager.getLogger(ProductServiceImpl.class);
+    @Autowired
+    private IProductRepository productRepository;
 
-			return productDTOSaved;
+    @Autowired
+    private ISubsidiaryRepository subsidiaryRepository;
 
-		} catch (DataAccessException e) {
+    @Autowired
+    private ITaxValueRepository taxValueRepository;
 
-			LOGGER.info("Error guardar producto", e);
-			throw new NotDataAccessException("Error guardar producto: " + e.getMessage());
-		}
-	}
+    @Autowired
+    private IProductMapper productMapper;
 
-	@Override
-	public ProductDTO findById(Long ide) {
+    @Autowired
+    private IProductInformationRepository productInformationRepository;
 
-		Product product = findByIdPrivate(ide);
-		return productMapper.mapperToDTO(product);
-	}
+    @Override
+    @Transactional
+    public ProductDTO save(ProductDTO productDTO, Long idSubsidiary) {
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<ProductDTO> findAll(Long idSubsidiary) {
+        Subsidiary subsidiary = findSubsidiaryByIdPrivate(idSubsidiary);
 
-		Subsidiary subsidiary = findSubsidiaryByIdPrivate(idSubsidiary);
+        isExistProductBySubsidiary(productDTO.getCodePrivate(), subsidiary.getIde());
 
-		try {
+        AdminProduct.numeroMaximoInfoAdicionalProduct(productDTO.getProductInformationDTOs());
 
-			List<Product> products = productRepository.findBySubsidiary(subsidiary);
+        try {
+            Product product = productMapper.mapperToEntity(productDTO);
 
-			List<ProductDTO> productDTOs = products.stream().map(item -> productMapper.mapperToDTO(item))
-					.collect(Collectors.toList());
+            // Lista impuesto
+            List<TaxProduct> taxValues = new ArrayList<>();
 
-			return productDTOs;
+            // IVA
+            String codeImpuesto = product.getIva(); // codigo impuesto IVA
+            AdminProduct.asignarSiNoImpuesto(TypeTaxEnum.IVA, product);
+            if (codeImpuesto != null)
+                taxValues.add(finTaxProduct(TypeTaxEnum.IVA, codeImpuesto, product));
 
-		} catch (DataAccessException e) {
+            // ICE
+            codeImpuesto = product.getIce(); // codigo impuesto ICE
+            AdminProduct.asignarSiNoImpuesto(TypeTaxEnum.ICE, product);
+            if (codeImpuesto != null)
+                taxValues.add(finTaxProduct(TypeTaxEnum.ICE, codeImpuesto, product));
 
-			LOGGER.error("Error listar productos", e);
-			throw new NotDataAccessException("Error listar productos: " + e.getMessage());
+            // IRBPNR
+            codeImpuesto = product.getIrbpnr(); // codigo impuesto IRBPNR
+            AdminProduct.asignarSiNoImpuesto(TypeTaxEnum.IRBPNR, product);
+            if (codeImpuesto != null)
+                taxValues.add(finTaxProduct(TypeTaxEnum.IRBPNR, codeImpuesto, product));
 
-		}
 
-	}
+            product.setSubsidiary(subsidiary);
+            // Asignar impuestos
+            product.setTaxProducts(taxValues);
 
-	@Override
-	@Transactional
-	public String deleteById(Long ide) {
+            return productMapper.mapperToDTO(productRepository.save(product));
 
-		Product product = findByIdPrivate(ide);
+        } catch (DataAccessException e) {
 
-		try {
+            LOGGER.info("Error guardar producto", e);
+            throw new NotDataAccessException("Error guardar producto: " + e.getMessage());
+        }
+    }
 
-			productRepository.deleteById(product.getIde());
+    @Override
+    public ProductDTO findById(Long ide) {
 
-			return "Producto eliminado correctamente";
-		} catch (DataAccessException e) {
+        Product product = findByIdPrivate(ide);
+        return productMapper.mapperToDTO(product);
+    }
 
-			LOGGER.error("Error eliminar producto", e);
-			throw new NotDataAccessException("Error eliminar producto: " + e.getMessage());
-		}
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> findAll(Long idSubsidiary) {
 
-	}
+        Subsidiary subsidiary = findSubsidiaryByIdPrivate(idSubsidiary);
 
-	@Override
-	@Transactional
-	public ProductDTO update(ProductDTO productDTO, Long ide) {
+        try {
 
-		Product product = findByIdPrivate(ide);
+            List<Product> products = productRepository.findBySubsidiary(subsidiary);
 
-		productMapper.mapperPreUpdate(product, productDTO);
+            return products.stream().map(item -> productMapper.mapperToDTO(item))
+                    .collect(Collectors.toList());
 
-		try {
-			ProductDTO productDTOSaved = productMapper.mapperToDTO(productRepository.save(product));
+        } catch (DataAccessException e) {
 
-			return productDTOSaved;
+            LOGGER.error("Error listar productos", e);
+            throw new NotDataAccessException("Error listar productos: " + e.getMessage());
 
-		} catch (DataAccessException e) {
+        }
 
-			LOGGER.error("Error actualizar producto", e);
-			throw new NotDataAccessException("Error actualizar producto: " + e.getMessage());
-		}
+    }
 
-	}
+    @Override
+    @Transactional
+    public String deleteById(Long ide) {
 
-	@Transactional(readOnly = true)
-	private Subsidiary findSubsidiaryByIdPrivate(Long ide) {
+        Product product = findByIdPrivate(ide);
 
-		try {
+        try {
 
-			Subsidiary subsidiary = subsidiaryRepository.findById(ide).orElseThrow(
-					() -> new NotFoundException("Id: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            productRepository.deleteById(product.getIde());
 
-			return subsidiary;
+            return "Producto eliminado correctamente";
+        } catch (DataAccessException e) {
 
-		} catch (DataAccessException e) {
+            LOGGER.error("Error eliminar producto", e);
+            throw new NotDataAccessException("Error eliminar producto: " + e.getMessage());
+        }
 
-			LOGGER.error("Error buscar establecimiento", e);
-			throw new NotDataAccessException("Error buscar establecimiento: " + e.getMessage());
-		}
+    }
 
-	}
+    @Override
+    @Transactional
+    public ProductDTO update(ProductDTO productDTO, Long ide) {
 
-	/**
-	 * Verifica si un producto existe en un establecimiento
-	 */
-	@Transactional(readOnly = true)
-	private void isExistProductBySubsidiary(String codePrivateProd, Long idSubsidiary) {
+        Product product = findByIdPrivate(ide);
 
-		try {
-			if (!productRepository.existProductoBySubsidiary(codePrivateProd, idSubsidiary).isEmpty())
-				throw new DuplicatedResourceException("codigo Producto: " + codePrivateProd
-						+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+        productMapper.mapperPreUpdate(product, productDTO);
 
-		} catch (DataAccessException e) {
+        try {
 
-			LOGGER.error("Error  verificar existencia producto", e);
-			throw new NotDataAccessException("Error verificar existencia producto: " + e.getMessage());
-		}
+            return productMapper.mapperToDTO(productRepository.save(product));
 
-	}
+        } catch (DataAccessException e) {
 
-	@Transactional(readOnly = true)
-	private Product findByIdPrivate(Long ide) {
+            LOGGER.error("Error actualizar producto", e);
+            throw new NotDataAccessException("Error actualizar producto: " + e.getMessage());
+        }
 
-		try {
+    }
 
-			Product product = productRepository.findById(ide).orElseThrow(
-					() -> new NotFoundException("Id: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+    @Transactional(readOnly = true)
+    public Subsidiary findSubsidiaryByIdPrivate(Long ide) {
 
-			return product;
+        try {
 
-		} catch (DataAccessException e) {
+            return subsidiaryRepository.findById(ide).orElseThrow(
+                    () -> new NotFoundException("Id: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			LOGGER.error("Error buscar producto", e);
-			throw new NotDataAccessException("Error buscar producto: " + e.getMessage());
-		}
+        } catch (DataAccessException e) {
 
-	}
+            LOGGER.error("Error buscar establecimiento", e);
+            throw new NotDataAccessException("Error buscar establecimiento: " + e.getMessage());
+        }
 
-	@Override
-	public ProductInformationDTO findProductInforById(Long idProducto, Long ide) {
+    }
 
-		try {
+    /**
+     * Verifica si un producto existe en un establecimiento
+     */
+    @Transactional(readOnly = true)
+    public void isExistProductBySubsidiary(String codePrivateProd, Long idSubsidiary) {
 
-			ProductInformation productInformation = productInformationRepository.findByIdProductoAndBy(idProducto, ide)
-					.orElseThrow(() -> new NotFoundException("idProducto: " + idProducto + " ó idDetailsProduto :" + ide
-							+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+        try {
+            if (!productRepository.existProductoBySubsidiary(codePrivateProd, idSubsidiary).isEmpty())
+                throw new DuplicatedResourceException("codigo Producto: " + codePrivateProd
+                        + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 
-			return productMapper.mapperProInformationToDTO(productInformation);
+        } catch (DataAccessException e) {
 
-		} catch (DataAccessException e) {
-			LOGGER.error("Error buscar detalle producto", e);
-			throw new NotDataAccessException("Error buscar detalle producto: " + e.getMessage());
-		}
+            LOGGER.error("Error  verificar existencia producto", e);
+            throw new NotDataAccessException("Error verificar existencia producto: " + e.getMessage());
+        }
 
-	}
+    }
 
-	@Transactional(readOnly = true)
-	@Override
-	public List<ProductInformationDTO> findProductInforAll(Long idProducto) {
+    @Transactional(readOnly = true)
+    public Product findByIdPrivate(Long ide) {
 
-		Product product = findByIdPrivate(idProducto);
+        try {
 
-		try {
+            return productRepository.findById(ide).orElseThrow(
+                    () -> new NotFoundException("Id: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			List<ProductInformation> productInformations = product.getProductInformations();
+        } catch (DataAccessException e) {
 
-			List<ProductInformationDTO> productInformationDTOs = productMapper
-					.mapperProInformationAToDTO(productInformations);
+            LOGGER.error("Error buscar producto", e);
+            throw new NotDataAccessException("Error buscar producto: " + e.getMessage());
+        }
 
-			return productInformationDTOs;
+    }
 
-		} catch (DataAccessException e) {
-			LOGGER.error("Error listar detalle producto", e);
-			throw new NotDataAccessException("Error listar detalle producto: " + e.getMessage());
+    @Override
+    public ProductInformationDTO findProductInforById(Long idProducto, Long ide) {
 
-		}
+        try {
 
-	}
+            ProductInformation productInformation = productInformationRepository.findByIdProductoAndBy(idProducto, ide)
+                    .orElseThrow(() -> new NotFoundException("idProducto: " + idProducto + " ó idDetailsProduto :" + ide
+                            + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-	@Override
-	public ProductInformationDTO updateProductInfo(ProductInformationDTO productInformationDTO, Long ide) {
+            return productMapper.mapperProInformationToDTO(productInformation);
 
-		try {
+        } catch (DataAccessException e) {
+            LOGGER.error("Error buscar detalle producto", e);
+            throw new NotDataAccessException("Error buscar detalle producto: " + e.getMessage());
+        }
 
-			ProductInformation productInformation = productInformationRepository.findById(ide)
-					.orElseThrow(() -> new NotFoundException(""));
+    }
 
-			productInformation
-					.setAttribute(productInformationDTO.getAttribute() == null ? productInformation.getAttribute()
-							: productInformationDTO.getAttribute());
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProductInformationDTO> findProductInforAll(Long idProducto) {
 
-			productInformation.setValue(productInformationDTO.getValue() == null ? productInformation.getValue()
-					: productInformationDTO.getValue());
+        Product product = findByIdPrivate(idProducto);
 
-			ProductInformation productInformationUpdated = productInformationRepository.save(productInformation);
+        try {
 
-			return productMapper.mapperProInformationToDTO(productInformationUpdated);
+            List<ProductInformation> productInformations = product.getProductInformations();
 
-		} catch (DataAccessException e) {
-			LOGGER.error("Error actualizar  detalle producto", e);
-			throw new NotDataAccessException("Error actualizar detalle producto: " + e.getMessage());
-		}
+            return productMapper
+                    .mapperProInformationAToDTO(productInformations);
 
-	}
+        } catch (DataAccessException e) {
+            LOGGER.error("Error listar detalle producto", e);
+            throw new NotDataAccessException("Error listar detalle producto: " + e.getMessage());
 
-	@Override
-	@Transactional
-	public String deleteProductInfoById(Long idProducto, Long ide) {
+        }
 
-		// ProductInformation productInformation = findProductInforByIdPrivate(ide);
+    }
 
-		try {
+    @Override
+    public ProductInformationDTO updateProductInfo(ProductInformationDTO productInformationDTO, Long ide) {
 
-			Integer rowDelete = productInformationRepository.deleteProductInformation(idProducto, ide);
+        try {
 
-			if (rowDelete > 0) {
+            ProductInformation productInformation = productInformationRepository.findById(ide)
+                    .orElseThrow(() -> new NotFoundException(""));
 
-				return "Detalle producto eliminado con exito";
-			}
+            productInformation
+                    .setAttribute(productInformationDTO.getAttribute() == null ? productInformation.getAttribute()
+                            : productInformationDTO.getAttribute());
 
-			// productInformationRepository.deleteById(productInformation.getIde());
+            productInformation.setValue(productInformationDTO.getValue() == null ? productInformation.getValue()
+                    : productInformationDTO.getValue());
 
-			throw new NotFoundException("idProducto: " + idProducto + " ó idDetailsProduto :" + ide
-					+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-		} catch (DataAccessException e) {
-			LOGGER.error("Error eliminar detalle producto", e);
-			throw new NotDataAccessException("Error eliminar detalle producto: " + e.getMessage());
-		}
+            ProductInformation productInformationUpdated = productInformationRepository.save(productInformation);
 
-	}
+            return productMapper.mapperProInformationToDTO(productInformationUpdated);
 
-	@Transactional(readOnly = true)
-	private ProductInformation findProductInforByIdPrivate(Long ide) {
-		try {
+        } catch (DataAccessException e) {
+            LOGGER.error("Error actualizar  detalle producto", e);
+            throw new NotDataAccessException("Error actualizar detalle producto: " + e.getMessage());
+        }
 
-			ProductInformation productInformation = productInformationRepository.findById(ide).orElseThrow(
-					() -> new NotFoundException("id: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+    }
 
-			return productInformation;
-		} catch (DataAccessException e) {
-			LOGGER.error("Error buscar detalle producto", e);
-			throw new NotDataAccessException("Error buscar detalle producto: " + e.getMessage());
-		}
+    @Override
+    public TaxProduct finTaxProduct(TypeTaxEnum typeTaxEnum, String codeImpuesto, Product product) {
 
-	}
+        TaxValue taxValue = taxValueRepository.findByCode(codeImpuesto).orElseThrow(
+                () -> new NotFoundException(typeTaxEnum.name() + " con codigo " + codeImpuesto + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-	@Override
-	@Transactional
-	public String deleteProductInfoAllById(Long idProducto) {
+        AdminProduct.calcularNuevoPrecioProdImpuesto(typeTaxEnum, product, taxValue.getPorcentage());
 
-		Product product = findByIdPrivate(idProducto);
+        return new TaxProduct(product, taxValue);
 
-		try {
+    }
 
-			Integer rowDelete = productInformationRepository.deleteProductInformationAll(product.getIde());
+    @Override
+    @Transactional
+    public String deleteProductInfoById(Long idProducto, Long ide) {
 
-			return "Se eliminarón " + rowDelete + " registros";
+        // ProductInformation productInformation = findProductInforByIdPrivate(ide);
 
-		} catch (DataAccessException e) {
-			LOGGER.error("Error eliminar detalle producto", e);
-			throw new NotDataAccessException("Error eliminar detalle producto: " + e.getMessage());
-		}
+        try {
 
-	}
+            Integer rowDelete = productInformationRepository.deleteProductInformation(idProducto, ide);
+
+            if (rowDelete > 0) {
+
+                return "Detalle producto eliminado con exito";
+            }
+
+            // productInformationRepository.deleteById(productInformation.getIde());
+
+            throw new NotFoundException("idProducto: " + idProducto + " ó idDetailsProduto :" + ide
+                    + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+        } catch (DataAccessException e) {
+            LOGGER.error("Error eliminar detalle producto", e);
+            throw new NotDataAccessException("Error eliminar detalle producto: " + e.getMessage());
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    public ProductInformation findProductInforByIdPrivate(Long ide) {
+        try {
+
+            return productInformationRepository.findById(ide).orElseThrow(
+                    () -> new NotFoundException("id: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+        } catch (DataAccessException e) {
+            LOGGER.error("Error buscar detalle producto", e);
+            throw new NotDataAccessException("Error buscar detalle producto: " + e.getMessage());
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public String deleteProductInfoAllById(Long idProducto) {
+
+        Product product = findByIdPrivate(idProducto);
+
+        try {
+
+            Integer rowDelete = productInformationRepository.deleteProductInformationAll(product.getIde());
+
+            return "Se eliminarón " + rowDelete + " registros";
+
+        } catch (DataAccessException e) {
+            LOGGER.error("Error eliminar detalle producto", e);
+            throw new NotDataAccessException("Error eliminar detalle producto: " + e.getMessage());
+        }
+
+    }
 }

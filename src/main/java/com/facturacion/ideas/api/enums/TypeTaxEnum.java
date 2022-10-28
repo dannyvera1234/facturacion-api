@@ -40,4 +40,6 @@ public enum TypeTaxEnum {
 		return Arrays.asList(TypeTaxEnum.RENTA, TypeTaxEnum.IVA, TypeTaxEnum.ICE, TypeTaxEnum.IRBPNR, TypeTaxEnum.ISD);
 	}
 
+
+
 }

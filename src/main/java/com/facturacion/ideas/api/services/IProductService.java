@@ -4,6 +4,10 @@ import java.util.List;
 
 import com.facturacion.ideas.api.dto.ProductDTO;
 import com.facturacion.ideas.api.dto.ProductInformationDTO;
+import com.facturacion.ideas.api.entities.Product;
+import com.facturacion.ideas.api.entities.TaxProduct;
+import com.facturacion.ideas.api.entities.TaxValue;
+import com.facturacion.ideas.api.enums.TypeTaxEnum;
 
 public interface IProductService {
 
@@ -28,5 +32,7 @@ public interface IProductService {
 	String deleteProductInfoAllById(Long idProducto);
 
 	ProductInformationDTO updateProductInfo(ProductInformationDTO productInformationDTO, Long ide);
+
+	TaxProduct finTaxProduct(TypeTaxEnum typeTax, String ideTax, Product product);
 
 }

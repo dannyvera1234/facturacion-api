@@ -42,6 +42,11 @@ public class TaxProduct implements Serializable {
 		this.taxValue = taxValue;
 	}
 
+	public TaxProduct(Product product, TaxValue taxValue) {
+		this.product = product;
+		this.taxValue = taxValue;
+	}
+
 	public Long getIde() {
 		return ide;
 	}
