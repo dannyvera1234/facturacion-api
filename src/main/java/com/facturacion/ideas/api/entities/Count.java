@@ -1,24 +1,13 @@
 package com.facturacion.ideas.api.entities;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.facturacion.ideas.api.enums.RolEnum;
+import com.facturacion.ideas.api.security.entity.Rol;
+import com.sun.istack.NotNull;
 
 
 @Entity
@@ -57,6 +46,14 @@ public class Count implements Serializable {
 	@OneToMany(mappedBy = "count", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 	private List<Sender> sender;
 
+
+	@ManyToMany
+	@NotNull
+	@JoinTable(name="cuentas_roles",
+			joinColumns = @JoinColumn(name="CUE_COD", referencedColumnName = "CUE_COD"),
+			inverseJoinColumns = @JoinColumn(name="ROL_COD", referencedColumnName = "ROL_COD"))
+	private Set<Rol> roles;
+
 	public Count(Long ide, String ruc, String password, boolean estado, Date fechaRegistro, RolEnum rol) {
 		super();
 		this.ide = ide;
@@ -77,6 +74,8 @@ public class Count implements Serializable {
 		logins = new ArrayList<>();
 		detailsAggrement = new ArrayList<>();
 		sender = new ArrayList<>();
+
+		roles = new HashSet<>();
 	}
 
 	@PrePersist
@@ -155,6 +154,11 @@ public class Count implements Serializable {
 
 	public void setSender(Sender sender) {
 		this.sender.add(sender);
+	}
+
+
+	public Set<Rol> getRoles() {
+		return roles;
 	}
 
 	@Override

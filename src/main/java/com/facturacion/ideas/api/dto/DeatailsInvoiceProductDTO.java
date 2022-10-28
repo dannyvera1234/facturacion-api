@@ -5,13 +5,17 @@ import java.io.Serializable;
 public class DeatailsInvoiceProductDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     private Long ide;
+
+    private String description;
 
     private double amount;
 
     private double subtotal;
 
+    /**
+     * Vendra el codigo del producto, para relacionarlo con la factura , y obtener el tipo de servicio
+     */
     private Long idProducto;
 
     public DeatailsInvoiceProductDTO() {
@@ -58,11 +62,19 @@ public class DeatailsInvoiceProductDTO implements Serializable {
     }
 
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     @Override
     public String toString() {
         return "DeatailsInvoiceProductDTO{" +
                 "ide=" + ide +
+                ", description='" + description + '\'' +
                 ", amount=" + amount +
                 ", subtotal=" + subtotal +
                 ", idProducto=" + idProducto +

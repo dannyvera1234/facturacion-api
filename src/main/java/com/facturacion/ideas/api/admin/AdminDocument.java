@@ -242,7 +242,7 @@ public class AdminDocument {
 
         ValueInvoice valueInvoice = new ValueInvoice();
 
-        double subtotalSinIva = 0.0;
+        Double subtotalSinIva = 0.0;
 
         for(DeatailsInvoiceProduct item : detailsProduct){
 
@@ -250,9 +250,9 @@ public class AdminDocument {
             subtotalSinIva +=  item.getProduct().getUnitValue() * item.getAmount();
             // Asignar el sustotal del item
             item.setSubtotal(subtotalSinIva);
-
-            
         }
+
+
 
 
 
@@ -275,6 +275,7 @@ public class AdminDocument {
      * @return
      */
     public static List<DeatailsInvoiceProduct> createDeatailsInvoiceProduct(List<Product> products, List<DeatailsInvoiceProductDTO> deatailsProducts) {
+
         List<DeatailsInvoiceProduct> deatailsInvoiceProducts = new ArrayList<>();
 
         for (DeatailsInvoiceProductDTO item : deatailsProducts) {
@@ -288,6 +289,8 @@ public class AdminDocument {
 
             deatailsInvoiceProduct.setAmount(item.getAmount());
             deatailsInvoiceProduct.setSubtotal(item.getSubtotal());
+            // Correspode al nombre del servicio o producto, pero si lo edita, lo guardo
+            deatailsInvoiceProduct.setDescription(item.getDescription());
             deatailsInvoiceProducts.add(deatailsInvoiceProduct);
         }
         return deatailsInvoiceProducts;

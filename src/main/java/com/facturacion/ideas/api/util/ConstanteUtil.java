@@ -32,7 +32,9 @@ public class ConstanteUtil {
 	
 	// Tipo de moneda
 	public static final String TEXT_DEFAULT_MODEDA = "DOLAR";
-	
+
+	// Iva actual
+	public static final Double IVA_ACTUAL = 12.0;
 	
 	
 	

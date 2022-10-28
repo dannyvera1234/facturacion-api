@@ -29,6 +29,9 @@ public class DeatailsInvoiceProduct implements Serializable {
 	@Column(name = " DTF_SUB")
 	private double subtotal;
 
+	@Column(name = " DTF_DES")
+	private String description;
+
 	// Aqui se crear una refrencia hacia un product
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "DTF_FK_COD_PRO")
@@ -78,9 +81,21 @@ public class DeatailsInvoiceProduct implements Serializable {
 		this.product = product;
 	}
 
-	@Override
-	public String toString() {
-		return "DeatailsInvoiceProduct [ide=" + ide + ", amount=" + amount + ", subtotal=" + subtotal + "]";
+	public String getDescription() {
+		return description;
 	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
+	public String toString() {
+		return "DeatailsInvoiceProduct{" +
+				"ide=" + ide +
+				", amount=" + amount +
+				", subtotal=" + subtotal +
+				", description='" + description + '\'' +
+				'}';
+	}
 }
