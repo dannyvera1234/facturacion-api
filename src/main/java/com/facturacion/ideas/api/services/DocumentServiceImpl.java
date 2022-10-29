@@ -73,15 +73,7 @@ public class DocumentServiceImpl implements IDocumentService {
             List<DeatailsInvoiceProduct> detalles = AdminDocument.createDeatailsInvoiceProduct(products, invoiceNewDTO.getDeatailsInvoiceProductDTOs());
 
             // Obtener los valores de la factura
-            ValueInvoice valueInvoice = AdminDocument.calcularDetalleFactura(detalles);
-
-
-            // Por ahora provicioanl pasa ub objeto fijo- ELIMINAR ESTO DESPUES
-            //invoiceNewDTO.setValueInvoiceNewDTO(new ValueInvoiceNewDTO());
-
-            // Valores de la factura
-            //ValueInvoice valueInvoice = documentMapper.mapperToEntity(invoiceNewDTO.getValueInvoiceNewDTO());
-
+            ValueInvoice valueInvoice = AdminDocument.calcularDetalleFactura(detalles, invoiceNewDTO.getValueInvoiceNewDTO().getPropina());
 
             // Establecimiento del punto emision
             Subsidiary subsidiary = emissionPoint.getSubsidiary();

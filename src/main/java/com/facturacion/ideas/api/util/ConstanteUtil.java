@@ -34,7 +34,10 @@ public class ConstanteUtil {
 	public static final String TEXT_DEFAULT_MODEDA = "DOLAR";
 
 	// Iva actual en porcentaje
-	public static final Double IVA_ACTUAL = 12.0;
+	public static final Double IVA_ACTUAL_PORCENTAJE = 12.0;
+
+	// Iva actual en decimal
+	public static final Double IVA_ACTUAL_DECIMAL = 1.12;
 
 	// valor agegado expresado en Dolar
 	public static final Double VALOR_IVA_IRBPNR = 0.02;

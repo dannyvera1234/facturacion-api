@@ -2,13 +2,12 @@ package com.facturacion.ideas.api.enums;
 
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
-import java.util.Arrays;
 import java.util.List;
 
 public enum TypePorcentajeIvaEnum {
 
     IVA_CERO( "0", "0%", 0.0),
-    IVA_DOCE( "2", "12%", ConstanteUtil.IVA_ACTUAL),
+    IVA_DOCE( "2", "12%", ConstanteUtil.IVA_ACTUAL_PORCENTAJE),
     IVA_CATORCE("3", "14%", 14.00),
     IVA_NO_OBJETO( "6", "No Objeto de Impuesto", 0.0),
     IVA_EXENTO("7", "Exento de IVA", 0.0);

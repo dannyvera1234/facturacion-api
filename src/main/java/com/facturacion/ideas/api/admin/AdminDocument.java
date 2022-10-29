@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.documents.InfoTributaria;
 import com.facturacion.ideas.api.documents.factura.Factura;
@@ -13,8 +14,8 @@ import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.ValueInvoiceNewDTO;
 import com.facturacion.ideas.api.entities.*;
-import com.facturacion.ideas.api.enums.TypeDocumentEnum;
-import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
+import com.facturacion.ideas.api.enums.*;
+import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.KeyAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.util.ConstanteUtil;
@@ -61,7 +62,6 @@ public class AdminDocument {
 
         String keyAccess = today + codeTypeDocument + ruc + codeTypeEnviroment + serie + squentialNumberDocument
                 + codeNumeric + codeTypeEmission;
-
         return generateCheckDigit(keyAccess);
 
     }
@@ -238,38 +238,149 @@ public class AdminDocument {
 
     }
 
-    public static ValueInvoice calcularDetalleFactura(List <DeatailsInvoiceProduct> detailsProduct) {
+    public static ValueInvoice calcularDetalleFactura(List<DeatailsInvoiceProduct> detailsProduct, Double propina) {
 
         ValueInvoice valueInvoice = new ValueInvoice();
 
-        Double subtotalSinIva = 0.0;
+        Double subtotalCeroIva = 0.0;
+        Double subtotalDoceIvaActual = 0.0;
+        Double subtotalExeptoIva = 0.0;
+        Double subtotalNoObjetoIva = 0.0;
+        Double subtotal = 0.0;
+        Double totalDescuento = 0.0;
 
-        for(DeatailsInvoiceProduct item : detailsProduct){
+        Double valorICE = 0.0;
+        Double valorIRBPNR = 0.0;
+        Double valorIvaVigente = 0.0;
+        Double valorPropina = 0.0;
+        Double valorTotal = 0.0;
 
-            // Calcular detalle de la factura
-            subtotalSinIva +=  item.getProduct().getUnitValue() * item.getAmount();
-            // Asignar el sustotal del item
-            item.setSubtotal(subtotalSinIva);
+        // Productos que gravan IVA 12%
+        List<DeatailsInvoiceProduct> detailsGravaIVA = detailsProduct
+                .stream()
+                .filter(item -> item.getProduct().getIva().equalsIgnoreCase(QuestionEnum.SI.name()))
+                .collect(Collectors.toList());
+
+
+        // Producto que no gravan IVA  (0%, No objeto iva, Exento iva)
+        List<DeatailsInvoiceProduct> detailsNoGravaIVA = detailsProduct
+                .stream()
+                .filter(item -> item.getProduct().getIva().equalsIgnoreCase(QuestionEnum.NO.name()))
+                .collect(Collectors.toList());
+
+        // Indica que todos los producto del detalle factura Gravan IVA
+        if (detailsGravaIVA.size() == detailsProduct.size() && detailsNoGravaIVA.isEmpty()) {
+
+            // Aqui la suma ya incluye iva
+            subtotalDoceIvaActual = detailsGravaIVA.stream().map(item -> (item.getProduct().getUnitValue() * item.getAmount()))
+                    .reduce(Double::sum).get();
+
+            // Obtener el iva vigente
+            valorIvaVigente = subtotalDoceIvaActual / ConstanteUtil.IVA_ACTUAL_DECIMAL;
+
+            // Este el valor subtotal doce porciente, sin IVA
+            subtotalDoceIvaActual -= valorIvaVigente;
+
+        } else {
+            // Dividir los (0%, Exento, No Objeto Iva)
+
+            //  Detalle con iva 0%
+            List<DeatailsInvoiceProduct> listIvaCero = detailsNoGravaIVA
+                    .stream()
+                    .filter(item -> verificarImpuestoIvaProducto(item.getProduct(), TypePorcentajeIvaEnum.IVA_CERO))
+                    .collect(Collectors.toList());
+
+
+            subtotalCeroIva = listIvaCero.stream().map(item -> (item.getProduct().getUnitValue() * item.getAmount()))
+                    .reduce(Double::sum).get();
+
+            // Detalle con iva No Objeto
+            List<DeatailsInvoiceProduct> listIvaNoObjeto = detailsNoGravaIVA
+                    .stream()
+                    .filter(item -> verificarImpuestoIvaProducto(item.getProduct(), TypePorcentajeIvaEnum.IVA_NO_OBJETO))
+                    .collect(Collectors.toList());
+
+            subtotalNoObjetoIva = listIvaNoObjeto.stream().map(item -> (item.getProduct().getUnitValue() * item.getAmount()))
+                    .reduce(Double::sum).get();
+
+
+            // Detalle con iva Exento
+            List<DeatailsInvoiceProduct> listIvaExentoIva = detailsNoGravaIVA
+                    .stream()
+                    .filter(item -> verificarImpuestoIvaProducto(item.getProduct(), TypePorcentajeIvaEnum.IVA_EXENTO))
+                    .collect(Collectors.toList());
+
+            subtotalExeptoIva = listIvaExentoIva.stream().map(item -> (item.getProduct().getUnitValue() * item.getAmount()))
+                    .reduce(Double::sum).get();
         }
 
 
+        //
+        valorIvaVigente += valorICE;
+
+        subtotal = subtotalDoceIvaActual + subtotalCeroIva + subtotalNoObjetoIva + subtotalExeptoIva;
+
+        // La propina no puede superar el 10% del subtotal
+        if ((subtotal * 10) / 100 > propina) {
+            throw new BadRequestException("La propina " + propina + " no puede superar el 10% de " + subtotal);
+        } else valorPropina = propina;
 
 
 
-        valueInvoice.setTotal(subtotalSinIva);
+        valorTotal = subtotal +  valorICE +  valorIRBPNR + valorIvaVigente +  valorPropina;
 
 
+        valueInvoice.setSubtIvaCero(subtotalCeroIva);
+        valueInvoice.setSubtIvaActual(subtotalDoceIvaActual);
+        valueInvoice.setSubtNoObjIva(subtotalNoObjetoIva);
+        valueInvoice.setSubtExceptoIva(subtotalExeptoIva);
+        valueInvoice.setSubtotal(subtotal);
+        valueInvoice.setDescuento(totalDescuento);
+        valueInvoice.setIce(valorICE);
+        valueInvoice.setRbpnr(valorIRBPNR);
+        valueInvoice.setIva(valorIvaVigente);
+        valueInvoice.setPropina(valorPropina);
+        valueInvoice.setTotal(valorTotal);
+
+        return valueInvoice;
+
+    }
+
+    private static boolean verificarImpuestoIvaProducto(Product product, TypePorcentajeIvaEnum typePorcentaje) {
+
+        return product.getTaxProducts().stream().anyMatch(tax -> tax.getTaxValue().getCode().equalsIgnoreCase(typePorcentaje.getCode()));
+    }
+
+    /**
+     * Verificar que si un producto No graban iva, 0%, Exento, No Objeto
+     *
+     * @param taxValue
+     * @return
+     */
+    private static boolean verificarProductoNoIva(TaxValue taxValue) {
+        return taxValue.getCode().equalsIgnoreCase(TypePorcentajeIvaEnum.IVA_CERO.name())
+                || taxValue.getCode().equalsIgnoreCase(TypePorcentajeIvaEnum.IVA_NO_OBJETO.name())
+                || taxValue.getCode().equalsIgnoreCase(TypePorcentajeIvaEnum.IVA_EXENTO.name());
 
 
+    }
 
-        return  null;
+    /**
+     * Calcular el total de un detalle de la factura
+     *
+     * @param detailProduct
+     * @return
+     */
+    private static Double calcularTotalDetalle(DeatailsInvoiceProduct detailProduct) {
 
+        return detailProduct.getProduct().getUnitValue() * detailProduct.getAmount();
 
     }
 
     /**
      * Asigna a cada detalle de la factura el producto correspondiente, para calcular los valores
      * de la factura
+     *
      * @param products
      * @param deatailsProducts
      * @return
@@ -282,15 +393,16 @@ public class AdminDocument {
 
             DeatailsInvoiceProduct deatailsInvoiceProduct = new DeatailsInvoiceProduct();
 
-            // Asignar el producto
-            deatailsInvoiceProduct.setProduct(products
+            Product product = products
                     .stream()
-                    .filter(pro -> pro.getIde().longValue() == item.getIdProducto()).findFirst().get());
+                    .filter(pro -> pro.getIde().longValue() == item.getIdProducto()).findFirst().get();
+            // Asignar el producto
+            deatailsInvoiceProduct.setProduct(product);
 
             deatailsInvoiceProduct.setAmount(item.getAmount());
             deatailsInvoiceProduct.setSubtotal(item.getSubtotal());
             // Correspode al nombre del servicio o producto, pero si lo edita, lo guardo
-            deatailsInvoiceProduct.setDescription(item.getDescription());
+            deatailsInvoiceProduct.setDescription(item.getDescription().isEmpty()? product.getName() : item.getDescription() );
             deatailsInvoiceProducts.add(deatailsInvoiceProduct);
         }
         return deatailsInvoiceProducts;
