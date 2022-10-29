@@ -2,6 +2,7 @@ package com.facturacion.ideas.api.controllers;
 
 import java.util.List;
 
+import com.facturacion.ideas.api.dto.ProductResponseDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +30,14 @@ public class ProductRestController implements IProductOperation {
 	private IProductService productService;
 
 	@Override
-	public ResponseEntity<ProductDTO> save(ProductDTO productDTO, Long idSubsidiary) {
+	public ResponseEntity<ProductResponseDTO> save(ProductDTO productDTO, Long idSubsidiary) {
 
 		LOGGER.info("Producto guardar: " + productDTO.getProductInformationDTOs().size());
 		try {
 
-			// return ResponseEntity.ok(productDTO);
-			ProductDTO productDTOSaved = productService.save(productDTO, idSubsidiary);
+			ProductResponseDTO productDTOSaved = productService.save(productDTO, idSubsidiary);
 
-			return new ResponseEntity<ProductDTO>(productDTOSaved, HttpStatus.CREATED);
+			return new ResponseEntity<ProductResponseDTO>(productDTOSaved, HttpStatus.CREATED);
 
 		} catch (NotDataAccessException e) {
 			throw new NotDataAccessException(e.getMessage());
@@ -45,20 +45,20 @@ public class ProductRestController implements IProductOperation {
 	}
 
 	@Override
-	public ResponseEntity<ProductDTO> findById(Long id) {
+	public ResponseEntity<ProductResponseDTO> findById(Long id) {
 
-		ProductDTO productDTOSaved = productService.findById(id);
+		ProductResponseDTO productDTOSaved = productService.findById(id);
 
-		return new ResponseEntity<ProductDTO>(productDTOSaved, HttpStatus.OK);
+		return  ResponseEntity.ok(productDTOSaved);
 	}
 
 	@Override
-	public ResponseEntity<List<ProductDTO>> findAllByIdSubsidiary(Long id) {
+	public ResponseEntity<List<ProductResponseDTO>> findAllByIdSubsidiary(Long id) {
 
 		try {
-			List<ProductDTO> productDTOS = productService.findAll(id);
+			List<ProductResponseDTO> productDTOS = productService.findAll(id);
 
-			return new ResponseEntity<List<ProductDTO>>(productDTOS, HttpStatus.OK);
+			return  ResponseEntity.ok(productDTOS);
 
 		} catch (NotDataAccessException e) {
 			throw new NotDataAccessException(e.getMessage());
@@ -84,12 +84,12 @@ public class ProductRestController implements IProductOperation {
 	}
 
 	@Override
-	public ResponseEntity<ProductDTO> update(ProductDTO productDTO, Long id) {
+	public ResponseEntity<ProductResponseDTO> update(ProductDTO productDTO, Long id) {
 		LOGGER.info("Id producto actualizar: " + id);
 
 		try {
 
-			ProductDTO productDTOUpdated = productService.update(productDTO, id);
+			ProductResponseDTO productDTOUpdated = productService.update(productDTO, id);
 
 			return ResponseEntity.ok(productDTOUpdated);
 
@@ -107,19 +107,6 @@ public class ProductRestController implements IProductOperation {
 			List<ProductInformationDTO> productInformationDTOs = productService.findProductInforAll(id);
 
 			return ResponseEntity.ok(productInformationDTOs);
-
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-
-		}
-	}
-
-	@Override
-	public ResponseEntity<ProductInformationDTO> findProducInformationById(Long id, Long idDetails) {
-		try {
-
-			ProductInformationDTO productInformationDTO = productService.findProductInforById(id, idDetails);
-			return ResponseEntity.ok(productInformationDTO);
 
 		} catch (NotDataAccessException e) {
 			throw new NotDataAccessException(e.getMessage());

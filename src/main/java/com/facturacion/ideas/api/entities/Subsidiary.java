@@ -67,6 +67,12 @@ public class Subsidiary implements Serializable {
 		initData();
 	}
 
+	public Subsidiary(Long ide) {
+		super();
+		this.ide = ide;
+		initData();
+	}
+
 	public Subsidiary(Long ide, String code, String socialReason, String address, boolean status, Date dateCreate,
 			boolean principal) {
 		super();

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.facturacion.ideas.api.dto.ProductResponseDTO;
 import org.springframework.stereotype.Component;
 
 import com.facturacion.ideas.api.dto.ProductDTO;
@@ -44,23 +45,23 @@ public class ProductMapeerImpl implements IProductMapper {
 	}
 
 	@Override
-	public ProductDTO mapperToDTO(Product product) {
+	public ProductResponseDTO mapperToDTO(Product product) {
 
-		ProductDTO productDTO = new ProductDTO();
+		ProductResponseDTO productResponseDTO = new ProductResponseDTO();
 
-		productDTO.setIde(product.getIde());
-		productDTO.setCodePrivate(product.getCodePrivate());
-		productDTO.setCodeAuxilar(product.getCodeAuxilar());
-		productDTO.setName(product.getName());
-		productDTO.setDateCreate(FunctionUtil.convertDateToString(product.getDateCreate()));
-		productDTO.setUnitValue(product.getUnitValue());
-		productDTO.setTypeProductEnum(TypeProductEnum.getTypeProductEnum(product.getTypeProductEnum()).name());
-		productDTO.setIva(product.getIva());
-		productDTO.setIce(product.getIce());
-		productDTO.setIrbpnr(product.getIrbpnr());
-		// productDTO.setSender(product.getSender().getSocialReason());
+		productResponseDTO.setIde(product.getIde());
+		productResponseDTO.setCodePrivate(product.getCodePrivate());
+		//productResponseDTO.setCodeAuxilar(product.getCodeAuxilar());
+		productResponseDTO.setName(product.getName());
+		//productResponseDTO.setDateCreate(FunctionUtil.convertDateToString(product.getDateCreate()));
+		productResponseDTO.setUnitValue(product.getUnitValue());
+		productResponseDTO.setTypeProductEnum(TypeProductEnum.getTypeProductEnum(product.getTypeProductEnum()).name());
+		//productResponseDTO.setIva(product.getIva());
+		//productResponseDTO.setIce(product.getIce());
+		//productResponseDTO.setIrbpnr(product.getIrbpnr());
+		// productResponseDTO.setSender(product.getSender().getSocialReason());
 
-		return productDTO;
+		return productResponseDTO;
 	}
 
 	@Override

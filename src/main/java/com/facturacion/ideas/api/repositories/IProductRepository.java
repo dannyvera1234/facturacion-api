@@ -12,17 +12,8 @@ import com.facturacion.ideas.api.entities.Subsidiary;
 
 public interface IProductRepository extends JpaRepository<Product, Long> {
 
-	/**
-	 * Verifica la existencia de un producto dentro de un establecimiento
-	 * @param codePrivate : codigo privado producto
-	 * @param subsidiary : id establecimiento
-	 * @return
-	 */
-	@Query("select true from Product pr where pr.codePrivate= :codePrivate and pr.subsidiary.ide= :subsidiary")
-	Optional<Boolean>  existProductoBySubsidiary(@Param("codePrivate") String codePrivate, @Param("subsidiary") Long subsidiary);
-
-	List<Product> findBySubsidiary(Subsidiary subsidiary);
+	Boolean existsByCodePrivateAndSubsidiaryIde(String codePrivate, Long idSubsidiary);
+	List<Product> findBySubsidiaryIde(Long subsidiary);
 
 	List<Product> findByIdeIn(List<Long> ide);
-
 }

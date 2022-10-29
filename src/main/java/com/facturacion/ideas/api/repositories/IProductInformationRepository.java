@@ -21,4 +21,5 @@ public interface IProductInformationRepository extends JpaRepository<ProductInfo
 
 	@Query(value = "SELECT INF_COD, INF_ATR, INF_VAL FROM INFO_ADICIONAL WHERE  INF_FK_COD_PRO = ?1 AND INF_COD = ?2", nativeQuery = true)
 	Optional<ProductInformation> findByIdProductoAndBy(Long idProducto, Long idProductInfo);
+
 }
