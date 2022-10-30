@@ -2,6 +2,7 @@ package com.facturacion.ideas.api.admin;
 
 import com.facturacion.ideas.api.dto.ProductInformationDTO;
 import com.facturacion.ideas.api.entities.Product;
+import com.facturacion.ideas.api.entities.TaxValue;
 import com.facturacion.ideas.api.enums.QuestionEnum;
 import com.facturacion.ideas.api.enums.TypePorcentajeIvaEnum;
 import com.facturacion.ideas.api.enums.TypeTaxEnum;
@@ -48,11 +49,12 @@ public class AdminProduct {
     private static void asignarSiNoIVA(Product product) {
 
         if (product.getIva() != null) {
+            // Solo si  iva corresponde a iva del 12%, decimos que si graba iva
+            // de lo contrario, decimos que no graba
+            boolean gravaIva = product.getIva().equalsIgnoreCase(TypePorcentajeIvaEnum.IVA_DOCE.getCode());
+            product.setIva(gravaIva
+                    ? QuestionEnum.SI.name() : QuestionEnum.NO.name()); // Valor por defecto
 
-            // code del impuesto valor
-            String codeImpuesto = product.getIva();
-
-            product.setIva(QuestionEnum.SI.name());
         } else product.setIva(QuestionEnum.NO.name()); // Valor por defecto
     }
 
@@ -81,43 +83,43 @@ public class AdminProduct {
         } else product.setIrbpnr(QuestionEnum.NO.name()); // Valor por defecto
     }
 
+
     /**
-     * Calcula el nuevo precio del producto, aplicando los impuestos
+     * Calcula el nuevo precio del producto, aplicando los impuestos IVA, ICE, IBPNR.
      *
      * @param typeTaxEnum
+     * @param taxValue
      * @param product
-     * @param porcentaje
      */
-    public static void calcularNuevoPrecioProdImpuesto(TypeTaxEnum typeTaxEnum, Product product, Double porcentaje) {
+    public static void calcularNuevoPrecioProdImpuesto(TypeTaxEnum typeTaxEnum, TaxValue taxValue, Product product) {
 
         String codeTax = typeTaxEnum.getCode();
-
         double precioActual = product.getUnitValue();
 
         double valorIva = 0.0;
 
         if (codeTax.equals(TypeTaxEnum.IVA.getCode())) {
-            // En iva NO es necesario utilizar el porcentaje que se pasa, ya que solo dos dos
-            // posibles valores
-            if (codeTax.equals(TypePorcentajeIvaEnum.IVA_DOCE.getCode())) {
+
+            // Determinar el tipo de IVA
+            if (taxValue.getCode().equalsIgnoreCase(TypePorcentajeIvaEnum.IVA_DOCE.getCode())) {
                 valorIva = (precioActual * TypePorcentajeIvaEnum.IVA_DOCE.getPorcentaje()) / 100;
 
-            } else if (codeTax.equals(TypePorcentajeIvaEnum.IVA_CATORCE.getCode())) {
+            } else if (taxValue.getCode().equalsIgnoreCase(TypePorcentajeIvaEnum.IVA_CATORCE.getCode())) {
                 valorIva = (precioActual * TypePorcentajeIvaEnum.IVA_CATORCE.getPorcentaje()) / 100;
             }
 
         } else if (codeTax.equals(TypeTaxEnum.ICE.getCode())) {
+
+            Double porcentaje = taxValue.getPorcentage();
 
             if (!porcentaje.isNaN())
                 valorIva = (precioActual * porcentaje) / 100;
         } else if (codeTax.equals(TypeTaxEnum.IRBPNR.getCode())) {
 
             // Por cada botella retornable se agrerá 0.02 de dolar.
-            // En  porcentaje representa 0 %,  por ello aqui sumamos directamente
+            // el porcetaje aplicado en impuesto_valor es 0 %,  por ello aqui sumamos directamente
             // los 0.02 al precio actual, y no aplicamosla formula de porcentaje
-            if (!porcentaje.isNaN())
-
-                valorIva = precioActual  + ConstanteUtil.VALOR_IVA_IRBPNR;
+            valorIva = precioActual + ConstanteUtil.VALOR_IVA_IRBPNR;
         }
 
         precioActual += valorIva;

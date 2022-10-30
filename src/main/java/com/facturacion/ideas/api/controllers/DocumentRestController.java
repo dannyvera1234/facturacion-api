@@ -5,6 +5,7 @@ import com.facturacion.ideas.api.repositories.IProductRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
@@ -37,7 +38,7 @@ public class DocumentRestController {
 
 			InvoiceResposeDTO invoiceResposeDTO = documentService.saveInvoice(invoiceNewDTO);
 
-			return ResponseEntity.ok(invoiceResposeDTO);
+			return new ResponseEntity<>(invoiceResposeDTO, HttpStatus.CREATED);
 			
 		} catch (NotDataAccessException e) {
 			

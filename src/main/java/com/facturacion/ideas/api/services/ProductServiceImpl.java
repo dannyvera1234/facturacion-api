@@ -251,7 +251,7 @@ public class ProductServiceImpl implements IProductService {
         TaxValue taxValue = taxValueRepository.findByCode(codeImpuesto).orElseThrow(
                 () -> new NotFoundException(typeTaxEnum.name() + " con codigo " + codeImpuesto + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-        AdminProduct.calcularNuevoPrecioProdImpuesto(typeTaxEnum, product, taxValue.getPorcentage());
+        AdminProduct.calcularNuevoPrecioProdImpuesto(typeTaxEnum,  taxValue ,  product);
 
         return new TaxProduct(product, taxValue);
 

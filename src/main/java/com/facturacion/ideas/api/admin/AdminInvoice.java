@@ -13,7 +13,9 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdminInvoice {
@@ -59,21 +61,22 @@ public class AdminInvoice {
         List<DeatailsInvoiceProduct> detailsNoGravaIVA = getDetailsInvoiceByIva(detailsProduct, QuestionEnum.NO);
 
 
-        // Indica que todos los producto del detalle factura Gravan IVA
-        if (detailsGravaIVA.size() == detailsProduct.size() && detailsNoGravaIVA.isEmpty()) {
+        // Producto que gravan IVA
+        if (detailsGravaIVA.size() > 0) {
 
             // Aqui la suma ya incluye iva
             subtotalDoceIvaActual = sumarSubtotalDetalle(detailsGravaIVA);
 
             // Obtener el iva vigente
-            valorIvaVigente = subtotalDoceIvaActual - (subtotalDoceIvaActual / ConstanteUtil.IVA_ACTUAL_DECIMAL) ;
-
+            valorIvaVigente = subtotalDoceIvaActual - (subtotalDoceIvaActual / ConstanteUtil.IVA_ACTUAL_DECIMAL);
             // Este el valor subtotal doce porciente, sin IVA
             subtotalDoceIvaActual -= valorIvaVigente;
 
-        } else {
-            // Dividir los (0%, Exento, No Objeto Iva)
+        }
 
+        // Producto no gravan iva
+        if (detailsNoGravaIVA.size()>0) {
+            // Dividir los (0%, Exento, No Objeto Iva)
 
             //  Detalle con iva 0%
             List<DeatailsInvoiceProduct> listIvaCero = getDetailsInvoiceNoIva(detailsNoGravaIVA, TypePorcentajeIvaEnum.IVA_CERO);
@@ -99,10 +102,10 @@ public class AdminInvoice {
 
 
         // Puede ser 10 10% del subtotal
-        double propinaMaxima = (subtotal *10)/100;
+        double propinaMaxima = (subtotal * 10) / 100;
 
         // La propina no puede superar a propina maxima
-        if (   propina > propinaMaxima) {
+        if (propina > propinaMaxima) {
             throw new BadRequestException("La propina " + propina + " no puede superar el 10%  de" + subtotal);
         } else valorPropina = propina;
 
@@ -133,7 +136,6 @@ public class AdminInvoice {
         return valueInvoice;
 
     }
-
     private static List<DeatailsInvoiceProduct> getDetailsInvoiceByIva(List<DeatailsInvoiceProduct> detailsProduct, QuestionEnum questionEnum) {
 
         return detailsProduct
@@ -258,10 +260,10 @@ public class AdminInvoice {
         return detailProduct.getProduct().getUnitValue() * detailProduct.getAmount();
     }
 
-    private static Double  sumarSubtotalDetalle(List<DeatailsInvoiceProduct> detailProduct) {
-        
+    private static Double sumarSubtotalDetalle(List<DeatailsInvoiceProduct> detailProduct) {
+
         return detailProduct.stream().map(AdminInvoice::calcularSubtotalDetalle)
-                .reduce(Double::sum).get();
+                .reduce(Double::sum).orElse(0.0);
     }
 
     /**
@@ -289,10 +291,10 @@ public class AdminInvoice {
             deatailsInvoiceProduct.setAmount(item.getAmount());
             deatailsInvoiceProduct.setSubtotal(item.getSubtotal());
 
-            if (item.getDescription() != null && !item.getDescription().isEmpty()){
+            if (item.getDescription() != null && !item.getDescription().isEmpty()) {
                 // Correspode al nombre del servicio o producto, pero si lo edita, lo guardo
                 deatailsInvoiceProduct.setDescription(item.getDescription());
-            }else deatailsInvoiceProduct.setDescription(product.getName());
+            } else deatailsInvoiceProduct.setDescription(product.getName());
 
 
             deatailsInvoiceProducts.add(deatailsInvoiceProduct);
