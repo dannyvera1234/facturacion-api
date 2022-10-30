@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.facturacion.ideas.api.admin.AdminInvoice;
 import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.exeption.BadRequestException;
@@ -70,10 +71,10 @@ public class DocumentServiceImpl implements IDocumentService {
                         .collect(Collectors.toList()));
 
             // Asociar cada producto con su detalle correspondiente
-            List<DeatailsInvoiceProduct> detalles = AdminDocument.createDeatailsInvoiceProduct(products, invoiceNewDTO.getDeatailsInvoiceProductDTOs());
+            List<DeatailsInvoiceProduct> detalles = AdminInvoice.createDeatailsInvoiceProduct(products, invoiceNewDTO.getDeatailsInvoiceProductDTOs());
 
             // Obtener los valores de la factura
-            ValueInvoice valueInvoice = AdminDocument.calcularDetalleFactura(detalles, invoiceNewDTO.getValueInvoiceNewDTO().getPropina());
+            ValueInvoice valueInvoice = AdminInvoice.calcularDetalleFactura(detalles, invoiceNewDTO.getValueInvoiceNewDTO().getPropina());
 
             // Establecimiento del punto emision
             Subsidiary subsidiary = emissionPoint.getSubsidiary();
@@ -98,6 +99,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
             invoiceNewDTO.setKeyAccess(keyAccess);
             invoiceNewDTO.setNumberAutorization(keyAccess);
+            invoiceNewDTO.setDateEmission( FunctionUtil.convertDateToString(new Date()));
 
             // Crear factura y mapear a Entitidad
             Invoice invoice = documentMapper.mapperToEntity(invoiceNewDTO);

@@ -14,7 +14,7 @@ public class DeatailsInvoiceProductDTO implements Serializable {
     private double subtotal;
 
     /**
-     * Vendra el codigo del producto, para relacionarlo con la factura , y obtener el tipo de servicio
+     * Vendra el codigo del producto, para relacionarlo con la factura , y obtener el tipo de servicio y precio
      */
     private Long idProducto;
 
