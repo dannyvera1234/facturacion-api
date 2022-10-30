@@ -69,7 +69,8 @@ public class SenderMapperImpl implements ISenderMapper {
 
 		SenderResponseDTO senderResponseDTO = new SenderResponseDTO();
 	
-		senderResponseDTO.setFullNameSocialReason(sender.getSocialReason() + " " + sender.getCommercialName());
+		senderResponseDTO.setFullNameSocialReason(sender.getSocialReason() +
+				" " +( sender.getCommercialName() ==null? "" :sender.getCommercialName()));
 		senderResponseDTO.setRuc(sender.getRuc());
 		senderResponseDTO.setTypeSender( sender.getTypeSender().name());
 		senderResponseDTO.setMatrixAddress(sender.getMatrixAddress());

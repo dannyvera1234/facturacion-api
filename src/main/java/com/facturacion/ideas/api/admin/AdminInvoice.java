@@ -1,6 +1,8 @@
 package com.facturacion.ideas.api.admin;
 
 import com.facturacion.ideas.api.documents.InfoTributaria;
+import com.facturacion.ideas.api.documents.factura.Detalle;
+import com.facturacion.ideas.api.documents.factura.Detalles;
 import com.facturacion.ideas.api.documents.factura.Factura;
 import com.facturacion.ideas.api.documents.factura.InfoFactura;
 import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
@@ -27,11 +29,14 @@ public class AdminInvoice {
      * @param invoiceSaved : La informacion de la factura guardada
      * @return : La factura que representara el XML
      */
-    public static Factura generarFactura(Invoice invoiceSaved) {
+    public static Factura generarFactura(Invoice invoiceSaved, Sender sender) {
 
         Factura factura = new Factura();
 
-        return null;
+         factura.setInfoTributaria(createInfoTributaria(invoiceSaved, sender));
+         factura.setInfoFactura(createInfoFactura(invoiceSaved));
+
+        return factura;
 
 
     }
@@ -153,7 +158,64 @@ public class AdminInvoice {
                 .collect(Collectors.toList());
     }
 
-    private InfoTributaria createInfoTributaria(Invoice invoiceSaved, Sender sender) {
+    private static boolean verificarImpuestoIvaProducto(Product product, TypePorcentajeIvaEnum typePorcentaje) {
+
+        return product.getTaxProducts().stream().anyMatch(tax -> tax.getTaxValue().getCode().equalsIgnoreCase(typePorcentaje.getCode()));
+    }
+
+    /**
+     * Calcular el total de un detalle de la factura
+     *
+     * @param detailProduct
+     * @return
+     */
+    private static Double calcularSubtotalDetalle(DeatailsInvoiceProduct detailProduct) {
+
+        return detailProduct.getProduct().getUnitValue() * detailProduct.getAmount();
+    }
+
+    private static Double sumarSubtotalDetalle(List<DeatailsInvoiceProduct> detailProduct) {
+
+        return detailProduct.stream().map(AdminInvoice::calcularSubtotalDetalle)
+                .reduce(Double::sum).orElse(0.0);
+    }
+
+    /**
+     * Asigna a cada detalle de la factura el producto correspondiente, para calcular los valores
+     * de la factura
+     *
+     * @param products
+     * @param deatailsProducts
+     * @return
+     */
+    public static List<DeatailsInvoiceProduct> createDeatailsInvoiceProduct(List<Product> products, List<DeatailsInvoiceProductDTO> deatailsProducts) {
+
+        List<DeatailsInvoiceProduct> deatailsInvoiceProducts = new ArrayList<>();
+
+        for (DeatailsInvoiceProductDTO item : deatailsProducts) {
+
+            DeatailsInvoiceProduct deatailsInvoiceProduct = new DeatailsInvoiceProduct();
+
+            Product product = products
+                    .stream()
+                    .filter(pro -> pro.getIde().longValue() == item.getIdProducto()).findFirst().get();
+            // Asignar el producto
+            deatailsInvoiceProduct.setProduct(product);
+
+            deatailsInvoiceProduct.setAmount(item.getAmount());
+            deatailsInvoiceProduct.setSubtotal(item.getSubtotal());
+
+            if (item.getDescription() != null && !item.getDescription().isEmpty()) {
+                // Correspode al nombre del servicio o producto, pero si lo edita, lo guardo
+                deatailsInvoiceProduct.setDescription(item.getDescription());
+            } else deatailsInvoiceProduct.setDescription(product.getName());
+
+
+            deatailsInvoiceProducts.add(deatailsInvoiceProduct);
+        }
+        return deatailsInvoiceProducts;
+    }
+    private static InfoTributaria createInfoTributaria(Invoice invoiceSaved, Sender sender) {
 
         InfoTributaria infoTributaria = new InfoTributaria();
 
@@ -244,62 +306,24 @@ public class AdminInvoice {
 
     }
 
-    private static boolean verificarImpuestoIvaProducto(Product product, TypePorcentajeIvaEnum typePorcentaje) {
 
-        return product.getTaxProducts().stream().anyMatch(tax -> tax.getTaxValue().getCode().equalsIgnoreCase(typePorcentaje.getCode()));
-    }
-
-    /**
-     * Calcular el total de un detalle de la factura
-     *
-     * @param detailProduct
-     * @return
-     */
-    private static Double calcularSubtotalDetalle(DeatailsInvoiceProduct detailProduct) {
-
-        return detailProduct.getProduct().getUnitValue() * detailProduct.getAmount();
-    }
-
-    private static Double sumarSubtotalDetalle(List<DeatailsInvoiceProduct> detailProduct) {
-
-        return detailProduct.stream().map(AdminInvoice::calcularSubtotalDetalle)
-                .reduce(Double::sum).orElse(0.0);
-    }
-
-    /**
-     * Asigna a cada detalle de la factura el producto correspondiente, para calcular los valores
-     * de la factura
-     *
-     * @param products
-     * @param deatailsProducts
-     * @return
-     */
-    public static List<DeatailsInvoiceProduct> createDeatailsInvoiceProduct(List<Product> products, List<DeatailsInvoiceProductDTO> deatailsProducts) {
-
-        List<DeatailsInvoiceProduct> deatailsInvoiceProducts = new ArrayList<>();
-
-        for (DeatailsInvoiceProductDTO item : deatailsProducts) {
-
-            DeatailsInvoiceProduct deatailsInvoiceProduct = new DeatailsInvoiceProduct();
-
-            Product product = products
-                    .stream()
-                    .filter(pro -> pro.getIde().longValue() == item.getIdProducto()).findFirst().get();
-            // Asignar el producto
-            deatailsInvoiceProduct.setProduct(product);
-
-            deatailsInvoiceProduct.setAmount(item.getAmount());
-            deatailsInvoiceProduct.setSubtotal(item.getSubtotal());
-
-            if (item.getDescription() != null && !item.getDescription().isEmpty()) {
-                // Correspode al nombre del servicio o producto, pero si lo edita, lo guardo
-                deatailsInvoiceProduct.setDescription(item.getDescription());
-            } else deatailsInvoiceProduct.setDescription(product.getName());
+    public static Detalles createDetalleFactura(Invoice invoiceSaved){
 
 
-            deatailsInvoiceProducts.add(deatailsInvoiceProduct);
-        }
-        return deatailsInvoiceProducts;
+        Detalles detalles= new Detalles();
+
+
+        Detalle detalleItem = new Detalle();
+
+
+
+
+
+
+
+
+
+        return null;
     }
 
 }
