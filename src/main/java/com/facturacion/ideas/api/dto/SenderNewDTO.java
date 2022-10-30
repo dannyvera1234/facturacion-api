@@ -1,7 +1,10 @@
 package com.facturacion.ideas.api.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.facturacion.ideas.api.entities.EmailSender;
 import com.facturacion.ideas.api.enums.ProvinceEnum;
 import com.facturacion.ideas.api.enums.QuestionEnum;
 import com.facturacion.ideas.api.enums.TypeEmissionEnum;
@@ -39,11 +42,15 @@ public class SenderNewDTO implements Serializable {
 	private boolean rimpe;
 	
 	private ProvinceEnum province;
-	
+
+	private List<EmailSenderNewDTO> emailSenderNewDTOList = new ArrayList<>();
+
+	public SenderNewDTO() {
+	}
 
 	public SenderNewDTO(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
-			String specialContributor,String  retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
-			TypeEnvironmentEnum typeEnvironment, TypeEmissionEnum typeEmission, boolean rimpe, ProvinceEnum province) {
+						String specialContributor, String  retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
+						TypeEnvironmentEnum typeEnvironment, TypeEmissionEnum typeEmission, boolean rimpe, ProvinceEnum province) {
 		super();
 		this.ide = ide;
 		this.ruc = ruc;
@@ -173,6 +180,14 @@ public class SenderNewDTO implements Serializable {
 
 	public void setProvince(ProvinceEnum province) {
 		this.province = province;
+	}
+
+	public List<EmailSenderNewDTO> getEmailSenderNewDTOList() {
+		return emailSenderNewDTOList;
+	}
+
+	public void setEmailSenderNewDTOList(List<EmailSenderNewDTO> emailSenderNewDTOList) {
+		this.emailSenderNewDTOList = emailSenderNewDTOList;
 	}
 
 	@Override

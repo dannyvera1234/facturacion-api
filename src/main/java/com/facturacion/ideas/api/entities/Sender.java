@@ -29,274 +29,295 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Table(name = "EMISORES")
 public class Sender implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "EMI_COD")
-	private Long ide;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "EMI_COD")
+    private Long ide;
 
-	@Column(name = "EMI_RUC")
-	private String ruc;
+    @Column(name = "EMI_RUC")
+    private String ruc;
 
-	@Column(name = "EMI_RAZ_SOC")
-	private String socialReason;
+    @Column(name = "EMI_RAZ_SOC")
+    private String socialReason;
 
-	@Column(name = "EMI_NOM_COM")
-	private String commercialName;
+    @Column(name = "EMI_NOM_COM")
+    private String commercialName;
 
-	@Column(name = "EMI_DIR_MAT")
-	private String matrixAddress;
+    @Column(name = "EMI_DIR_MAT")
+    private String matrixAddress;
 
-	@Column(name = "EMI_CON_ESP")
-	private String specialContributor;
-	
-	@Column(name="EMI_AGE_RET")
-	private String  retentionAgent;
+    @Column(name = "EMI_CON_ESP")
+    private String specialContributor;
 
-	@Column(name = "EMI_OBL_CON")
-	@Enumerated(EnumType.STRING)
-	private QuestionEnum accountancy;
+    @Column(name = "EMI_AGE_RET")
+    private String retentionAgent;
 
-	@Column(name = "EMI_TIP")
-	@Enumerated(EnumType.STRING)
-	private TypeSenderEnum typeSender;
+    @Column(name = "EMI_OBL_CON")
+    @Enumerated(EnumType.STRING)
+    private QuestionEnum accountancy;
 
-	@Column(name = "EMI_LOG")
-	private String logo;
+    @Column(name = "EMI_TIP")
+    @Enumerated(EnumType.STRING)
+    private TypeSenderEnum typeSender;
 
-	@Column(name = "EMI_TIP_AMB")
-	// @Enumerated(EnumType.STRING)
-	private String typeEnvironment;
+    @Column(name = "EMI_LOG")
+    private String logo;
 
-	@Column(name = "EMI_TIP_EMI")
-	private String typeEmission;
+    @Column(name = "EMI_TIP_AMB")
+    // @Enumerated(EnumType.STRING)
+    private String typeEnvironment;
 
-	@Column(name = "EMI_REG_RIM")
-	private boolean rimpe;
+    @Column(name = "EMI_TIP_EMI")
+    private String typeEmission;
 
-	@Column(name = "EMI_PRO")
-	private String province;
+    @Column(name = "EMI_REG_RIM")
+    private boolean rimpe;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "EMI_FK_COD_CUE")
-	// @JsonBackReference
-	private Count count;
-
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
-	@JsonManagedReference
-	private List<Subsidiary> subsidiarys;
-
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
-	private List<Employee> employees;
+    @Column(name = "EMI_PRO")
+    private String province;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
-	private List<DetailsPerson> detailsPersons;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EMI_FK_COD_CUE")
+    // @JsonBackReference
+    private Count count;
 
-	public Sender() {
-		super();
-		initData();
-	}
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
+    @JsonManagedReference
+    private List<Subsidiary> subsidiarys;
 
-	public Sender(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
-			String specialContributor, String  retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
-			TypeEnvironmentEnum typeEnvironment, TypeEmissionEnum typeEmission, boolean rimpe, ProvinceEnum province) {
-		super();
-		this.ide = ide;
-		this.ruc = ruc;
-		this.socialReason = socialReason;
-		this.commercialName = commercialName;
-		this.matrixAddress = matrixAddress;
-		this.specialContributor = specialContributor;
-		this.retentionAgent = retentionAgent;
-		this.accountancy = accountancy;
-		this.typeSender = typeSender;
-		this.logo = logo;
-		this.typeEnvironment = typeEnvironment.getCode();
-		this.typeEmission = typeEmission.getCode();
-		this.rimpe = rimpe;
-		this.province = province.getCode();
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
+    private List<Employee> employees;
 
-		initData();
-	}
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
+    private List<DetailsPerson> detailsPersons;
 
-	private void initData() {
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "EMA_FK_COD_EMI")
+    private List<EmailSender> emailSenders;
 
-		subsidiarys = new ArrayList<>();
 
-		employees = new ArrayList<>();
+    public Sender() {
+        super();
+        initData();
+    }
 
-		detailsPersons = new ArrayList<>();
+    public Sender(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
+                  String specialContributor, String retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
+                  TypeEnvironmentEnum typeEnvironment, TypeEmissionEnum typeEmission, boolean rimpe, ProvinceEnum province) {
+        super();
+        this.ide = ide;
+        this.ruc = ruc;
+        this.socialReason = socialReason;
+        this.commercialName = commercialName;
+        this.matrixAddress = matrixAddress;
+        this.specialContributor = specialContributor;
+        this.retentionAgent = retentionAgent;
+        this.accountancy = accountancy;
+        this.typeSender = typeSender;
+        this.logo = logo;
+        this.typeEnvironment = typeEnvironment.getCode();
+        this.typeEmission = typeEmission.getCode();
+        this.rimpe = rimpe;
+        this.province = province.getCode();
 
-	}
+        initData();
+    }
 
-	public Long getIde() {
-		return ide;
-	}
+    private void initData() {
 
-	public void setIde(Long ide) {
-		this.ide = ide;
-	}
+        subsidiarys = new ArrayList<>(0);
 
-	public String getRuc() {
-		return ruc;
-	}
+        employees = new ArrayList<>(0);
 
-	public void setRuc(String ruc) {
-		this.ruc = ruc;
-	}
+        detailsPersons = new ArrayList<>(0);
 
-	public String getSocialReason() {
-		return socialReason;
-	}
+        emailSenders = new ArrayList<>(0);
 
-	public void setSocialReason(String socialReason) {
-		this.socialReason = socialReason;
-	}
+    }
 
-	public String getCommercialName() {
-		return commercialName;
-	}
+    public Long getIde() {
+        return ide;
+    }
 
-	public void setCommercialName(String commercialName) {
-		this.commercialName = commercialName;
-	}
+    public void setIde(Long ide) {
+        this.ide = ide;
+    }
 
-	public String getMatrixAddress() {
-		return matrixAddress;
-	}
+    public String getRuc() {
+        return ruc;
+    }
 
-	public void setMatrixAddress(String matrixAddress) {
-		this.matrixAddress = matrixAddress;
-	}
+    public void setRuc(String ruc) {
+        this.ruc = ruc;
+    }
 
-	public String getSpecialContributor() {
-		return specialContributor;
-	}
+    public String getSocialReason() {
+        return socialReason;
+    }
 
-	public void setSpecialContributor(String specialContributor) {
-		this.specialContributor = specialContributor;
-	}
+    public void setSocialReason(String socialReason) {
+        this.socialReason = socialReason;
+    }
 
-	
-	public String getRetentionAgent() {
-		return retentionAgent;
-	}
+    public String getCommercialName() {
+        return commercialName;
+    }
 
-	public void setRetentionAgent(String retentionAgent) {
-		this.retentionAgent = retentionAgent;
-	}
+    public void setCommercialName(String commercialName) {
+        this.commercialName = commercialName;
+    }
 
-	public QuestionEnum getAccountancy() {
-		return accountancy;
-	}
+    public String getMatrixAddress() {
+        return matrixAddress;
+    }
 
-	public void setAccountancy(QuestionEnum accountancy) {
-		this.accountancy = accountancy;
-	}
+    public void setMatrixAddress(String matrixAddress) {
+        this.matrixAddress = matrixAddress;
+    }
 
-	public TypeSenderEnum getTypeSender() {
-		return typeSender;
-	}
+    public String getSpecialContributor() {
+        return specialContributor;
+    }
 
-	public void setTypeSender(TypeSenderEnum typeSender) {
-		this.typeSender = typeSender;
-	}
+    public void setSpecialContributor(String specialContributor) {
+        this.specialContributor = specialContributor;
+    }
 
-	public String getLogo() {
-		return logo;
-	}
 
-	public void setLogo(String logo) {
-		this.logo = logo;
-	}
+    public String getRetentionAgent() {
+        return retentionAgent;
+    }
 
-	public String getTypeEnvironment() {
-		return typeEnvironment;
-	}
+    public void setRetentionAgent(String retentionAgent) {
+        this.retentionAgent = retentionAgent;
+    }
 
-	public void setTypeEnvironment(TypeEnvironmentEnum typeEnvironment) {
+    public QuestionEnum getAccountancy() {
+        return accountancy;
+    }
 
-		if (typeEnvironment != null) {
-			this.typeEnvironment = typeEnvironment.getCode();
-		} else
-			this.typeEnvironment = null;
+    public void setAccountancy(QuestionEnum accountancy) {
+        this.accountancy = accountancy;
+    }
 
-	}
+    public TypeSenderEnum getTypeSender() {
+        return typeSender;
+    }
 
-	public String getTypeEmission() {
-		return typeEmission;
-	}
+    public void setTypeSender(TypeSenderEnum typeSender) {
+        this.typeSender = typeSender;
+    }
 
-	public void setTypeEmission(TypeEmissionEnum typeEmission) {
-		this.typeEmission = typeEmission.getCode();
-	}
+    public String getLogo() {
+        return logo;
+    }
 
-	public boolean isRimpe() {
-		return rimpe;
-	}
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
 
-	public void setRimpe(boolean rimpe) {
-		this.rimpe = rimpe;
-	}
+    public String getTypeEnvironment() {
+        return typeEnvironment;
+    }
 
-	public String getProvince() {
-		return province;
-	}
+    public void setTypeEnvironment(TypeEnvironmentEnum typeEnvironment) {
 
-	public void setProvince(ProvinceEnum province) {
-		if (province != null) {
-			this.province = province.getCode();
-		} else
-			this.province = null;
+        if (typeEnvironment != null) {
+            this.typeEnvironment = typeEnvironment.getCode();
+        } else
+            this.typeEnvironment = null;
 
-	}
+    }
 
-	public void setCount(Count count) {
-		this.count = count;
+    public String getTypeEmission() {
+        return typeEmission;
+    }
 
-		// count.setSender(this);
-	}
+    public void setTypeEmission(TypeEmissionEnum typeEmission) {
+        this.typeEmission = typeEmission.getCode();
+    }
 
-	public Count getCount() {
-		return count;
-	}
+    public boolean isRimpe() {
+        return rimpe;
+    }
 
-	public List<Subsidiary> getSubsidiarys() {
-		return subsidiarys;
-	}
+    public void setRimpe(boolean rimpe) {
+        this.rimpe = rimpe;
+    }
 
-	public void addSubsidiary(Subsidiary subsidiary) {
+    public String getProvince() {
+        return province;
+    }
 
-		subsidiary.setSender(this);
-		this.subsidiarys.add(subsidiary);
-	}
+    public void setProvince(ProvinceEnum province) {
+        if (province != null) {
+            this.province = province.getCode();
+        } else
+            this.province = null;
 
-	public List<Employee> getEmployees() {
-		return employees;
-	}
+    }
 
-	public void addEmployee(Employee employee) {
+    public void setCount(Count count) {
+        this.count = count;
 
-		this.addEmployee(employee);
-	}
+        // count.setSender(this);
+    }
 
-	public List<DetailsPerson> getDetailsPersons() {
-		return detailsPersons;
-	}
+    public Count getCount() {
+        return count;
+    }
 
-	public void addDetailsPerson(DetailsPerson detailsPerson) {
+    public List<Subsidiary> getSubsidiarys() {
+        return subsidiarys;
+    }
 
-		this.detailsPersons.add(detailsPerson);
-	}
+    public void addSubsidiary(Subsidiary subsidiary) {
 
-	@Override
-	public String toString() {
-		return "Sender [ide=" + ide + ", ruc=" + ruc + ", socialReason=" + socialReason + ", commercialName="
-				+ commercialName + ", matrixAddress=" + matrixAddress + ", specialContributor=" + specialContributor
-				+ "retentionAgent = " + retentionAgent +  ", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
-				+ ", typeEnvironment=" + typeEnvironment + ", typeEmission=" + typeEmission + ", rimpe=" + rimpe
-				+ ", province=" + province + "]";
-	}
+        subsidiary.setSender(this);
+        this.subsidiarys.add(subsidiary);
+    }
+
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void addEmployee(Employee employee) {
+
+        this.addEmployee(employee);
+    }
+
+    public List<DetailsPerson> getDetailsPersons() {
+        return detailsPersons;
+    }
+
+    public void addDetailsPerson(DetailsPerson detailsPerson) {
+
+        this.detailsPersons.add(detailsPerson);
+    }
+
+
+    public List<EmailSender> getEmailSenders() {
+        return emailSenders;
+    }
+
+    public void setEmailSenders(List<EmailSender> emailSenders) {
+        this.emailSenders = emailSenders;
+    }
+
+
+    public void addEmailSenders(EmailSender emailSender) {
+        this.emailSenders.add(emailSender);
+    }
+
+    @Override
+    public String toString() {
+        return "Sender [ide=" + ide + ", ruc=" + ruc + ", socialReason=" + socialReason + ", commercialName="
+                + commercialName + ", matrixAddress=" + matrixAddress + ", specialContributor=" + specialContributor
+                + "retentionAgent = " + retentionAgent + ", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
+                + ", typeEnvironment=" + typeEnvironment + ", typeEmission=" + typeEmission + ", rimpe=" + rimpe
+                + ", province=" + province + "]";
+    }
 
 }

@@ -1,8 +1,13 @@
 package com.facturacion.ideas.api.mapper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.facturacion.ideas.api.dto.EmailSenderNewDTO;
+import com.facturacion.ideas.api.entities.EmailSender;
+import com.facturacion.ideas.api.util.FunctionUtil;
 import org.springframework.stereotype.Component;
 
 import com.facturacion.ideas.api.dto.SenderNewDTO;
@@ -44,7 +49,17 @@ public class SenderMapperImpl implements ISenderMapper {
 		sender.setAccountancy(senderNewDTO.getAccountancy());
 
 		sender.setProvince(senderNewDTO.getProvince());
-		
+
+		if (senderNewDTO.getEmailSenderNewDTOList() !=null && senderNewDTO.getEmailSenderNewDTOList().size()>0){
+
+			List<EmailSender> emailSenders = senderNewDTO.getEmailSenderNewDTOList()
+							.stream()
+					.map(this::mapperToEntity)
+					.collect(Collectors.toList());
+
+			sender.setEmailSenders(emailSenders);
+		}
+
 
 		return sender;
 	}
@@ -85,4 +100,13 @@ public class SenderMapperImpl implements ISenderMapper {
 		return senderResponseDTOs;
 	}
 
+	@Override
+	public EmailSender mapperToEntity(EmailSenderNewDTO emailSenderNewDTO) {
+		EmailSender emailSender = new EmailSender();
+		emailSender.setIde(null);
+		emailSender.setEmail(emailSenderNewDTO.getEmail());
+		emailSender.setPrincipal(emailSenderNewDTO.isPrincipal());
+		emailSender.setDateCreate(new Date());
+		return emailSender;
+	}
 }
