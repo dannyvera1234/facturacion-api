@@ -251,6 +251,36 @@ public class PersonServiceImpl implements IPersonService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public List<DriverResponseDTO> searchDriverByCedulaOrRazonSocial(Long idSender, String filtro) {
+		filtro = "%" + filtro + "%";
+
+		try {
+			List<Driver> persons  = driverRepository.searchByCedulaOrRazonSocail(idSender, filtro);
+			return  personMapper.mapperToDTODriver(persons);
+		}catch (DataAccessException e){
+			LOGGER.error("Error al filtrar los Transportistas",e);
+			throw  new NotFoundException("Error al filtrar los Transportistas " + e.getMessage());
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(Long idSender, String filtro) {
+
+		filtro = "%" + filtro + "%";
+		try {
+
+			List<Customer> persons  = customerRepository.searchByCedulaOrRazonSocail(idSender, filtro);
+			return  personMapper.mapperToDTOCustomer(persons);
+		}catch (DataAccessException e){
+			LOGGER.error("Error al filtrar los Clientes ",e);
+			throw  new NotFoundException("Error al filtrar los Clientes " + e.getMessage());
+		}
+	}
+
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<CustomerResponseDTO> findAllCustomerBySender(Long idSender) {
 
 		try {

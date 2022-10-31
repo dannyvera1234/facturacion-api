@@ -21,4 +21,7 @@ public interface IPersonService {
 
 	void deleteById(Long idSender, Long idPerson);
 
+	List<DriverResponseDTO> searchDriverByCedulaOrRazonSocial(Long idSender, String filtro);
+
+	List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(Long idSender, String filtro);
 }

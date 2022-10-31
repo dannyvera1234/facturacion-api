@@ -16,6 +16,8 @@ public interface IProductMapper {
 
 	ProductResponseDTO mapperToDTO(Product product);
 
+	List<ProductResponseDTO> mapperToDTO(List<Product> products);
+
 	void mapperPreUpdate(Product product, ProductDTO productDTO);
 
 	ProductInformationDTO mapperProInformationToDTO(ProductInformation productInformation);

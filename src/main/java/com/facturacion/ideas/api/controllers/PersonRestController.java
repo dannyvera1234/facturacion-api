@@ -5,14 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.facturacion.ideas.api.dto.CustomerNewDTO;
 import com.facturacion.ideas.api.dto.CustomerResponseDTO;
@@ -98,7 +91,7 @@ public class PersonRestController {
 	 * DetailsPerson, pero la persona sigue registrada en el sistema, solo que ahora
 	 * ya no esta realacion con un emisor
 	 * @param idSender : El id del Emisor
-	 * @param idCustomers : Id del Cliente
+	 * @param idCustomer : Id del Cliente
 	 * @return
 	 */
 	@DeleteMapping("/senders/{id}/customers/{id-customer}")
@@ -140,7 +133,34 @@ public class PersonRestController {
 
 			throw new NotDataAccessException(e.getMessage());
 		}
+	}
+	@GetMapping("/senders/{id}/customers/search")
+	public ResponseEntity<List<CustomerResponseDTO>> searchCustomerByCedulaOrRazonSocial (
+			@PathVariable(name = "id") Long idSender,
+			@RequestParam(name = "filtro" ,required = false, defaultValue = "") String filtro
+	){
+		try {
+			List<CustomerResponseDTO> persons = personService.searchCustomerByCedulaOrRazonSocial(idSender, filtro);
+			return ResponseEntity.ok(persons);
 
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+	@GetMapping("/senders/{id}/drivers/search")
+	public ResponseEntity<List<DriverResponseDTO>> searchDriverByCedulaOrRazonSocial (
+			@PathVariable(name = "id") Long idSender,
+			@RequestParam(name = "filtro" ,required = false, defaultValue = "") String filtro
+	){
+		try {
+			List<DriverResponseDTO> persons = personService.searchDriverByCedulaOrRazonSocial(idSender, filtro);
+			return ResponseEntity.ok(persons);
+
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
 	}
 
 }

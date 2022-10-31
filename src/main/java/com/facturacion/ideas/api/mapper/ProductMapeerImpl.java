@@ -65,6 +65,19 @@ public class ProductMapeerImpl implements IProductMapper {
 	}
 
 	@Override
+	public List<ProductResponseDTO> mapperToDTO(List<Product> products) {
+
+		if (products !=null && !products.isEmpty()){
+
+			 return  products.stream()
+					.map(this::mapperToDTO)
+					.collect(Collectors.toList());
+
+		}
+		return  new ArrayList<>(0);
+	}
+
+	@Override
 	public void mapperPreUpdate(Product product, ProductDTO productDTO) {
 
 		product.setName(productDTO.getName() == null ? product.getName() : productDTO.getName());

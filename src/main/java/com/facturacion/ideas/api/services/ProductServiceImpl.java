@@ -258,6 +258,23 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> searchByCodeAndName(String filtro, Long idSubsidiary) {
+
+        try {
+            filtro = "%" + filtro + "%";
+
+            List<Product> products = productRepository.findBySubsidiaryAndName(idSubsidiary, filtro);
+
+            return  productMapper.mapperToDTO(products);
+
+        } catch (DataAccessException e) {
+            LOGGER.error("Error al filtrar productos", e);
+            throw new NotDataAccessException("Error filrtar producto: " + e.getMessage());
+        }
+    }
+
+    @Override
     @Transactional
     public String deleteProductInfoById(final Long idProducto, Long ide) {
 

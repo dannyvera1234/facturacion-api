@@ -36,4 +36,5 @@ public interface IProductService {
 
 	TaxProduct finTaxProduct(TypeTaxEnum typeTax, String ideTax, Product product);
 
+	List<ProductResponseDTO> searchByCodeAndName(String filtro, Long idSubsidiary);
 }

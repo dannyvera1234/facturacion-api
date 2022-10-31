@@ -157,4 +157,17 @@ public class ProductRestController implements IProductOperation {
 		}
 	}
 
+	@Override
+	public ResponseEntity<List<ProductResponseDTO>> searchByCodeAndName(Long id, String filtro) {
+		try {
+			List<ProductResponseDTO> productDTOS = productService.searchByCodeAndName(filtro, id);
+
+			return ResponseEntity.ok(productDTOS);
+
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+
+
 }
