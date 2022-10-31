@@ -3,6 +3,7 @@ package com.facturacion.ideas.api.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,7 +38,7 @@ public class PersonRestController {
 
 			CustomerResponseDTO customerResponseDTO = personService.save(customerNewDTO, idSender);
 
-			return ResponseEntity.ok(customerResponseDTO);
+			return new ResponseEntity<>(customerResponseDTO, HttpStatus.CREATED);
 		} catch (NotDataAccessException e) {
 
 			throw new NotDataAccessException(e.getMessage());
@@ -68,7 +69,7 @@ public class PersonRestController {
 
 			DriverResponseDTO driverResponseDTO = personService.save(driverNewDTO, idSender);
 
-			return ResponseEntity.ok(driverResponseDTO);
+			return  new ResponseEntity<>(driverResponseDTO, HttpStatus.CREATED);
 		} catch (NotDataAccessException e) {
 
 			throw new NotDataAccessException(e.getMessage());

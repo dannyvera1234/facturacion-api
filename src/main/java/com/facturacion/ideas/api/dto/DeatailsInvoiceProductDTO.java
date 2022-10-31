@@ -9,6 +9,8 @@ public class DeatailsInvoiceProductDTO implements Serializable {
 
     private String description;
 
+    private Double unitValue;
+
     private double amount;
 
     private double subtotal;
@@ -70,11 +72,20 @@ public class DeatailsInvoiceProductDTO implements Serializable {
         this.description = description;
     }
 
+    public Double getUnitValue() {
+        return unitValue;
+    }
+
+    public void setUnitValue(Double unitValue) {
+        this.unitValue = unitValue;
+    }
+
     @Override
     public String toString() {
         return "DeatailsInvoiceProductDTO{" +
                 "ide=" + ide +
                 ", description='" + description + '\'' +
+                ", unitValue=" + unitValue +
                 ", amount=" + amount +
                 ", subtotal=" + subtotal +
                 ", idProducto=" + idProducto +

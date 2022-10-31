@@ -198,7 +198,7 @@ public class AdminInvoice {
      */
     private static Double calcularSubtotalDetalle(DeatailsInvoiceProduct detailProduct) {
 
-        return detailProduct.getProduct().getUnitValue() * detailProduct.getAmount();
+        return detailProduct.getUnitValue() * detailProduct.getAmount();
     }
 
     private static Double sumarSubtotalDetalle(List<DeatailsInvoiceProduct> detailProduct) {
@@ -223,25 +223,24 @@ public class AdminInvoice {
 
             DeatailsInvoiceProduct deatailsInvoiceProduct = new DeatailsInvoiceProduct();
 
+           // Seteo los nuevos valores de los productos  ingresados por el cliente
             Product product = products
                     .stream()
                     .filter(pro -> pro.getIde().longValue() == item.getIdProducto()).findFirst().get();
+
             // Asignar el producto
             deatailsInvoiceProduct.setProduct(product);
-
+            deatailsInvoiceProduct.setUnitValue(item.getUnitValue());
             deatailsInvoiceProduct.setAmount(item.getAmount());
-            deatailsInvoiceProduct.setSubtotal(item.getSubtotal());
-
-            if (item.getDescription() != null && !item.getDescription().isEmpty()) {
-                // Correspode al nombre del servicio o producto, pero si lo edita, lo guardo
-                deatailsInvoiceProduct.setDescription(item.getDescription());
-            } else deatailsInvoiceProduct.setDescription(product.getName());
-
-
+            deatailsInvoiceProduct.setDescription((item.getDescription()!=null  && !item.getDescription().isEmpty()) ? item.getDescription() :
+                    product.getName());
+            deatailsInvoiceProduct.setSubtotal(deatailsInvoiceProduct.getAmount()* deatailsInvoiceProduct.getUnitValue());
             deatailsInvoiceProducts.add(deatailsInvoiceProduct);
         }
         return deatailsInvoiceProducts;
     }
+
+
     private static InfoTributaria createInfoTributaria(Invoice invoiceSaved, Sender sender) {
 
         InfoTributaria infoTributaria = new InfoTributaria();

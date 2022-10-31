@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +44,7 @@ public class AdminAgreementRestController implements IAgreementOperation {
 
 			AgreementDTO agreementSaved = agreementService.save(agreementDTO);
 
-			return ResponseEntity.ok(agreementSaved);
+			return  new ResponseEntity<>(agreementSaved, HttpStatus.CREATED);
 
 		} catch (NotDataAccessException e) {
 

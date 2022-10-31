@@ -26,8 +26,12 @@ public class DeatailsInvoiceProduct implements Serializable {
 	@Column(name = " DTF_CAN")
 	private double amount;
 
+
+	@Column(name = " DTF_VAL")
+	private Double	 unitValue;
+
 	@Column(name = " DTF_SUB")
-	private double subtotal;
+	private Double subtotal;
 
 	@Column(name = " DTF_DES")
 	private String description;
@@ -89,13 +93,27 @@ public class DeatailsInvoiceProduct implements Serializable {
 		this.description = description;
 	}
 
+	public Double getUnitValue() {
+		return unitValue;
+	}
+
+	public void setUnitValue(Double unitValue) {
+		this.unitValue = unitValue;
+	}
+
+	public void setSubtotal(Double subtotal) {
+		this.subtotal = subtotal;
+	}
+
 	@Override
 	public String toString() {
 		return "DeatailsInvoiceProduct{" +
 				"ide=" + ide +
 				", amount=" + amount +
+				", unitValue=" + unitValue +
 				", subtotal=" + subtotal +
 				", description='" + description + '\'' +
+				", product=" + product +
 				'}';
 	}
 }

@@ -55,7 +55,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
     @Override
     @Transactional
-    public InvoiceResposeDTO saveInvoice(InvoiceNewDTO invoiceNewDTO) {
+    public InvoiceResposeDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
         try {
 
             // Buscar Punto de Emision de la factura
@@ -73,8 +73,10 @@ public class DocumentServiceImpl implements IDocumentService {
             // Asociar cada producto con su detalle correspondiente
             List<DeatailsInvoiceProduct> detalles = AdminInvoice.createDeatailsInvoiceProduct(products, invoiceNewDTO.getDeatailsInvoiceProductDTOs());
 
+            Double propina = invoiceNewDTO.getValueInvoiceNewDTO().getPropina();
+
             // Obtener los valores de la factura
-            ValueInvoice valueInvoice = AdminInvoice.calcularDetalleFactura(detalles, invoiceNewDTO.getValueInvoiceNewDTO().getPropina());
+            ValueInvoice valueInvoice = AdminInvoice.calcularDetalleFactura(detalles, propina);
 
             // Establecimiento del punto emision
             Subsidiary subsidiary = emissionPoint.getSubsidiary();
@@ -106,6 +108,9 @@ public class DocumentServiceImpl implements IDocumentService {
 
             // El punto de emsion es boligatorio para la factuara
             invoice.setEmissionPoint(emissionPoint);
+
+            // Asignar detalles
+            invoice.setDeatailsInvoiceProducts(detalles);
 
             // Agregar valores factura a la factura
             invoice.setValueInvoice(valueInvoice);
