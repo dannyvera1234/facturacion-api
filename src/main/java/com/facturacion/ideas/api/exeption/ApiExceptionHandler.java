@@ -40,7 +40,9 @@ public class ApiExceptionHandler {
 			HttpRequestMethodNotSupportedException.class,
 			MissingPathVariableException.class,
 			MissingServletRequestParameterException.class,
-			KeyAccessException.class})
+			KeyAccessException.class,
+			ViolectRestrictException.class
+	})
 	@ResponseBody
 	public ErrorMessage badRequest(Exception exception) {
 		return new ErrorMessage(exception, HttpStatus.BAD_REQUEST.value());

@@ -5,34 +5,27 @@ import java.util.List;
 
 public enum TypeAgreementEnum {
 
-	MONTH(1), YEAR(1), YEAR_PLUS(1);
+    MONTH(1), YEAR(1), YEAR_PLUS(1);
 
-	private int number;
+    private int number;
 
-	private TypeAgreementEnum(int number) {
+    private TypeAgreementEnum(int number) {
 
-		this.number = number;
-	}
+        this.number = number;
+    }
 
-	public int getNumber() {
-		return number;
-	}
+    public int getNumber() {
+        return number;
+    }
 
-	public static TypeAgreementEnum getTypeAgreementEnum(String name) {
+    public static TypeAgreementEnum getTypeAgreementEnum(String name) {
 
-		if (name == null) {
 
-			// return TypeAgreementEnum.MONTH;
+        return name == null ? null : getListTypeAgreementEnum().stream().filter(item -> item.name().equals(name)).findFirst().orElse(null);
+    }
 
-			return null;
+    public static List<TypeAgreementEnum> getListTypeAgreementEnum() {
 
-		}
-
-		return getListTypeAgreementEnum().stream().filter(item -> item.name().equals(name)).findFirst().orElse(null);
-	}
-
-	public static List<TypeAgreementEnum> getListTypeAgreementEnum() {
-
-		return Arrays.asList(TypeAgreementEnum.MONTH, TypeAgreementEnum.YEAR, TypeAgreementEnum.YEAR_PLUS);
-	}
+        return Arrays.asList(TypeAgreementEnum.MONTH, TypeAgreementEnum.YEAR, TypeAgreementEnum.YEAR_PLUS);
+    }
 }

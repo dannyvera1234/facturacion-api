@@ -134,7 +134,7 @@ public class CountServiceImpl implements ICountService {
 
         try {
             Count count = countRepository.findByRuc(ruc).orElseThrow(
-                    () -> new NotFoundException("ruc:" + ruc + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+                    () -> new NotFoundException("Cuenta con Ruc:" + ruc + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
             return countMapper.mapperToDTO(count);
 

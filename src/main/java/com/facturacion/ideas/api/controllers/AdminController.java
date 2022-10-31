@@ -1,10 +1,6 @@
 package com.facturacion.ideas.api.controllers;
 
-import com.facturacion.ideas.api.dto.AgreementDTO;
-import com.facturacion.ideas.api.dto.CountNewDTO;
-import com.facturacion.ideas.api.dto.CountResponseDTO;
-import com.facturacion.ideas.api.dto.SenderResponseDTO;
-import com.facturacion.ideas.api.entities.Sender;
+import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.IAgreementService;
 import com.facturacion.ideas.api.services.ICountService;
@@ -45,6 +41,24 @@ public class AdminController {
         try {
             CountResponseDTO countResponseDTO = countService.saveCount(countNewDTO);
             return new ResponseEntity<>(countResponseDTO, HttpStatus.CREATED);
+
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+
+        }
+    }
+
+    @PostMapping("/counts/{id}/agreements/{codigo}")
+    ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(@PathVariable("id") Long idCount,
+                                                             @PathVariable(required = false, name = "codigo") Long codigoPlan){
+
+        LOGGER.info("Id cuenta " + idCount + " Id Plan : " + codigoPlan);
+
+        try {
+
+            DetailsAgreementDTO detailsAgreementDTO = countService.saveDetailsAgreementDTO(idCount, codigoPlan);
+
+            return ResponseEntity.ok(detailsAgreementDTO);
 
         } catch (NotDataAccessException e) {
             throw new NotDataAccessException(e.getMessage());
@@ -172,11 +186,42 @@ public class AdminController {
         } catch (NotDataAccessException e) {
 
             throw new NotDataAccessException(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/agreements/{codigo}")
+    public ResponseEntity<String> deleteAgreenebtById(@PathVariable(required = false) Long codigo){
+
+        LOGGER.info("Plan ide a eliminar: " + codigo);
+
+        try {
+            agreementService.deleteById(codigo);
+
+            return ResponseEntity.noContent().build();
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+
+        }
+    }
+
+    @PutMapping("/agreements/{id}")
+    public ResponseEntity<AgreementDTO> update(@RequestBody AgreementDTO agreementDTO, @PathVariable(required = false) Long id){
+
+        LOGGER.info("Plan a actualizar " + id);
+        try {
+
+            AgreementDTO agreementDTOUpdate = agreementService.update(agreementDTO, id);
+
+            return ResponseEntity.ok(agreementDTOUpdate);
+
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
 
         }
 
-    }
 
+
+    }
 
 
 

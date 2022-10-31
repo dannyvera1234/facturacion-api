@@ -74,17 +74,6 @@ public interface ICountOperation {
 	
 	@GetMapping("/{id}/logins")
 	public ResponseEntity<List<LoginDTO>> findAllLogin(@PathVariable("id") Long idCount);
-	
-	
-	/**
-	 * Registrar un nuevo {@link DetailsAggrement} para una {@link Count}
-	 * @param idCount : Id de la Cuenta
-	 * @param codigoPlan : Codigo del {@link Agreement}
-	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@PostMapping("/{id}/agreements/{codigo}")
-	 ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(@PathVariable("id") Long idCount,
-			@PathVariable(required = false, name = "codigo") Long codigoPlan);
 
 	@GetMapping("/{ruc}/agrement-details")
 	ResponseEntity<Map<String, Object>> listAgreementDetailsAllByRuc(@PathVariable String ruc);

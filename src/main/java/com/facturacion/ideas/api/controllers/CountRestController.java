@@ -108,25 +108,6 @@ public class CountRestController implements ICountOperation {
 		}
 
 	}
-
-	@Override
-	public ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(Long idCount, Long codigoPlan) {
-
-		LOGGER.info("Id cuenta " + idCount + " Id Plan : " + codigoPlan);
-
-		try {
-
-			DetailsAgreementDTO detailsAgreementDTO = countService.saveDetailsAgreementDTO(idCount, codigoPlan);
-
-			return ResponseEntity.ok(detailsAgreementDTO);
-
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-
-		}
-
-	}
-
 	@Override
 	public ResponseEntity<Map<String, Object>> listAgreementDetailsAllByRuc(String ruc) {
 

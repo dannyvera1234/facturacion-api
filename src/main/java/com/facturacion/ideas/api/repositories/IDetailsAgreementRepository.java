@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.repositories;
 
+import org.hibernate.sql.Insert;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.facturacion.ideas.api.entities.DetailsAggrement;
@@ -17,5 +18,7 @@ public interface IDetailsAgreementRepository extends JpaRepository<DetailsAggrem
      */
     @Query("select  dt from DetailsAggrement dt inner join  fetch dt.greement where dt.count.ruc = :ruc")
     List<DetailsAggrement> listAllDetailAgreementsByRuc(@Param("ruc") String ruc);
+
+    Boolean existsByGreementCodigo(Long codigo);
 
 }
