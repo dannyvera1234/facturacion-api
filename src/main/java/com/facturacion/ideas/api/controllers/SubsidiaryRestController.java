@@ -1,7 +1,10 @@
 package com.facturacion.ideas.api.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,6 +124,25 @@ public class SubsidiaryRestController implements ISubsidiaryOperation {
 			throw new NotDataAccessException(e.getMessage());
 		}
 
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> listSubsidiryAndEmissionPoint(String ruc) {
+		LOGGER.info("Ruc  Emisor: " + ruc);
+
+		try {
+			List<SubsidiaryAndEmissionPointDTO> subsidiaryAndEmissionPointDTOS= subsidiaryService.listSubsidiaryAndEmissionPointDTOByRuc(ruc);
+
+			Map<String, Object> mapaData = new HashMap<>();
+			mapaData.put("data", subsidiaryAndEmissionPointDTOS);
+			mapaData.put("size", subsidiaryAndEmissionPointDTOS.size());
+			return  ResponseEntity.ok(mapaData);
+
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+
+		}
 	}
 
 	@Override

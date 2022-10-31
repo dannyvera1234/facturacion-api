@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,8 +20,9 @@ public interface ISenderRepository extends JpaRepository<Sender, Long> {
 	
 	Sender findByCount(Count count);
 	
-	@Query("select s from Sender s left join fetch s.count c where s.count.id= :idCount")
+	@Query("select s from Sender s left join fetch s.count c where s.count.ide= :idCount")
 	Optional<Sender> fetchByWithCount(@Param("idCount") Long idCount);
-	
+
+	boolean existsByRuc(String ruc);
 
 }

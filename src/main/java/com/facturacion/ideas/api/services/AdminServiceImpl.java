@@ -36,185 +36,178 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 @Service
 public class AdminServiceImpl implements IAdminService {
 
-	private static final Logger LOGGER = LogManager.getLogger(AdminServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(AdminServiceImpl.class);
 
-	@Autowired
-	private ICountRepository countRepository;
+    @Autowired
+    private ICountRepository countRepository;
 
-	@Autowired
-	private IAgreementRepository agreementRepository;
+    @Autowired
+    private IAgreementRepository agreementRepository;
 
-	@Autowired
-	private IDetailsAgreementRepository detailsAgreementRepository;
+    @Autowired
+    private IDetailsAgreementRepository detailsAgreementRepository;
 
-	@Autowired
-	private ISenderRepository senderRepository;
-	
-	@Autowired
-	private ISubsidiaryRepository subsidiaryRepository;
+    @Autowired
+    private ISenderRepository senderRepository;
 
-	@Autowired
-	private ISubsidiaryMapper subsidiaryMapper;
+    @Autowired
+    private ISubsidiaryRepository subsidiaryRepository;
 
-	@Autowired
-	private ISenderMapper senderMapper;
-	
-	@Autowired
-	private ICountMapper countMapper;
-	
-	@Autowired
-	private ICodeDocumentRepository codeDocumentRepository;
-	@Override
-	@Transactional
-	public CountResponseDTO saveCount(CountNewDTO countNewDTO) {
-		try {
+    @Autowired
+    private ISubsidiaryMapper subsidiaryMapper;
 
-			// Ya existe el ruc
-			if (countRepository.existsByRuc(countNewDTO.getRuc()))
-				throw new DuplicatedResourceException(
-						"ruc: " + countNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+    @Autowired
+    private ISenderMapper senderMapper;
 
-			// Buscar el plan
-			Agreement agreement = agreementRepository.findById(countNewDTO.getIdAgreement())
-					.orElseThrow(() -> new NotFoundException("Plan id: " + countNewDTO.getIdAgreement()
-							+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+    @Autowired
+    private ICountMapper countMapper;
 
-			Count countSaved = countRepository.save(countMapper.mapperToEntity(countNewDTO));
+    @Autowired
+    private ICodeDocumentRepository codeDocumentRepository;
 
-			// Asignar Plan a cuenta
-			DetailsAggrement detailsAggrement = AdminDetailsAggrement.create(agreement.getTypeAgreement(),
-					countNewDTO.getAmount());
-			detailsAggrement.setGreement(agreement);
-			
-			// Alla a la cuenta que paso le agrego este detalle
-			detailsAggrement.setCount(countSaved);
+    @Override
+    @Transactional
+    public CountResponseDTO saveCount(CountNewDTO countNewDTO) {
+        try {
 
-			detailsAgreementRepository.save(detailsAggrement);
-			
-			return countMapper.mapperToDTO(countSaved);
-			
-		} catch (DataAccessException e) {
+            // Ya existe el ruc
+            if (countRepository.existsByRuc(countNewDTO.getRuc()))
+                throw new DuplicatedResourceException(
+                        "ruc: " + countNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 
-			LOGGER.error("Error guardar cuenta", e);
-			throw new NotDataAccessException("Error guardar cuenta: " + e.getMessage());
-		}
+            // Buscar el plan
+            Agreement agreement = agreementRepository.findById(countNewDTO.getIdAgreement())
+                    .orElseThrow(() -> new NotFoundException("Plan id: " + countNewDTO.getIdAgreement()
+                            + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-	}
+            Count countSaved = countRepository.save(countMapper.mapperToEntity(countNewDTO));
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<CountResponseDTO> fetchByWithAgreement() {
+            // Asignar Plan a cuenta
+            DetailsAggrement detailsAggrement = AdminDetailsAggrement.create(agreement.getTypeAgreement(),
+                    countNewDTO.getAmount());
+            detailsAggrement.setGreement(agreement);
 
-		try {
+            // Alla a la cuenta que paso le agrego este detalle
+            detailsAggrement.setCount(countSaved);
 
-			List<Count> counts = countRepository.fetchByWithAgreement();
+            detailsAgreementRepository.save(detailsAggrement);
 
-			List<CountResponseDTO> countResponseDTOs = countMapper.mapperToDTO(counts);
-			return countResponseDTOs;
-		} catch (DataAccessException e) {
+            return countMapper.mapperToDTO(countSaved);
 
-			LOGGER.info("Error listar cuentas", e);
-			throw new NotDataAccessException("Error listar cuentas" + e.getMessage());
+        } catch (DataAccessException e) {
 
-		}
+            LOGGER.error("Error guardar cuenta", e);
+            throw new NotDataAccessException("Error guardar cuenta: " + e.getMessage());
+        }
 
-	}
+    }
 
-	@Override
-	@Transactional
-	public CountResponseDTO updateCountStatus(Long ide) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<CountResponseDTO> fetchByWithAgreement() {
 
-		try {
+        try {
 
-			Count count = countRepository.findById(ide).orElseThrow(() -> new NotFoundException(
-					"Cuenta id :" + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            List<Count> counts = countRepository.fetchByWithAgreement();
 
-			count.setEstado(!count.isEstado());
+            return countMapper.mapperToDTO(counts);
+        } catch (DataAccessException e) {
 
-			Count countUpdate = countRepository.save(count);
+            LOGGER.info("Error listar cuentas", e);
+            throw new NotDataAccessException("Error listar cuentas" + e.getMessage());
 
-			return countMapper.mapperToDTO(countUpdate);
+        }
 
-		} catch (DataAccessException e) {
+    }
 
-			LOGGER.info("Error actualizar estado cuenta", e);
-			throw new NotDataAccessException("Error actualizar estado cuenta" + e.getMessage());
+    @Override
+    @Transactional
+    public CountResponseDTO updateCountStatus(Long ide) {
 
-		}
-	}
+        try {
 
-	@Override
-	@Transactional(readOnly = true)
-	public SenderResponseDTO findByCount(Long idCount) {
+            Count count = countRepository.findById(ide).orElseThrow(() -> new NotFoundException(
+                    "Cuenta id :" + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-		try {
+            count.setEstado(!count.isEstado());
 
-			Sender sender = senderRepository.fetchByWithCount(idCount).orElseThrow(() -> new NotFoundException(
-					"Cuenta id: " + idCount + " No tiene registrado un emisor"));
+            Count countUpdate = countRepository.save(count);
 
-			return senderMapper.mapperToDTO(sender);
+            return countMapper.mapperToDTO(countUpdate);
 
-		} catch (DataAccessException e) {
+        } catch (DataAccessException e) {
 
-			LOGGER.info("Error buscar emisor por cuenta", e);
-			throw new NotDataAccessException("Error al busca emisor por cuenta" + e.getMessage());
+            LOGGER.info("Error actualizar estado cuenta", e);
+            throw new NotDataAccessException("Error actualizar estado cuenta" + e.getMessage());
 
-		}
+        }
+    }
 
-	}
+    @Override
+    @Transactional(readOnly = true)
+    public SenderResponseDTO findByCount(Long idCount) {
 
-	@Override
-	public List<SubsidiaryAndEmissionPointDTO> fetchBySenderWithEmissionPoint(Long idSender) {
+        try {
 
-		try {
+            Sender sender = senderRepository.fetchByWithCount(idCount).orElseThrow(() -> new NotFoundException(
+                    "Cuenta id: " + idCount + " No tiene registrado un emisor"));
 
-			List<Subsidiary> subsidiaries = subsidiaryRepository.fetchBySenderWithEmissionPoint(idSender);
+            return senderMapper.mapperToDTO(sender);
 
-			if (subsidiaries.size() < 1) {
-				throw new NotFoundException(
-						"Emisor id " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-			}
+        } catch (DataAccessException e) {
 
-			List<SubsidiaryAndEmissionPointDTO> subsidiaryResponseDTOs = subsidiaryMapper
-					.mapperToDTOAndEmissionPoint(subsidiaries);
+            LOGGER.info("Error buscar emisor por cuenta", e);
+            throw new NotDataAccessException("Error al busca emisor por cuenta" + e.getMessage());
 
-			return subsidiaryResponseDTOs;
+        }
 
-		} catch (DataAccessException e) {
+    }
 
-			LOGGER.info("Error listar sender punto emision", e);
-			throw new NotDataAccessException("Error listar sender punto emision" + e.getMessage());
+    @Override
+    public List<SubsidiaryAndEmissionPointDTO> fetchBySenderWithEmissionPoint(String ruc) {
 
-		}
+        try{
+            if (senderRepository.existsByRuc(ruc)) {
 
-	}
+                List<Subsidiary> subsidiaries = subsidiaryRepository.fetchSubsidiaryAndEmissionPointsByRuc(ruc);
+                return subsidiaryMapper.mapperToDTOAndEmissionPoint(subsidiaries);
+            }
 
-	@Override
-	@Transactional
-	public void deleteCountById(Long id) {
-	
-		try {
+            throw new NotFoundException("Emisor con Ruc " + ruc + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
-			Count count = countRepository.findById(id).orElseThrow(
-					() -> new NotFoundException("id: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+        } catch (DataAccessException e) {
 
-			Long ide = count.getIde();
+            LOGGER.error("Error al consultar establecimiento/ pto emision emisor", e);
+            throw new NotDataAccessException("Error al consultar los establecimientos del emisor: " + e.getMessage());
+        }
 
-			countRepository.deleteById(ide);
+    }
 
-			// Eliminar los registros en la CodeDocument, que
-			// esten relacionados con la cuenta recientemente elimnada
-			codeDocumentRepository.deleteByCodeCount(ide);
+    @Override
+    @Transactional
+    public void deleteCountById(Long id) {
 
-		} catch (DataAccessException e) {
+        try {
 
-			LOGGER.info("Erro eliminar cuenta", e);
-			throw new NotDataAccessException("Erro eliminar cuenta" + e.getMessage());
+            Count count = countRepository.findById(id).orElseThrow(
+                    () -> new NotFoundException("id: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-		}
-		
-		
-		
-	}
+            Long ide = count.getIde();
+
+            countRepository.deleteById(ide);
+
+            // Eliminar los registros en la CodeDocument, que
+            // esten relacionados con la cuenta recientemente elimnada
+            codeDocumentRepository.deleteByCodeCount(ide);
+
+        } catch (DataAccessException e) {
+
+            LOGGER.info("Erro eliminar cuenta", e);
+            throw new NotDataAccessException("Erro eliminar cuenta" + e.getMessage());
+
+        }
+
+
+    }
 
 }

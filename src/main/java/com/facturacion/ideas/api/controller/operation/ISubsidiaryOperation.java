@@ -1,7 +1,9 @@
 package com.facturacion.ideas.api.controller.operation;
 
 import java.util.List;
+import java.util.Map;
 
+import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,4 +45,6 @@ public interface ISubsidiaryOperation {
 	@DeleteMapping("/subsidiarys/{id}")
 	public ResponseEntity<String> deleteById(@PathVariable Long id);
 
+	@GetMapping("/senders/{ruc}/subsidiarys/emision-point")
+	public ResponseEntity<Map<String, Object>>listSubsidiryAndEmissionPoint(@PathVariable(name="ruc",required = false) String ruc);
 }

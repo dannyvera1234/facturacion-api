@@ -27,7 +27,7 @@ public interface ISubsidiaryRepository extends JpaRepository<Subsidiary, Long> {
 	 * @return
 	 */
 	
-	@Query("select distinct s from Subsidiary s left join fetch s.emissionPoints e where s.sender.id= :idSender")
+	@Query("select distinct s from Subsidiary s left join fetch s.emissionPoints e where s.sender.ide= :idSender")
 	List<Subsidiary> fetchBySenderWithEmissionPoint(@Param("idSender") Long idSender);
 	
 	/**
@@ -37,5 +37,8 @@ public interface ISubsidiaryRepository extends JpaRepository<Subsidiary, Long> {
 	 * @return
 	 */
 	Optional<Subsidiary> findByIdeAndSender(Long ide, Sender sender);
+
+	@Query("select sub from Subsidiary sub left  join  fetch  sub.emissionPoints where  sub.sender.ruc = :ruc")
+	List<Subsidiary> fetchSubsidiaryAndEmissionPointsByRuc(@Param("ruc") String ruc);
 	
 }

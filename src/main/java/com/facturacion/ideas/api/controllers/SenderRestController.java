@@ -3,6 +3,7 @@ package com.facturacion.ideas.api.controllers;
 import java.util.List;
 
 
+import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

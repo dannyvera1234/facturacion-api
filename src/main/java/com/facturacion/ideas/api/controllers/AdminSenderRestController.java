@@ -44,13 +44,13 @@ public class AdminSenderRestController {
 		}
 	}
 
-	@GetMapping("/senders/{id}/subsidiarys")
-	public ResponseEntity<List<SubsidiaryAndEmissionPointDTO>> fetchBySenderWithEmissionPoint(@PathVariable Long id) {
+	@GetMapping("/senders/{ruc}/subsidiarys")
+	public ResponseEntity<List<SubsidiaryAndEmissionPointDTO>> fetchBySenderWithEmissionPoint(@PathVariable String ruc) {
 
 		try {
 
 			List<SubsidiaryAndEmissionPointDTO> subsidiaryResponseDTOs = adminService
-					.fetchBySenderWithEmissionPoint(id);
+					.fetchBySenderWithEmissionPoint(ruc);
 
 			return ResponseEntity.ok(subsidiaryResponseDTOs);
 

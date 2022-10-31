@@ -31,8 +31,8 @@ public interface IEmissionPointOperation {
 	 * Inserta un nuevo {@link EmissionPoint} para un {@link Subsidiary} en
 	 * particular
 	 * 
-	 * @param codigo        : Id de {@link Subsidiary}
-	 * @param emissionPoint : El objeto {@link EmissionPoint} a insertar
+	 * @param idSubsidiary        : Id de {@link Subsidiary}
+	 * @param emissionPointNewDTO : El objeto {@link EmissionPoint} a insertar
 	 * @return
 	 */
 	@PostMapping("subsidiarys/{id}/emissions")
@@ -55,7 +55,6 @@ public interface IEmissionPointOperation {
 	/**
 	 * Recupera un unico {@link EmissionPoint} de un {@link Subsidiary}
 	 * 
-	 * @param codigo : Id del {@link Subsidiary}
 	 * @param id     : Id del {@link EmissionPoint} a recuperar
 	 * @return
 	 */
@@ -65,7 +64,6 @@ public interface IEmissionPointOperation {
 	/**
 	 * Eliminar un {@link EmissionPoint} de un {@link Subsidiary}
 	 * 
-	 * @param codigo : Id del {@link Subsidiary}
 	 * @param id     : Id del {@link EmissionPoint} a eliminar
 	 * @return
 	 */
@@ -75,8 +73,7 @@ public interface IEmissionPointOperation {
 	/***
 	 * Actualizar un {@link EmissionPoint}
 	 * 
-	 * @param emissionPoint : Los nuevos datos
-	 * @param codigo        : Id del {@link Subsidiary}
+	 * @param emissionPointNewDTO : Los nuevos datos
 	 * @param id            : Id del {@link EmissionPoint} a actualizar
 	 * @return
 	 */

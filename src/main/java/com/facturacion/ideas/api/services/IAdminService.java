@@ -19,7 +19,7 @@ public interface IAdminService {
 	
 	void deleteCountById(Long id);
 	
-	List<SubsidiaryAndEmissionPointDTO> fetchBySenderWithEmissionPoint(Long idSender);
+	List<SubsidiaryAndEmissionPointDTO> fetchBySenderWithEmissionPoint(String ruc);
 		
 	
 	

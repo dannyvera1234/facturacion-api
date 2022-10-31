@@ -2,6 +2,7 @@ package com.facturacion.ideas.api.controller.operation;
 
 import java.util.List;
 
+import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,11 +72,12 @@ public interface ISenderOperation {
 	/**
 	 * Actualiza una {@link Sender}
 	 * 
-	 * @param sender : Un Sender con los nuevos datos
+	 * @param senderNewDTO : Un Sender con los nuevos datos
 	 * @param id     : Id de la Count a la que pertenece
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 *         con los nuevos datos actualizados
 	 */
 	@PutMapping("/senders/{id}")
 	public ResponseEntity<SenderResponseDTO> update(@RequestBody SenderNewDTO senderNewDTO, @PathVariable Long id);
+
 }

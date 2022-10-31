@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
+import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,173 +32,191 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 @Service
 public class SubsidiaryServiceImpl implements ISubsidiaryService {
 
-	private static final Logger LOGGER = LogManager.getLogger(SubsidiaryServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(SubsidiaryServiceImpl.class);
 
-	@Autowired
-	private ISubsidiaryRepository subsidiaryRepository;
+    @Autowired
+    private ISubsidiaryRepository subsidiaryRepository;
 
-	@Autowired
-	private ISenderRepository senderRepository;
+    @Autowired
+    private ISenderRepository senderRepository;
 
-	@Autowired
-	private ICodeDocumentRepository codeDocumentRepository;
+    @Autowired
+    private ICodeDocumentRepository codeDocumentRepository;
 
-	@Autowired
-	private ISubsidiaryMapper subsidiaryMapper;
+    @Autowired
+    private ISubsidiaryMapper subsidiaryMapper;
 
-	@Override
-	@Transactional
-	public SubsidiaryResponseDTO save(SubsidiaryNewDTO subsidiaryNewDTO, Long idSender) {
+    @Override
+    @Transactional
+    public SubsidiaryResponseDTO save(SubsidiaryNewDTO subsidiaryNewDTO, Long idSender) {
 
-		try {
+        try {
 
-			Sender sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
-					"ID emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            Sender sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
+                    "ID emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			Count count = sender.getCount();
+            Count count = sender.getCount();
 
-			// Obtener el numero establecimiento maximo que tiene un emisor: se
-			// lo busca x su codigo de cuenta unico
-			Optional<Integer> numberMax = codeDocumentRepository.findNumberMaxSender(count.getIde());
+            // Obtener el numero establecimiento maximo que tiene un emisor: se
+            // lo busca x su codigo de cuenta unico
+            Optional<Integer> numberMax = codeDocumentRepository.findNumberMaxSender(count.getIde());
 
-			Integer numberNext = AdminSubsidiary.getNumberNextSubsidiary(numberMax.orElse(null));
+            Integer numberNext = AdminSubsidiary.getNumberNextSubsidiary(numberMax.orElse(null));
 
-			// Crear Establecimiento
-			AdminSubsidiary.createOther(subsidiaryNewDTO, sender, numberNext);
+            // Crear Establecimiento
+            AdminSubsidiary.createOther(subsidiaryNewDTO, sender, numberNext);
 
-			Subsidiary subsidiary = subsidiaryMapper.mapperToEntity(subsidiaryNewDTO);
+            Subsidiary subsidiary = subsidiaryMapper.mapperToEntity(subsidiaryNewDTO);
 
-			// Agregar al establecimiento el emisor
-			subsidiary.setSender(sender);
+            // Agregar al establecimiento el emisor
+            subsidiary.setSender(sender);
 
-			/*
-			 * Creara el primer Punto de emision y lo agregar al establecimiento recien
-			 * creado Pasamos Null para que valide como el primer punto de emiion de este
-			 * establecimiento
-			 */
-			subsidiary.addEmissionPoint(AdminEmissionPoint.create(null, sender.getRuc()));
+            /*
+             * Creara el primer Punto de emision y lo agregar al establecimiento recien
+             * creado Pasamos Null para que valide como el primer punto de emiion de este
+             * establecimiento
+             */
+            subsidiary.addEmissionPoint(AdminEmissionPoint.create(null, sender.getRuc()));
 
-			// Persistir nuevo establecimiento con su punto emision
-			SubsidiaryResponseDTO subsidiarySaved = subsidiaryMapper.mapperToDTO(subsidiaryRepository.save(subsidiary));
+            // Persistir nuevo establecimiento con su punto emision
+            SubsidiaryResponseDTO subsidiarySaved = subsidiaryMapper.mapperToDTO(subsidiaryRepository.save(subsidiary));
 
-			// Ingresar datos numeros documentos
-			CodeDocument codeDocument = AdminCodeDocument.create(count.getIde(), subsidiarySaved.getCode(), numberNext,
-					null);
+            // Ingresar datos numeros documentos
+            CodeDocument codeDocument = AdminCodeDocument.create(count.getIde(), subsidiarySaved.getCode(), numberNext,
+                    null);
 
-			codeDocumentRepository.save(codeDocument);
+            codeDocumentRepository.save(codeDocument);
 
-			return subsidiarySaved;
+            return subsidiarySaved;
 
-		} catch (DataAccessException | ParseException e) {
-			LOGGER.error("Error guardar establecimiento: ", e.getMessage());
-			throw new NotDataAccessException("Error guardar establecimiento: " + e.getMessage());
-		}
-	}
+        } catch (DataAccessException | ParseException e) {
+            LOGGER.error("Error guardar establecimiento: ", e.getMessage());
+            throw new NotDataAccessException("Error guardar establecimiento: " + e.getMessage());
+        }
+    }
 
-	@Override
-	@Transactional
-	public void deleteById(Long ide) {
+    @Override
+    @Transactional
+    public void deleteById(Long ide) {
 
-		try {
-			Subsidiary subsidiary = subsidiaryRepository.findById(ide).orElseThrow(() -> new NotFoundException(
-					"Id establecimiento: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+        try {
+            Subsidiary subsidiary = subsidiaryRepository.findById(ide).orElseThrow(() -> new NotFoundException(
+                    "Id establecimiento: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			// Eliminar El establecimiento y por la cascada sus Puntos de Emision
-			subsidiaryRepository.deleteById(subsidiary.getIde());
+            // Eliminar El establecimiento y por la cascada sus Puntos de Emision
+            subsidiaryRepository.deleteById(subsidiary.getIde());
 
-			// Eliminar El Registro en CodeDocument del Establecimiento recientiemente
-			// eliminado
-			Long idCount = subsidiary.getSender().getCount().getIde();
-			codeDocumentRepository.deleteByIdCountAndCodeSubsidiary(idCount, subsidiary.getCode());
+            // Eliminar El Registro en CodeDocument del Establecimiento recientiemente
+            // eliminado
+            Long idCount = subsidiary.getSender().getCount().getIde();
+            codeDocumentRepository.deleteByIdCountAndCodeSubsidiary(idCount, subsidiary.getCode());
 
-		} catch (DataAccessException e) {
-			LOGGER.error("Error eliminar establecimiento: ", e.getMessage());
-			throw new NotDataAccessException("Error eliminar establecimiento: " + e.getMessage());
-		}
+        } catch (DataAccessException e) {
+            LOGGER.error("Error eliminar establecimiento: ", e.getMessage());
+            throw new NotDataAccessException("Error eliminar establecimiento: " + e.getMessage());
+        }
 
-	}
+    }
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<SubsidiaryResponseDTO> findAll(Long idSender) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubsidiaryResponseDTO> findAll(Long idSender) {
 
-		try {
-			Sender sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
-					"ID emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+        try {
+            Sender sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
+                    "ID emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			List<Subsidiary> subsidiaries = sender.getSubsidiarys();
+            List<Subsidiary> subsidiaries = sender.getSubsidiarys();
 
-			return subsidiaryMapper.mapperToDTO(subsidiaries);
+            return subsidiaryMapper.mapperToDTO(subsidiaries);
 
-		} catch (DataAccessException e) {
+        } catch (DataAccessException e) {
 
-			LOGGER.error("Error listar establecimientos x Emisor: ", e.getMessage());
-			throw new NotDataAccessException("Error listar establecimiento x Emisor: " + e.getMessage());
-		}
+            LOGGER.error("Error listar establecimientos x Emisor: ", e.getMessage());
+            throw new NotDataAccessException("Error listar establecimiento x Emisor: " + e.getMessage());
+        }
 
-	}
+    }
 
-	@Override
-	@Transactional(readOnly = true)
-	public SubsidiaryResponseDTO findById(Long ide) {
+    @Override
+    @Transactional(readOnly = true)
+    public SubsidiaryResponseDTO findById(Long ide) {
 
-		try {
+        try {
 
-			Subsidiary subsidiary = subsidiaryRepository.findById(ide).orElseThrow(() -> new NotFoundException(
-					"id establecimiento: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            Subsidiary subsidiary = subsidiaryRepository.findById(ide).orElseThrow(() -> new NotFoundException(
+                    "id establecimiento: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			return subsidiaryMapper.mapperToDTO(subsidiary);
+            return subsidiaryMapper.mapperToDTO(subsidiary);
 
-		} catch (DataAccessException e) {
+        } catch (DataAccessException e) {
 
-			LOGGER.error("Error buscar establecimiento: ", e.getMessage());
-			throw new NotDataAccessException("Error buscar establecimiento: " + e.getMessage());
-		}
+            LOGGER.error("Error buscar establecimiento: ", e.getMessage());
+            throw new NotDataAccessException("Error buscar establecimiento: " + e.getMessage());
+        }
 
-	}
+    }
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<SubsidiaryResponseDTO> findByCodeAndSender(String code, Long idSender) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubsidiaryResponseDTO> findByCodeAndSender(String code, Long idSender) {
 
-		try {
+        try {
 
-			Sender sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
-					"ID emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            Sender sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
+                    "ID emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			List<Subsidiary> subsidiaries = subsidiaryRepository.findByCodeAndSender(code, sender);
+            List<Subsidiary> subsidiaries = subsidiaryRepository.findByCodeAndSender(code, sender);
 
-			return subsidiaryMapper.mapperToDTO(subsidiaries);
+            return subsidiaryMapper.mapperToDTO(subsidiaries);
 
-		} catch (DataAccessException e) {
+        } catch (DataAccessException e) {
 
-			LOGGER.error("Error actualizar establecimientos: ", e.getMessage());
-			throw new NotDataAccessException("Error actualizar establecimiento: " + e.getMessage());
-		}
-	}
+            LOGGER.error("Error actualizar establecimientos: ", e.getMessage());
+            throw new NotDataAccessException("Error actualizar establecimiento: " + e.getMessage());
+        }
+    }
 
-	@Override
-	@Transactional
-	public SubsidiaryResponseDTO update(SubsidiaryNewDTO subsidiaryNewDTO, Long id) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubsidiaryAndEmissionPointDTO> listSubsidiaryAndEmissionPointDTOByRuc(String ruc) {
+        try{
+            if (senderRepository.existsByRuc(ruc)) {
+                List<Subsidiary> subsidiaries = subsidiaryRepository.fetchSubsidiaryAndEmissionPointsByRuc(ruc);
+                return subsidiaryMapper.mapperToDTOAndEmissionPoint(subsidiaries);
+            }
+            throw new NotFoundException("Emisor con Ruc " + ruc + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
-		try {
-			Subsidiary subsidiary = subsidiaryRepository.findById(id).orElseThrow(() -> new NotFoundException(
-					"id establecimiento: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+        } catch (DataAccessException e) {
 
-			if (subsidiaryNewDTO.getAddress() != null) {
-				subsidiary.setAddress(subsidiaryNewDTO.getAddress());
+            LOGGER.error("Error al consultar establecimiento/ pto emision emisor", e);
+            throw new NotDataAccessException("Error al consultar los establecimientos del emisor: " + e.getMessage());
+        }
 
-			}
+    }
 
-			subsidiary.setStatus(subsidiaryNewDTO.isStatus());
+    @Override
+    @Transactional
+    public SubsidiaryResponseDTO update(SubsidiaryNewDTO subsidiaryNewDTO, Long id) {
 
-			return subsidiaryMapper.mapperToDTO(subsidiaryRepository.save(subsidiary));
-		} catch (DataAccessException e) {
-			LOGGER.error("Error listar establecimientos x code: ", e.getMessage());
-			throw new NotDataAccessException("Error listar establecimiento x code: " + e.getMessage());
-		}
-	
-	}
+        try {
+            Subsidiary subsidiary = subsidiaryRepository.findById(id).orElseThrow(() -> new NotFoundException(
+                    "id establecimiento: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+            if (subsidiaryNewDTO.getAddress() != null) {
+                subsidiary.setAddress(subsidiaryNewDTO.getAddress());
+
+            }
+
+            subsidiary.setStatus(subsidiaryNewDTO.isStatus());
+
+            return subsidiaryMapper.mapperToDTO(subsidiaryRepository.save(subsidiary));
+        } catch (DataAccessException e) {
+            LOGGER.error("Error listar establecimientos x code: ", e.getMessage());
+            throw new NotDataAccessException("Error listar establecimiento x code: " + e.getMessage());
+        }
+
+    }
 
 
 }

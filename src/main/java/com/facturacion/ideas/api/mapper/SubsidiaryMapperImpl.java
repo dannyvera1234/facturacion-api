@@ -70,7 +70,7 @@ public class SubsidiaryMapperImpl implements ISubsidiaryMapper {
 
 		List<SubsidiaryAndEmissionPointDTO> subsidiaryResponseDTOs = new ArrayList<>();
 
-		subsidiaries.stream().forEach(item -> {
+		subsidiaries.forEach(item -> {
 
 			SubsidiaryAndEmissionPointDTO subsidiaryDTO = new SubsidiaryAndEmissionPointDTO();
 
