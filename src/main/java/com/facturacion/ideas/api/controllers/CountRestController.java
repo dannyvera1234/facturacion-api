@@ -1,6 +1,9 @@
 package com.facturacion.ideas.api.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,21 +71,6 @@ public class CountRestController implements ICountOperation {
 		}
 
 	}
-
-	@Override
-	public ResponseEntity<List<CountResponseDTO>> findAll() {
-		try {
-
-			List<CountResponseDTO> countResponseDTOs = countService.findCountAll();
-
-			return ResponseEntity.ok(countResponseDTOs);
-
-		} catch (DataAccessException e) {
-
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
-
 	@Override
 	public ResponseEntity<CountResponseDTO> update(CountNewDTO countNewDTO, Long id) {
 
@@ -140,6 +128,29 @@ public class CountRestController implements ICountOperation {
 	}
 
 	@Override
+	public ResponseEntity<Map<String, Object>> listAgreementDetailsAllByRuc(String ruc) {
+
+
+		LOGGER.info("Ruc cuenta a ver planes: " + ruc);
+
+		try {
+
+			List<DetailsAgreementDTO> detailsAgreementDTOS = countService.listAgreementDetailsAllByRuc(ruc);
+
+			Map<String, Object> mapaData= new HashMap<>();
+			mapaData.put("data", detailsAgreementDTOS);
+			mapaData.put("size", detailsAgreementDTOS.size());
+
+			return  ResponseEntity.ok(mapaData);
+
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+
+		}
+	}
+
+	@Override
 	public ResponseEntity<List<LoginDTO>> findAllLogin(Long idCount) {
 
 		LOGGER.info("Id Cuenta de Login guardar: " + idCount);
@@ -157,5 +168,4 @@ public class CountRestController implements ICountOperation {
 		}
 
 	}
-
 }

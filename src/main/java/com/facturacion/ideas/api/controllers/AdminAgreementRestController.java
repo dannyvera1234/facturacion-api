@@ -35,59 +35,7 @@ public class AdminAgreementRestController implements IAgreementOperation {
 	@Autowired
 	private IAgreementService agreementService;
 
-	@Override
-	public ResponseEntity<AgreementDTO> save(AgreementDTO agreementDTO) {
-
-		LOGGER.info("Plan a guardar " + agreementDTO);
-
-		try {
-
-			AgreementDTO agreementSaved = agreementService.save(agreementDTO);
-
-			return  new ResponseEntity<>(agreementSaved, HttpStatus.CREATED);
-
-		} catch (NotDataAccessException e) {
-
-			throw new NotDataAccessException(e.getMessage());
-		}
-
-	}
-
-	@Override
-	public ResponseEntity<List<AgreementDTO>> findAll() {
-
-		try {
-
-			List<AgreementDTO> listAgreement = agreementService.listAll();
-
-			return ResponseEntity.ok(listAgreement);
-
-		} catch (NotDataAccessException e) {
-
-			throw new NotDataAccessException(e.getMessage());
-
-		}
-
-	}
-
-	@Override
-	public ResponseEntity<AgreementDTO> findById(Long codigo) {
-
-		LOGGER.info("Id Plan a buscar: " + codigo);
-
-		try {
-
-			AgreementDTO agreementDTO = agreementService.findById(codigo);
-
-			return ResponseEntity.ok(agreementDTO);
-		} catch (NotDataAccessException e) {
-
-			throw new NotDataAccessException(e.getMessage());
-
-		}
-
-	}
-
+	
 	@Override
 	public ResponseEntity<String> deleteById(Long codigo) {
 

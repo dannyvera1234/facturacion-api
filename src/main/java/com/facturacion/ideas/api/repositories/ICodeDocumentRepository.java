@@ -35,9 +35,9 @@ public interface ICodeDocumentRepository extends JpaRepository<CodeDocument, Lon
 	 * de eliminar una {@link Count}
 	 * @param codeCount : Id de la Count
 	 */
+
 	@Modifying
-	@Query("DELETE FROM CodeDocument c WHERE c.codeCount = :codeCount")
-	void deleteByCodeCount( @Param("codeCount") Long codeCount);
+	void  deleteByCodeCount(Long codeCount);
 	
 	
 	/**

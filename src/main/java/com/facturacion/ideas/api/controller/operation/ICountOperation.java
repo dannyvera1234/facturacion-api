@@ -1,6 +1,7 @@
 package com.facturacion.ideas.api.controller.operation;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,14 +34,7 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 @RequestMapping("/default")
 public interface ICountOperation {
 
-	/**
-	 * Recupera todas las {@link Count} regisradas en Base de Datos
-	 * 
-	 * @return Respuesta
-	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@GetMapping
-	public ResponseEntity<List<CountResponseDTO>> findAll();
+
 
 	/**
 	 * Busca una {@link Count} a traves de su id
@@ -89,6 +83,9 @@ public interface ICountOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@PostMapping("/{id}/agreements/{codigo}")
-	public ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(@PathVariable("id") Long idCount,
+	 ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(@PathVariable("id") Long idCount,
 			@PathVariable(required = false, name = "codigo") Long codigoPlan);
+
+	@GetMapping("/{ruc}/agrement-details")
+	ResponseEntity<Map<String, Object>> listAgreementDetailsAllByRuc(@PathVariable String ruc);
 }

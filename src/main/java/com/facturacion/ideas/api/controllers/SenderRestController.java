@@ -55,21 +55,6 @@ public class SenderRestController implements ISenderOperation {
 	}
 
 	@Override
-	public ResponseEntity<List<SenderResponseDTO>> findAll() {
-
-		try {
-
-			List<SenderResponseDTO> senderResponseDTOs = senderService.findAll();
-
-			return ResponseEntity.ok(senderResponseDTOs);
-
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-
-		}
-	}
-
-	@Override
 	public ResponseEntity<SenderResponseDTO> findById(Long id) {
 
 		try {

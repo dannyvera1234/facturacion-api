@@ -5,8 +5,9 @@ import java.util.List;
 import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.dto.SenderResponseDTO;
 import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
+import com.facturacion.ideas.api.services.admin.ISenderAdminService;
 
-public interface ISenderService {
+public interface ISenderService extends ISenderAdminService {
 
 	SenderResponseDTO save(SenderNewDTO senderNewDTO, Long idCount);
 
@@ -16,7 +17,6 @@ public interface ISenderService {
 
 	SenderResponseDTO findById(Long id);
 
-	List<SenderResponseDTO> findAll();
 
 
 

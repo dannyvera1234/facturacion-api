@@ -107,7 +107,7 @@ public class SenderServiceImpl implements ISenderService {
 		try {
 
 			Sender sender = senderRepository.findByRuc(ruc).orElseThrow(
-					() -> new NotFoundException("ruc: " + ruc + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+					() -> new NotFoundException("Emisor Ruc  " + ruc + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
 			return senderMapper.mapperToDTO(sender);
 

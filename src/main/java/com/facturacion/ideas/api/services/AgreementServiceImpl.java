@@ -2,6 +2,12 @@ package com.facturacion.ideas.api.services;
 
 import java.util.List;
 
+import com.facturacion.ideas.api.dto.DetailsAgreementDTO;
+import com.facturacion.ideas.api.entities.DetailsAggrement;
+import com.facturacion.ideas.api.mapper.IDetailsAgreementMapper;
+import com.facturacion.ideas.api.repositories.ICountRepository;
+import com.facturacion.ideas.api.repositories.IDetailsAgreementRepository;
+import com.facturacion.ideas.api.repositories.ISenderRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +36,17 @@ public class AgreementServiceImpl implements IAgreementService {
 
 	@Autowired
 	private IAgreementMapper agreementMapper;
+
+	@Autowired
+	private ICountRepository countRepository;
+
+	@Autowired
+	private IDetailsAgreementRepository detailsAgreementRepository;
+
+	@Autowired
+	private IDetailsAgreementMapper detailsAgreementMapper;
+
+
 
 	@Override
 	@Transactional
@@ -98,6 +115,11 @@ public class AgreementServiceImpl implements IAgreementService {
 			throw new NotDataAccessException("Errror buscar plan id: " + e.getMessage());
 		}
 
+	}
+
+	@Override
+	public AgreementDTO findByType(String type) {
+		return null;
 	}
 
 	@Override

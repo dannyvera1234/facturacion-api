@@ -38,15 +38,6 @@ public interface ISenderOperation {
 	public ResponseEntity<SenderResponseDTO> save(@RequestBody SenderNewDTO sender, @PathVariable("id") Long idCount);
 
 	/**
-	 * Recupera todas las {@link Sender} regisradas en Base de Datos
-	 * 
-	 * @return Respuesta
-	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@GetMapping("/senders")
-	public ResponseEntity<List<SenderResponseDTO>> findAll();
-
-	/**
 	 * Busca una {@link Sender} a traves de su id
 	 * 
 	 * @param id : Id de Sender

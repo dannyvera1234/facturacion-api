@@ -24,31 +24,6 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 @RequestMapping("/default")
 public interface IAgreementOperation {
 
-	/**
-	 * Inserta una nueva {@link Agreement} en la Base de Datos <br>
-	 * <b>Http: </b> {@link PostMapping}
-	 * @param agreement : Objeto a insertar
-	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@PostMapping
-	public ResponseEntity<AgreementDTO> save(@RequestBody AgreementDTO agreementDTO);
-
-	/**
-	 * Recupera todas los {@link Agreement } regisradas en Base de Datos <br>
-	 * <b>Http:</b> {@link GetMapping}
-	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@GetMapping
-	public ResponseEntity<List<AgreementDTO>> findAll();
-
-	/**
-	 * Busca una {@link Agreement} a traves de su codigo <br>
-	 * <b>Http: </b> {@link GetMapping}
-	 * @param codigo : Codigo del Plan
-	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@GetMapping("/{codigo}")
-	public ResponseEntity<AgreementDTO> findById(@PathVariable(required = false) Long codigo);
 
 	/**
 	 * Elimina {@link Agreement} a traves de su codigo <br>
