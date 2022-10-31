@@ -119,7 +119,10 @@ public class AdminProduct {
             // Por cada botella retornable se agrerá 0.02 de dolar.
             // el porcetaje aplicado en impuesto_valor es 0 %,  por ello aqui sumamos directamente
             // los 0.02 al precio actual, y no aplicamosla formula de porcentaje
-            valorIva = precioActual + ConstanteUtil.VALOR_IVA_IRBPNR;
+
+            // Este valor lo aplicamos directamente, en el calculo de los valores de
+            // la factura
+            // valorIva = precioActual + ConstanteUtil.VALOR_IVA_IRBPNR;
         }
 
         precioActual += valorIva;

@@ -10,6 +10,7 @@ import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.QuestionEnum;
 import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 import com.facturacion.ideas.api.enums.TypePorcentajeIvaEnum;
+import com.facturacion.ideas.api.enums.TypeTaxEnum;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
@@ -42,7 +43,7 @@ public class AdminInvoice {
     }
 
 
-    public static ValueInvoice calcularDetalleFactura(List<DeatailsInvoiceProduct> detailsProduct, final Double propina) {
+    public static ValueInvoice calcularDetalleFactura(final List<DeatailsInvoiceProduct> detailsProduct, final Double propina) {
 
         ValueInvoice valueInvoice = new ValueInvoice();
 
@@ -69,17 +70,20 @@ public class AdminInvoice {
         // Producto que gravan IVA
         if (detailsGravaIVA.size() > 0) {
 
-            // Aqui la suma ya incluye iva
+            // Productos incluyen IVA
             subtotalDoceIvaActual = sumarSubtotalDetalle(detailsGravaIVA);
 
             // Obtener el iva vigente
-            valorIvaVigente = subtotalDoceIvaActual - (subtotalDoceIvaActual / ConstanteUtil.IVA_ACTUAL_DECIMAL);
-            // Este el valor subtotal doce porciente, sin IVA
-            subtotalDoceIvaActual -= valorIvaVigente;
 
+            //valorIvaVigente = subtotalDoceIvaActual - (subtotalDoceIvaActual / ConstanteUtil.IVA_ACTUAL_DECIMAL);
+            valorIvaVigente = (subtotalDoceIvaActual* ConstanteUtil.IVA_ACTUAL_PORCENTAJE)/100;
+
+            // Este el valor subtotal doce porciente, sin IVA
+            //subtotalDoceIvaActual -= valorIvaVigente;
         }
 
-        // Producto no gravan iva
+
+        // Producto no gravan IVA
         if (detailsNoGravaIVA.size()>0) {
             // Dividir los (0%, Exento, No Objeto Iva)
 
@@ -103,8 +107,15 @@ public class AdminInvoice {
         //
         valorIvaVigente += valorICE;
 
+        //subtotal = subtotalDoceIvaActual + subtotalCeroIva + subtotalNoObjetoIva + subtotalExeptoIva;
         subtotal = subtotalDoceIvaActual + subtotalCeroIva + subtotalNoObjetoIva + subtotalExeptoIva;
 
+
+        // Calcular el irbpnr
+        valorIRBPNR = calcularIRBPNR(detailsProduct);
+
+        //  EL subtotal corresponde a la base imponible, a ese valor le restamos el IRBPNR
+        //subtotal -= valorIRBPNR;
 
         // Puede ser 10 10% del subtotal
         double propinaMaxima = (subtotal * 10) / 100;
@@ -114,8 +125,10 @@ public class AdminInvoice {
             throw new BadRequestException("La propina " + propina + " no puede superar el 10%  de" + subtotal);
         } else valorPropina = propina;
 
-        valorTotal = subtotal + valorICE + valorIRBPNR + valorIvaVigente + valorPropina;
 
+        // valorTotal = subtotal + valorICE + valorIRBPNR + valorIvaVigente + valorPropina;
+
+        valorTotal = subtotal + valorICE +  valorIRBPNR + valorIvaVigente + valorPropina;
 
         valueInvoice.setSubtIvaCero(subtotalCeroIva);
 
@@ -139,6 +152,20 @@ public class AdminInvoice {
         valueInvoice.setTotal(valorTotal);
 
         return valueInvoice;
+
+    }
+
+    /**
+     * Calcula el total del ibprn por cada linea de detalle de la factura
+     * @param detailsProduct
+     * @return
+     */
+    public static  Double calcularIRBPNR(List<DeatailsInvoiceProduct> detailsProduct) {
+
+        return  detailsProduct.stream().filter(item ->
+                item.getProduct().getIrbpnr().equalsIgnoreCase(QuestionEnum.SI.name()))
+                .map( item -> (ConstanteUtil.VALOR_IVA_IRBPNR) * item.getAmount())
+                .reduce(Double::sum).orElse(0.0);
 
     }
     private static List<DeatailsInvoiceProduct> getDetailsInvoiceByIva(List<DeatailsInvoiceProduct> detailsProduct, QuestionEnum questionEnum) {
