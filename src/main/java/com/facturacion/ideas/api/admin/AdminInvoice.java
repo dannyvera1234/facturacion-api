@@ -1,10 +1,7 @@
 package com.facturacion.ideas.api.admin;
 
 import com.facturacion.ideas.api.documents.InfoTributaria;
-import com.facturacion.ideas.api.documents.factura.Detalle;
-import com.facturacion.ideas.api.documents.factura.Detalles;
-import com.facturacion.ideas.api.documents.factura.Factura;
-import com.facturacion.ideas.api.documents.factura.InfoFactura;
+import com.facturacion.ideas.api.documents.factura.*;
 import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.QuestionEnum;
@@ -15,6 +12,7 @@ import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +32,8 @@ public class AdminInvoice {
 
         Factura factura = new Factura();
 
-         factura.setInfoTributaria(createInfoTributaria(invoiceSaved, sender));
-         factura.setInfoFactura(createInfoFactura(invoiceSaved));
+        factura.setInfoTributaria(createInfoTributaria(invoiceSaved, sender));
+        factura.setInfoFactura(createInfoFactura(invoiceSaved));
 
         return factura;
 
@@ -76,7 +74,7 @@ public class AdminInvoice {
             // Obtener el iva vigente
 
             //valorIvaVigente = subtotalDoceIvaActual - (subtotalDoceIvaActual / ConstanteUtil.IVA_ACTUAL_DECIMAL);
-            valorIvaVigente = (subtotalDoceIvaActual* ConstanteUtil.IVA_ACTUAL_PORCENTAJE)/100;
+            valorIvaVigente = (subtotalDoceIvaActual * ConstanteUtil.IVA_ACTUAL_PORCENTAJE) / 100;
 
             // Este el valor subtotal doce porciente, sin IVA
             //subtotalDoceIvaActual -= valorIvaVigente;
@@ -84,7 +82,7 @@ public class AdminInvoice {
 
 
         // Producto no gravan IVA
-        if (detailsNoGravaIVA.size()>0) {
+        if (detailsNoGravaIVA.size() > 0) {
             // Dividir los (0%, Exento, No Objeto Iva)
 
             //  Detalle con iva 0%
@@ -128,7 +126,7 @@ public class AdminInvoice {
 
         // valorTotal = subtotal + valorICE + valorIRBPNR + valorIvaVigente + valorPropina;
 
-        valorTotal = subtotal + valorICE +  valorIRBPNR + valorIvaVigente + valorPropina;
+        valorTotal = subtotal + valorICE + valorIRBPNR + valorIvaVigente + valorPropina;
 
         valueInvoice.setSubtIvaCero(subtotalCeroIva);
 
@@ -157,17 +155,19 @@ public class AdminInvoice {
 
     /**
      * Calcula el total del ibprn por cada linea de detalle de la factura
+     *
      * @param detailsProduct
      * @return
      */
-    public static  Double calcularIRBPNR(List<DeatailsInvoiceProduct> detailsProduct) {
+    public static Double calcularIRBPNR(List<DeatailsInvoiceProduct> detailsProduct) {
 
-        return  detailsProduct.stream().filter(item ->
-                item.getProduct().getIrbpnr().equalsIgnoreCase(QuestionEnum.SI.name()))
-                .map( item -> (ConstanteUtil.VALOR_IVA_IRBPNR) * item.getAmount())
+        return detailsProduct.stream().filter(item ->
+                        item.getProduct().getIrbpnr().equalsIgnoreCase(QuestionEnum.SI.name()))
+                .map(item -> (ConstanteUtil.VALOR_IVA_IRBPNR) * item.getAmount())
                 .reduce(Double::sum).orElse(0.0);
 
     }
+
     private static List<DeatailsInvoiceProduct> getDetailsInvoiceByIva(List<DeatailsInvoiceProduct> detailsProduct, QuestionEnum questionEnum) {
 
         return detailsProduct
@@ -223,7 +223,7 @@ public class AdminInvoice {
 
             DeatailsInvoiceProduct deatailsInvoiceProduct = new DeatailsInvoiceProduct();
 
-           // Seteo los nuevos valores de los productos  ingresados por el cliente
+            // Seteo los nuevos valores de los productos  ingresados por el cliente
             Product product = products
                     .stream()
                     .filter(pro -> pro.getIde().longValue() == item.getIdProducto()).findFirst().get();
@@ -232,9 +232,9 @@ public class AdminInvoice {
             deatailsInvoiceProduct.setProduct(product);
             deatailsInvoiceProduct.setUnitValue(item.getUnitValue());
             deatailsInvoiceProduct.setAmount(item.getAmount());
-            deatailsInvoiceProduct.setDescription((item.getDescription()!=null  && !item.getDescription().isEmpty()) ? item.getDescription() :
+            deatailsInvoiceProduct.setDescription((item.getDescription() != null && !item.getDescription().isEmpty()) ? item.getDescription() :
                     product.getName());
-            deatailsInvoiceProduct.setSubtotal(deatailsInvoiceProduct.getAmount()* deatailsInvoiceProduct.getUnitValue());
+            deatailsInvoiceProduct.setSubtotal(deatailsInvoiceProduct.getAmount() * deatailsInvoiceProduct.getUnitValue());
             deatailsInvoiceProducts.add(deatailsInvoiceProduct);
         }
         return deatailsInvoiceProducts;
@@ -281,8 +281,8 @@ public class AdminInvoice {
 
         infoFactura.setFechaEmision(FunctionUtil.convertDateToString(invoiceSaved.getDateEmission()));
 
-        // calcular
-        // infoFactura.setTotalSubsidio(null);
+        // calcular el subsidrio,aun no se calcula
+        infoFactura.setTotalSubsidio(BigDecimal.valueOf(0.00));
 
         infoFactura.setDirEstablecimiento(invoiceSaved.getEmissionPoint().getSubsidiary().getAddress());
 
@@ -310,13 +310,24 @@ public class AdminInvoice {
 
         }
 
-        // infoFactura.setTotalSinImpuestos(null);
-        // infoFactura.setTotalDescuento(null);
-        // infoFactura.setPropina(null);
 
-        // infoFactura.setImporteTotal(null);
+        ValueInvoice valueInvoice = invoiceSaved.getValueInvoice();
+
+        infoFactura.setTotalSinImpuestos(BigDecimal.valueOf(valueInvoice.getSubtotal()));
+        infoFactura.setTotalDescuento(BigDecimal.valueOf(valueInvoice.getDescuento()));
+        infoFactura.setPropina(BigDecimal.valueOf(valueInvoice.getPropina()));
+
+        infoFactura.setImporteTotal(null);
         infoFactura.setMoneda(ConstanteUtil.TEXT_DEFAULT_MODEDA);
-        // infoFactura.setTotalConImpuestos(null);
+
+
+        List<TotalImpuesto> totalImpuestos= createTotalImpuestos(invoiceSaved);
+
+        // aqui se guardara los  impuesto
+        TotalConImpuestos totalConImpuestos = new TotalConImpuestos();
+        totalConImpuestos.setTotalImpuesto(totalImpuestos);
+
+        infoFactura.setTotalConImpuestos(totalConImpuestos);
 
         // infoFactura.setPagos(null);
 
@@ -333,23 +344,28 @@ public class AdminInvoice {
     }
 
 
-    public static Detalles createDetalleFactura(Invoice invoiceSaved){
+    public static Detalles createDetalleFactura(Invoice invoiceSaved) {
 
 
-        Detalles detalles= new Detalles();
+        Detalles detalles = new Detalles();
 
 
         Detalle detalleItem = new Detalle();
-
-
-
-
-
-
-
-
-
         return null;
+    }
+
+    public static List<TotalImpuesto> createTotalImpuestos(Invoice invoiceSaved) {
+
+
+        List<TotalImpuesto> totalImpuestos = new ArrayList<>();
+
+        // Impuestos: ICE-IRPNR-ICE
+        TotalImpuesto totalImpuestoICE = new TotalImpuesto();
+        totalImpuestoICE.setCodigo(TypeTaxEnum.ICE.getCode());
+
+        totalImpuestos.add(totalImpuestoICE);
+
+        return totalImpuestos;
     }
 
 }

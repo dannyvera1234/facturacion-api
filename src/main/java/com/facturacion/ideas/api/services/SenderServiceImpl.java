@@ -62,30 +62,31 @@ public class SenderServiceImpl implements ISenderService {
                 Sender sender = senderMapper.mapperToEntity(senderNewDTO);
 
                 String newSubsidiary = senderNewDTO.getSubsidiary();
+                String emisionPoint = senderNewDTO.getEmisionPoint();
+
                 // Quiere decir que envio un establecimiento y punto emision a guardar
-                if (newSubsidiary != null) {
+                if (newSubsidiary != null && emisionPoint != null) {
 
-                    if (AdminSubsidiary.isValidFormat(newSubsidiary)) {
-                        String[] data = AdminSubsidiary.numberSubsidiaryAndEmissionPoint(newSubsidiary);
-                        String numberSubsidiary = data[0];
-                        String numberEmissionPoint = data[1];
+                    if (AdminSubsidiary.isValidFormat(newSubsidiary + "-" + emisionPoint)) {
 
-                        Subsidiary subsidiary = AdminSubsidiary.create(senderNewDTO, numberSubsidiary);
 
-                        EmissionPoint emissionPoint = AdminEmissionPoint.create(numberEmissionPoint);
+                        Subsidiary subsidiary = AdminSubsidiary.create(senderNewDTO,  newSubsidiary);
+                        EmissionPoint emissionPoint = AdminEmissionPoint.create(emisionPoint);
+                        
                         emissionPoint.setStatus(true);
                         emissionPoint.setKeyPoint(subsidiary.getCode() + "-" + emissionPoint.getCodePoint());
 
                         subsidiary.addEmissionPoint(emissionPoint);
                         sender.addSubsidiary(subsidiary);
 
-                    } else
-                        throw new BadRequestException("Formato del establecimiento  " + newSubsidiary + " es incorrecto, debe tener el formato, ejemplo: 001-006");
+                        // Agrega Cuenta
+                        sender.setCount(count);
+                        return senderMapper.mapperToDTO(senderRepository.save(sender));
+                    }
+                    throw new BadRequestException("Formato del establecimiento  " + newSubsidiary + " o punto emision " + " son  incorrectos");
                 }
+                throw new BadRequestException("Establecimiento " + newSubsidiary + " o punto emsion " + emisionPoint + " no pueder estar vacios");
 
-                // Agrega Cuenta
-                sender.setCount(count);
-                return senderMapper.mapperToDTO(senderRepository.save(sender));
 
             }
 

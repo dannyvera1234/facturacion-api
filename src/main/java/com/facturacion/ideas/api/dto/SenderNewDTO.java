@@ -47,6 +47,8 @@ public class SenderNewDTO implements Serializable {
 
 	private String subsidiary;
 
+	private String emisionPoint;
+
 	public SenderNewDTO() {
 	}
 
@@ -200,12 +202,20 @@ public class SenderNewDTO implements Serializable {
 		this.subsidiary = subsidiary;
 	}
 
+	public void setEmisionPoint(String emisionPoint) {
+		this.emisionPoint = emisionPoint;
+	}
+
+	public String getEmisionPoint() {
+		return emisionPoint;
+	}
+
 	@Override
 	public String toString() {
 		return "SenderNewDTO [ide=" + ide + ", ruc=" + ruc + ", socialReason=" + socialReason + ", commercialName="
 				+ commercialName + ", matrixAddress=" + matrixAddress + ", specialContributor=" + specialContributor
 				+  "retentionAgent" + retentionAgent+", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
-				+ ", typeEnvironment=" + typeEnvironment.getCode() + ", subsidiary= " + subsidiary+  ", typeEmission=" + typeEmission.getCode() + ", rimpe=" + rimpe
+				+ ", typeEnvironment=" + typeEnvironment.getCode() + ", subsidiary= " + subsidiary+ ", emisionṔoint="+ emisionPoint+  ", typeEmission=" + typeEmission.getCode() + ", rimpe=" + rimpe
 				+ ", province=" + province.getName() + "]";
 	}
 	
