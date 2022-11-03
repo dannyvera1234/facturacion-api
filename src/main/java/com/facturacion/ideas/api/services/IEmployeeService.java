@@ -20,4 +20,5 @@ public interface IEmployeeService {
 
 	EmployeeResponseDTO update(EmployeeDTO employeeDTO, Long idSender, Long idEmployee);
 
+	List<EmployeeResponseDTO> findBySenderAndSubsidiary(Long idSender, Long idSub, String filtro);
 }

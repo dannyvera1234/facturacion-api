@@ -3,12 +3,7 @@ package com.facturacion.ideas.api.controller.operation;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.facturacion.ideas.api.dto.EmployeeDTO;
 import com.facturacion.ideas.api.dto.EmployeeResponseDTO;
@@ -26,6 +21,12 @@ public interface IEmployeeOperation {
 
 	@GetMapping("/employees")
 	public ResponseEntity<List<EmployeeResponseDTO>> findByAll();
+
+	@GetMapping("/senders/{id}/subsidiarys/{id-sub}/employees/search")
+	public ResponseEntity<List<EmployeeResponseDTO>>
+	findByAllBySenderAndSubsidiary(@PathVariable("id") Long idSender,
+								   @PathVariable("id-sub") Long idSub,
+								   @RequestParam(value = "filtro", required = false) String filtro);
 
 	@DeleteMapping("/senders/{id}/employees/{id-employee}")
 	public ResponseEntity<String> deleteById(@PathVariable("id") Long idSender,

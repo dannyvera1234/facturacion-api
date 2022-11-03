@@ -69,6 +69,19 @@ public class EmployeeRestController implements IEmployeeOperation {
 	}
 
 	@Override
+	public ResponseEntity<List<EmployeeResponseDTO>> findByAllBySenderAndSubsidiary(Long idSender, Long idSub, String filtro) {
+		try {
+
+			List<EmployeeResponseDTO> employeeDTOs = employeeService.findBySenderAndSubsidiary(idSender, idSub, filtro);
+
+			return new ResponseEntity<>(employeeDTOs, HttpStatus.OK);
+
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+
+	@Override
 	public ResponseEntity<String> deleteById(Long idSender, Long idEmployee) {
 
 		try {

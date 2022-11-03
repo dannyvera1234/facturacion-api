@@ -33,10 +33,10 @@ public interface ISubsidiaryRepository extends JpaRepository<Subsidiary, Long> {
 	/**
 	 * Obtiene un establecimiento de un emisor en particular
 	 * @param ide
-	 * @param sender
+	 * @param ideSubs
 	 * @return
 	 */
-	Optional<Subsidiary> findByIdeAndSender(Long ide, Sender sender);
+	Optional<Subsidiary> findByIdeAndSenderIde(Long ide, Long ideSubs);
 
 	@Query("select sub from Subsidiary sub left  join  fetch  sub.emissionPoints where  sub.sender.ruc = :ruc")
 	List<Subsidiary> fetchSubsidiaryAndEmissionPointsByRuc(@Param("ruc") String ruc);

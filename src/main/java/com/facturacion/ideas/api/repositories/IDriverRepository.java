@@ -18,7 +18,7 @@ public interface IDriverRepository extends JpaRepository<Driver, Long> {
 	@Query("SELECT dr FROM Driver dr join fetch dr.detailsPersons dt WHERE dt.sender.ide = :idSender")
 	List<Driver> findAllBySender(@Param("idSender") Long idSender);
 
-	@Query("select  dr from  Driver  dr  left join  fetch  dr.detailsPersons dtp where dtp.sender.ide= :param1 and (dr.numberIdentification like %:param2% or dr.socialReason like %:param2%   )")
+	@Query("select  dr from  Driver  dr  left join  fetch  dr.detailsPersons dtp where dtp.sender.ide= :param1 and (dr.numberIdentification like :param2% or dr.socialReason like :param2%   )")
 	List<Driver> searchByCedulaOrRazonSocail(@Param("param1") Long idSender, @Param("param2") String filtro );
 
 }

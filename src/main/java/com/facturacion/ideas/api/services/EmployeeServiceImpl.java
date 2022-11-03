@@ -52,7 +52,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 					"Emisor id: " + idSennder + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
 			// Verificar si el empleado ya pertene a la empresa | emisor
-			if (employeeRepository.existsByCedulaAndSender(employeeDTO.getCedula(), sender)) {
+			if (employeeRepository.existsByCedulaAndSenderIde(employeeDTO.getCedula(), sender.getIde())) {
 
 				throw new DuplicatedResourceException("Empleado con cedula: " + employeeDTO.getCedula()
 						+ " ya pertenece al emisor " + sender.getSocialReason());
@@ -69,7 +69,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 				// Validar que existe el establecimiento, ademas que este asociado con el
 				// emisor.
 				// para asegurarse que establecimiento sea del mismo emisor
-				Subsidiary subsidiary = subsidiaryRepository.findByIdeAndSender(idSubsidiary, sender)
+				Subsidiary subsidiary = subsidiaryRepository.findByIdeAndSenderIde(idSubsidiary, sender.getIde())
 						.orElseThrow(() -> new NotFoundException("Emisor " + sender.getSocialReason()
 								+ " no tiene registrado un establecimiento con id :" + idSubsidiary));
 
@@ -191,7 +191,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 				
 			
 				// Obtener el establecimiento que se desea asigna al empleado, esté debe corresponder al mismo emisor del empleado a actualizar	
-				Subsidiary subsidiary = subsidiaryRepository.findByIdeAndSender(employeeDTO.getSubsidiary(), employee.getSender())
+				Subsidiary subsidiary = subsidiaryRepository.findByIdeAndSenderIde(employeeDTO.getSubsidiary(), employee.getSender().getIde())
 						.orElseThrow(() -> new NotFoundException("Establecimiento " + employeeDTO.getSubsidiary()
 								+ ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 	
@@ -216,14 +216,31 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
 	}
 
-	@Transactional(readOnly = true)
-	private Employee findByIdPrivate(Long ide) {
+	@Override
+	public List<EmployeeResponseDTO> findBySenderAndSubsidiary(Long idSender, Long idSub, String filtro) {
+
+
 		try {
 
-			Employee employee = employeeRepository.findById(ide).orElseThrow(
-					() -> new NotFoundException("ide: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			return employee;
+			List<Employee> employees = employeeRepository.findAllSubsidiary(idSender,idSub, filtro);
+			return  employeeMapper.mapperToDTO(employees);
+		}catch (DataAccessException e){
+
+			LOGGER.error("Error al filtrar los empleados ", e);
+			throw  new NotDataAccessException("Error al filtrar los empleados: " + e.getMessage());
+		}
+
+
+
+	}
+
+	@Transactional(readOnly = true)
+	public Employee findByIdPrivate(Long ide) {
+		try {
+
+			return employeeRepository.findById(ide).orElseThrow(
+					() -> new NotFoundException("ide: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
 		} catch (DataAccessException e) {
 
