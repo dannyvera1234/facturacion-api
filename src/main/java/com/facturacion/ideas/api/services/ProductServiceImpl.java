@@ -117,6 +117,19 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public ProductResponseDTO findByCodePrivate(String codePrivate) {
+        try {
+            return productMapper.mapperToDTO(productRepository.findByCodePrivate(codePrivate).orElseThrow(
+                    () -> new NotFoundException("Producto codigo " + codePrivate + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+        } catch (DataAccessException e) {
+
+            LOGGER.error("Error buscar producto por codigo: " + codePrivate, e);
+            throw new NotDataAccessException("Error al buscar el producto por codigo");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> findAll(Long idSubsidiary) {
 
         try {

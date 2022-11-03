@@ -24,150 +24,163 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 @RequestMapping("/facturacion")
 public class ProductRestController implements IProductOperation {
 
-	private static final Logger LOGGER = LogManager.getLogger(ProductRestController.class);
+    private static final Logger LOGGER = LogManager.getLogger(ProductRestController.class);
 
-	@Autowired
-	private IProductService productService;
+    @Autowired
+    private IProductService productService;
 
-	@Override
-	public ResponseEntity<ProductResponseDTO> save(ProductDTO productDTO, Long idSubsidiary) {
+    @Override
+    public ResponseEntity<ProductResponseDTO> save(ProductDTO productDTO, Long idSubsidiary) {
 
-		LOGGER.info("Producto guardar: " + productDTO.getProductInformationDTOs().size());
-		try {
+        LOGGER.info("Producto guardar: " + productDTO.getProductInformationDTOs().size());
+        try {
 
-			ProductResponseDTO productDTOSaved = productService.save(productDTO, idSubsidiary);
+            ProductResponseDTO productDTOSaved = productService.save(productDTO, idSubsidiary);
 
-			return new ResponseEntity<ProductResponseDTO>(productDTOSaved, HttpStatus.CREATED);
+            return new ResponseEntity<ProductResponseDTO>(productDTOSaved, HttpStatus.CREATED);
 
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
-	@Override
-	public ResponseEntity<ProductResponseDTO> findById(Long id) {
+    @Override
+    public ResponseEntity<ProductResponseDTO> findById(Long id) {
 
-		ProductResponseDTO productDTOSaved = productService.findById(id);
+        ProductResponseDTO productDTOSaved = productService.findById(id);
 
-		return  ResponseEntity.ok(productDTOSaved);
-	}
+        return ResponseEntity.ok(productDTOSaved);
+    }
 
-	@Override
-	public ResponseEntity<List<ProductResponseDTO>> findAllByIdSubsidiary(Long id) {
+    @Override
+    public ResponseEntity<ProductResponseDTO> findByCodePrivate(String codigo) {
 
-		try {
-			List<ProductResponseDTO> productDTOS = productService.findAll(id);
 
-			return  ResponseEntity.ok(productDTOS);
+        try {
+            ProductResponseDTO productfind= productService.findByCodePrivate(codigo);
+            return ResponseEntity.ok(productfind);
 
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
-	@Override
-	public ResponseEntity<String> deleteById(Long id) {
+    @Override
+    public ResponseEntity<List<ProductResponseDTO>> findAllByIdSubsidiary(Long id) {
 
-		LOGGER.info("Id producto eliminar: " + id);
+        try {
+            List<ProductResponseDTO> productDTOS = productService.findAll(id);
 
-		try {
+            return ResponseEntity.ok(productDTOS);
 
-			String smsResponse = productService.deleteById(id);
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
-			return new ResponseEntity<String>(smsResponse, HttpStatus.NO_CONTENT);
+    @Override
+    public ResponseEntity<String> deleteById(Long id) {
 
-		} catch (NotDataAccessException e) {
+        LOGGER.info("Id producto eliminar: " + id);
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+        try {
 
-	}
+            String smsResponse = productService.deleteById(id);
 
-	@Override
-	public ResponseEntity<ProductResponseDTO> update(ProductDTO productDTO, Long id) {
-		LOGGER.info("Id producto actualizar: " + id);
+            return new ResponseEntity<String>(smsResponse, HttpStatus.NO_CONTENT);
 
-		try {
+        } catch (NotDataAccessException e) {
 
-			ProductResponseDTO productDTOUpdated = productService.update(productDTO, id);
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-			return ResponseEntity.ok(productDTOUpdated);
+    }
 
-		} catch (NotDataAccessException e) {
+    @Override
+    public ResponseEntity<ProductResponseDTO> update(ProductDTO productDTO, Long id) {
+        LOGGER.info("Id producto actualizar: " + id);
 
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
+        try {
 
-	@Override
-	public ResponseEntity<List<ProductInformationDTO>> findProducInformation(Long id) {
+            ProductResponseDTO productDTOUpdated = productService.update(productDTO, id);
 
-		try {
+            return ResponseEntity.ok(productDTOUpdated);
 
-			List<ProductInformationDTO> productInformationDTOs = productService.findProductInforAll(id);
+        } catch (NotDataAccessException e) {
 
-			return ResponseEntity.ok(productInformationDTOs);
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
+    @Override
+    public ResponseEntity<List<ProductInformationDTO>> findProducInformation(Long id) {
 
-		}
-	}
+        try {
 
-	@Override
-	public ResponseEntity<String> deleteProductInformation(Long id, Long idDetails) {
+            List<ProductInformationDTO> productInformationDTOs = productService.findProductInforAll(id);
 
-		try {
+            return ResponseEntity.ok(productInformationDTOs);
 
-			String response = productService.deleteProductInfoById(id, idDetails);
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
 
-			return new ResponseEntity<String>(response, HttpStatus.NO_CONTENT);
+        }
+    }
 
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
+    @Override
+    public ResponseEntity<String> deleteProductInformation(Long id, Long idDetails) {
 
-	@Override
-	public ResponseEntity<String> deleteProductInformationAll(Long id) {
-		try {
+        try {
 
-			String response = productService.deleteProductInfoAllById(id);
+            String response = productService.deleteProductInfoById(id, idDetails);
 
-			return new ResponseEntity<String>(response, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<String>(response, HttpStatus.NO_CONTENT);
 
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
-	@Override
-	public ResponseEntity<ProductInformationDTO> updateProInformation(ProductInformationDTO productInformationDTO,
-			Long id) {
+    @Override
+    public ResponseEntity<String> deleteProductInformationAll(Long id) {
+        try {
 
-		try {
+            String response = productService.deleteProductInfoAllById(id);
 
-			ProductInformationDTO productInformationDTOUpdate = productService.updateProductInfo(productInformationDTO,
-					id);
+            return new ResponseEntity<String>(response, HttpStatus.NO_CONTENT);
 
-			return ResponseEntity.ok(productInformationDTOUpdate);
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
+    @Override
+    public ResponseEntity<ProductInformationDTO> updateProInformation(ProductInformationDTO productInformationDTO,
+                                                                      Long id) {
 
-	@Override
-	public ResponseEntity<List<ProductResponseDTO>> searchByCodeAndName(Long id, String filtro) {
-		try {
-			List<ProductResponseDTO> productDTOS = productService.searchByCodeAndName(filtro, id);
+        try {
 
-			return ResponseEntity.ok(productDTOS);
+            ProductInformationDTO productInformationDTOUpdate = productService.updateProductInfo(productInformationDTO,
+                    id);
 
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
+            return ResponseEntity.ok(productInformationDTOUpdate);
+
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<ProductResponseDTO>> searchByCodeAndName(Long id, String filtro) {
+        try {
+            List<ProductResponseDTO> productDTOS = productService.searchByCodeAndName(filtro, id);
+
+            return ResponseEntity.ok(productDTOS);
+
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
 
 }

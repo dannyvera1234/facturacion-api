@@ -18,6 +18,9 @@ public interface IProductOperation {
 	@GetMapping("/products/{id}")
 	ResponseEntity<ProductResponseDTO> findById(@PathVariable Long id);
 
+	@GetMapping("/products/search")
+	ResponseEntity<ProductResponseDTO> findByCodePrivate(@RequestParam("codigo") String  codigo);
+
 	@GetMapping("/subsidiarys/{id}/products")
 	ResponseEntity<List<ProductResponseDTO>> findAllByIdSubsidiary(@PathVariable Long id);
 

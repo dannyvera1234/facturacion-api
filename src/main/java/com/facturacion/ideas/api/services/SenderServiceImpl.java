@@ -52,14 +52,15 @@ public class SenderServiceImpl implements ISenderService {
 		try {
 
 			Count count = countRepository.findById(idCount).orElseThrow(() -> new NotFoundException(
-					"id cuenta: " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+					"Cuenta " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
 			// Setar el ruc de la cuenta
 			senderNewDTO.setRuc(count.getRuc());
 
 			// Verificar si ya existe un emisor con el Ruc
-			if (senderRepository.senderIsExist(senderNewDTO.getRuc()).isEmpty()) {
+			if (!senderRepository.existsByRuc(senderNewDTO.getRuc())) {
 
+				// Es
 				Optional<Integer> numberMax = codeDocumentService.findNumberMaxByIdCount(idCount);
 
 				Integer numberNext = AdminSubsidiary.getNumberNextSubsidiary(numberMax.orElse(null));
@@ -90,14 +91,13 @@ public class SenderServiceImpl implements ISenderService {
 			}
 
 			throw new DuplicatedResourceException(
-					"ruc: " + senderNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+					"Ruc " + senderNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 
 		} catch (DataAccessException e) {
 
 			LOGGER.info("Error guardar emisor", e);
 			throw new NotDataAccessException("Error guardar emisor: " + e.getMessage());
 		}
-
 	}
 
 	@Override

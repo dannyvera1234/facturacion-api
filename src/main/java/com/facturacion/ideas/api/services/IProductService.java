@@ -16,6 +16,8 @@ public interface IProductService {
 
 	ProductResponseDTO findById(Long ide);
 
+	ProductResponseDTO findByCodePrivate(String codePrivate);
+
 	List<ProductResponseDTO> findAll(Long idSubsidiary);
 
 	String deleteById(Long ide);
