@@ -2,6 +2,9 @@ package com.facturacion.ideas.api.services;
 
 import java.text.ParseException;
 import java.util.List;
+
+import com.facturacion.ideas.api.exeption.BadRequestException;
+import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,196 +31,180 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 @Service
 public class EmissionPointServiceImpl implements IEmissionPointService {
 
-	private static final Logger LOGGER = LogManager.getLogger(SenderServiceImpl.class);
-	@Autowired
-	private IEmissionPointRepository emissionPointRepository;
+    private static final Logger LOGGER = LogManager.getLogger(SenderServiceImpl.class);
+    @Autowired
+    private IEmissionPointRepository emissionPointRepository;
 
-	@Autowired
-	private ISubsidiaryRepository subsidiaryRepository;
+    @Autowired
+    private ISubsidiaryRepository subsidiaryRepository;
 
-	@Autowired
-	private ICodeDocumentRepository codeDocumentRepository;
+    @Autowired
+    private ICodeDocumentRepository codeDocumentRepository;
 
-	@Autowired
-	private IEmissionPointMapper emissionPointMapper;
+    @Autowired
+    private IEmissionPointMapper emissionPointMapper;
 
-	@Autowired
-	private IEmployeeRepository employeeRepository;
+    @Autowired
+    private IEmployeeRepository employeeRepository;
 
-	@Override
-	@Transactional
-	public EmissionPointResponseDTO save(EmissionPointNewDTO emissionPointNewDTO, Long idSubsidiary) {
+    @Override
+    @Transactional
+    public EmissionPointResponseDTO save(EmissionPointNewDTO emissionPointNewDTO, Long idSubsidiary) {
 
-		try {
+        try {
 
-			Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
-					"id establecimiento: " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            if (emissionPointNewDTO.getCodePoint() == null) {
+                throw new BadRequestException("El codigo de punto emision no puede ser vacio");
+            }
 
-			Count count = subsidiary.getSender().getCount();
+            if (emissionPointNewDTO.getCodePoint().matches("[0-9]{3}")) {
 
-			// Consultar en CodeDocument , el registro del establecimiento consultado pero
-			// que tenga el id de Cuenta
+                Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
+                        "Establecimiento ide: " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			// codigo del establecimiento al cual se desea agregar un nuevo punto de emision
-			String codeSubsidiary = subsidiary.getCode();
+                // Validar si el nuevo punto de emision ya esta registrado en el establecimiento
 
-			// Obtiene el codigo de la cuenta a la que pertenece el Establecimiento
-			// consultado
-			Long codeCount = count.getIde();
+                if (!emissionPointRepository.existsByCodePointAndSubsidiaryIde(emissionPointNewDTO.getCodePoint(),
+                        subsidiary.getIde())) {
+                    String codeSubsidiary = subsidiary.getCode();
 
-			// Obtiene el registro de CodeDocument, para poder obtener el numero
-			// de punto de emision del establecimiento y poder generar el siguiente
-			// secuencial
-			CodeDocument codeDocument = codeDocumentRepository
-					.findByCodeCountAndCodeSubsidiary(codeCount, codeSubsidiary)
-					.orElseThrow(() -> new NotFoundException(
-							"numero-emision: " + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+                    // Crear el EmissionPoint
+                    EmissionPoint emissionPoint = AdminEmissionPoint.create(emissionPointNewDTO.getCodePoint());
+                    emissionPoint.setStatus(emissionPointNewDTO.isStatus());
+                    emissionPoint.setKeyPoint(codeSubsidiary + "-" + emissionPoint.getCodePoint());
 
-			// Crear el EmissionPoint
-			EmissionPointNewDTO emissionPointSavedDTO = AdminEmissionPoint
-					.createEmissionPointNewDTO(codeDocument.getNumEmissionPoint(), count.getRuc());
+                    emissionPoint.setSubsidiary(subsidiary);
 
-			emissionPointSavedDTO.setStatus(emissionPointNewDTO.isStatus());
+                    // Aqui consultar el empleado y si existe agregarlo al punto emision
+                    Long idEmpleado = emissionPointNewDTO.getIdEmployee();
 
-			EmissionPoint emissionPoint = emissionPointMapper.mapperToEntity(emissionPointSavedDTO);
-			emissionPoint.setSubsidiary(subsidiary);
+                    if (idEmpleado != null) {
+                        // Asignar empelado al punto emision
+                        emissionPoint.setEmployee(employeeRepository.findById(idEmpleado)
+                                .orElseThrow(() -> new NotFoundException("Empleado id: " + idEmpleado + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+                    }
 
-			// Aqui consultar el empleado y si existe agregarlo al punto emision
-			Long idEmpleado = emissionPointNewDTO.getIdEmployee();
+                    EmissionPoint emissionPointSaved = emissionPointRepository.save(emissionPoint);
+                    return emissionPointMapper.mapperToDTO(emissionPointSaved);
+                }
+                throw new DuplicatedResourceException("Punto emisión " + emissionPointNewDTO.getCodePoint() + " ya esta registradoe en el establecimiento " + subsidiary.getCode());
 
-			if (idEmpleado != null) {
 
-				// Asignar empelado al punto emision
-				emissionPoint.setEmployee(employeeRepository.findById(idEmpleado)
-						.orElseThrow(() -> new NotFoundException("Empleado id: " + idEmpleado + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+            }
 
-			}
+            throw new BadRequestException("El formato de punto emision " + emissionPointNewDTO.getCodePoint() + " es incorrecto, deber ser ejemplo: 009");
 
-			EmissionPoint emissionPointSaved = emissionPointRepository.save(emissionPoint);
 
-			// Actualizar el numero secuencial del punto Emision del establecimiento
-			codeDocument.setNumEmissionPoint(codeDocument.getNumEmissionPoint() + 1);
+        } catch (DataAccessException e) {
 
-			codeDocumentRepository.save(codeDocument);
+            LOGGER.error("Error guardar punto emision: ", e);
+            throw new NotDataAccessException("Error guardar ounto emision: " + e.getMessage());
 
-			return emissionPointMapper.mapperToDTO(emissionPointSaved);
+        }
 
-		} catch (DataAccessException | ParseException e) {
+    }
 
-			LOGGER.error("Error guardar punto emision: ", e.getMessage());
-			throw new NotDataAccessException("Error guardar ounto emision: " + e.getMessage());
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
 
-		}
+        try {
 
-	}
+            EmissionPoint emissionPoint = emissionPointRepository.findById(id).orElseThrow(
 
-	@Override
-	@Transactional
-	public void deleteById(Long id) {
+                    () -> new NotFoundException(
+                            "Id  punto emision: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            emissionPointRepository.deleteById(emissionPoint.getIde());
 
-		try {
+            // Plz que no se elimina ninguna dato de
+        } catch (DataAccessException e) {
+            LOGGER.error("Error eliminar punttos emission", e);
+            throw new NotDataAccessException("Error eliminar punto emmision" + e.getMessage());
+        }
 
-			EmissionPoint emissionPoint = emissionPointRepository.findById(id).orElseThrow(
+    }
 
-					() -> new NotFoundException(
-							"Id  punto emision: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-			emissionPointRepository.deleteById(emissionPoint.getIde());
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmissionPointResponseDTO> listAll(Long idSubsidiary) {
 
-			// Plz que no se elimina ninguna dato de
-		} catch (DataAccessException e) {
-			LOGGER.error("Error eliminar punttos emission");
-			throw new NotDataAccessException("Error eliminar punto emmision" + e.getMessage());
-		}
+        try {
+            List<EmissionPoint> emissionPoints = emissionPointRepository.findALlBySubsidiaryIde(idSubsidiary);
+            return emissionPointMapper.mapperToDTO(emissionPoints);
 
-	}
+        } catch (DataAccessException e) {
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<EmissionPointResponseDTO> listAll(Long idSubsidiary) {
+            LOGGER.error("Error listar punttos emission esttableccimiento", e);
+            throw new NotDataAccessException("Error lisstar puntoss emmiion establecimientto: " + e.getMessage());
+        }
 
-		try {
+    }
 
-			Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
-					"Id esablecimiento: " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+    @Override
+    @Transactional(readOnly = true)
+    public EmissionPointResponseDTO findByCodeAndSubsidiary(String code, Long idSubsidiary) {
 
-			List<EmissionPoint> emissionPoints = subsidiary.getEmissionPoints();
+        try {
+            Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
+                    "Id esablecimiento: " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			return emissionPointMapper.mapperToDTO(emissionPoints);
+            EmissionPoint emissionPoint = emissionPointRepository.findByCodePointAndSubsidiary(code, subsidiary);
 
-		} catch (DataAccessException e) {
+            return emissionPointMapper.mapperToDTO(emissionPoint);
 
-			LOGGER.error("Error listar punttos emission esttableccimiento");
-			throw new NotDataAccessException("Error lisstar puntoss emmiion establecimientto: " + e.getMessage());
-		}
+        } catch (DataAccessException e) {
 
-	}
+            LOGGER.error("Error buscar puntos emission esttableccimiento", e);
+            throw new NotDataAccessException("Error buscaar puntos emmission establecimientto: " + e.getMessage());
+        }
 
-	@Override
-	@Transactional(readOnly = true)
-	public EmissionPointResponseDTO findByCodeAndSubsidiary(String code, Long idSubsidiary) {
+    }
 
-		try {
-			Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
-					"Id esablecimiento: " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+    @Override
+    @Transactional(readOnly = true)
+    public EmissionPointResponseDTO findById(Long ide) {
+        try {
 
-			EmissionPoint emissionPoint = emissionPointRepository.findByCodePointAndSubsidiary(code, subsidiary);
-			;
+            EmissionPoint emissionPoint = emissionPointRepository.findById(ide).orElseThrow(
 
-			return emissionPointMapper.mapperToDTO(emissionPoint);
+                    () -> new NotFoundException(
+                            "Id  punto emision: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            ;
 
-		} catch (DataAccessException e) {
+            return emissionPointMapper.mapperToDTO(emissionPoint);
 
-			LOGGER.error("Error buscar puntos emission esttableccimiento");
-			throw new NotDataAccessException("Error buscaar puntos emmission establecimientto: " + e.getMessage());
-		}
+        } catch (DataAccessException e) {
 
-	}
+            LOGGER.error("Error buscar puntos emission", e);
+            throw new NotDataAccessException("Error buscaar puntos emmission: " + e.getMessage());
+        }
 
-	@Override
-	@Transactional(readOnly = true)
-	public EmissionPointResponseDTO findById(Long ide) {
-		try {
+    }
 
-			EmissionPoint emissionPoint = emissionPointRepository.findById(ide).orElseThrow(
+    @Override
+    public EmissionPointResponseDTO update(EmissionPointNewDTO emissionPointNewDTO, Long id) {
 
-					() -> new NotFoundException(
-							"Id  punto emision: " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-			;
+        try {
 
-			return emissionPointMapper.mapperToDTO(emissionPoint);
+            EmissionPoint emissionPoint = emissionPointRepository.findById(id).orElseThrow(
 
-		} catch (DataAccessException e) {
+                    () -> new NotFoundException(
+                            "Id  punto emision: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			LOGGER.error("Error buscar puntos emission");
-			throw new NotDataAccessException("Error buscaar puntos emmission: " + e.getMessage());
-		}
+            // Del punto emsion solo actualizamos el estado
 
-	}
+            emissionPoint.setStatus(emissionPointNewDTO.isStatus());
 
-	@Override
-	public EmissionPointResponseDTO update(EmissionPointNewDTO emissionPointNewDTO, Long id) {
+            EmissionPoint emissionPointUpdated = emissionPointRepository.save(emissionPoint);
 
-		try {
+            return emissionPointMapper.mapperToDTO(emissionPointUpdated);
 
-			EmissionPoint emissionPoint = emissionPointRepository.findById(id).orElseThrow(
+        } catch (DataAccessException e) {
 
-					() -> new NotFoundException(
-							"Id  punto emision: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            LOGGER.error("Error actualizar punto emission", e);
+            throw new NotDataAccessException("Error actualizar punto emmission: " + e.getMessage());
+        }
 
-			// Del punto emsion solo actualizamos el estado
-
-			emissionPoint.setStatus(emissionPointNewDTO.isStatus());
-
-			EmissionPoint emissionPointUpdated = emissionPointRepository.save(emissionPoint);
-
-			return emissionPointMapper.mapperToDTO(emissionPointUpdated);
-
-		} catch (DataAccessException e) {
-
-			LOGGER.error("Error actualizar punto emission");
-			throw new NotDataAccessException("Error actualizar punto emmission: " + e.getMessage());
-		}
-
-	}
+    }
 
 }

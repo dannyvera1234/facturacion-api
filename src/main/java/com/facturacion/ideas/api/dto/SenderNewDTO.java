@@ -45,6 +45,8 @@ public class SenderNewDTO implements Serializable {
 
 	private List<EmailSenderNewDTO> emailSenderNewDTOList = new ArrayList<>();
 
+	private String subsidiary;
+
 	public SenderNewDTO() {
 	}
 
@@ -190,12 +192,20 @@ public class SenderNewDTO implements Serializable {
 		this.emailSenderNewDTOList = emailSenderNewDTOList;
 	}
 
+	public String getSubsidiary() {
+		return subsidiary;
+	}
+
+	public void setSubsidiary(String subsidiary) {
+		this.subsidiary = subsidiary;
+	}
+
 	@Override
 	public String toString() {
 		return "SenderNewDTO [ide=" + ide + ", ruc=" + ruc + ", socialReason=" + socialReason + ", commercialName="
 				+ commercialName + ", matrixAddress=" + matrixAddress + ", specialContributor=" + specialContributor
 				+  "retentionAgent" + retentionAgent+", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
-				+ ", typeEnvironment=" + typeEnvironment.getCode() + ", typeEmission=" + typeEmission.getCode() + ", rimpe=" + rimpe
+				+ ", typeEnvironment=" + typeEnvironment.getCode() + ", subsidiary= " + subsidiary+  ", typeEmission=" + typeEmission.getCode() + ", rimpe=" + rimpe
 				+ ", province=" + province.getName() + "]";
 	}
 	

@@ -10,75 +10,72 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 
 public class AdminEmissionPoint {
 
-	/**
-	 * Crear un nuevo {@link EmissionPoint}}
-	 * 
-	 * @param numberNext : Valor entero que corresponde al numero secuencial para el
-	 *                   punto emision. </br>
-	 *                   Si {@link numberNext} es null, indica que es el primer
-	 *                   {@link EmissionPoint} del establecimiento
-	 * @param rucSender  : EL ruc de Sender que es dueña del establecimiento, se
-	 *                   utilizara para generar la clave del EmissionPoint
-	 * @return
-	 */
-	public static EmissionPoint create(Integer numberNext, String rucSender) {
+    /**
+     * Crear un nuevo {@link EmissionPoint}}
+     *
+     * @param numberNext : Valor entero que corresponde al numero secuencial para el
+     *                   punto emision. </br>
+     *                   Si {@link numberNext} es null, indica que es el primer
+     *                   {@link EmissionPoint} del establecimiento
+     * @param rucSender  : EL ruc de Sender que es dueña del establecimiento, se
+     *                   utilizara para generar la clave del EmissionPoint
+     * @return
+     */
+    public static EmissionPoint create(Integer numberNext, String rucSender) {
 
-		EmissionPoint emissionPoint = new EmissionPoint();
+        EmissionPoint emissionPoint = new EmissionPoint();
 
-		numberNext = getNumberNextEmissionPoint(numberNext);
+        numberNext = getNumberNextEmissionPoint(numberNext);
 
-		emissionPoint.setCodePoint(getCodEmissionPoint(numberNext));
-		emissionPoint.setDateRegister(new Date());
-		emissionPoint.setKeyPoint(rucSender + "_" + emissionPoint.getCodePoint());
-		emissionPoint.setStatus(true);
+        emissionPoint.setCodePoint(getCodEmissionPoint(numberNext));
+        emissionPoint.setDateRegister(new Date());
+        emissionPoint.setKeyPoint(rucSender + "_" + emissionPoint.getCodePoint());
+        emissionPoint.setStatus(true);
 
-		return emissionPoint;
-	}
+        return emissionPoint;
+    }
 
-	public static EmissionPointNewDTO createEmissionPointNewDTO(Integer numberNext, String rucSender) {
+    /**
+     * Funcion que genera el codigo para un nuevo punto de emision .Si
+     * numEmissionPoint es null ubicara el valor por defecto de
+     * {@link com.facturacion.ideas.api.util.ConstanteUtil#COD_DEFAULT_EMISSION_POINT}
+     *
+     * @param numEmissionPoint : numero de punto emision a generar
+     * @return :
+     */
+    private static String getCodEmissionPoint(Integer numEmissionPoint) {
 
-		EmissionPointNewDTO emissionPointNewDTO = new EmissionPointNewDTO();
+        if (numEmissionPoint != null) {
 
-		numberNext = getNumberNextEmissionPoint(numberNext);
+            String codGenerar = null;
 
-		emissionPointNewDTO.setCodePoint(getCodEmissionPoint(numberNext));
-		emissionPointNewDTO.setDateRegister(FunctionUtil.convertDateToString(Calendar.getInstance().getTime()));
-		emissionPointNewDTO.setKeyPoint(rucSender + "_" + emissionPointNewDTO.getCodePoint());
-		//emissionPointNewDTO.setStatus(true);
-		return emissionPointNewDTO;
-	}
+            if (numEmissionPoint < 10)
+                codGenerar = "00" + numEmissionPoint;
+            else if (numEmissionPoint >= 10 && numEmissionPoint < 100)
+                codGenerar = "0" + numEmissionPoint;
 
-	/**
-	 * Funcion que genera el codigo para un nuevo punto de emision .Si
-	 * numEmissionPoint es null ubicara el valor por defecto de
-	 * {@link com.facturacion.ideas.api.util.ConstanteUtil#COD_DEFAULT_EMISSION_POINT}
-	 * 
-	 * @param numEmissionPoint : numero de punto emision a generar
-	 * @return :
-	 */
-	private static String getCodEmissionPoint(Integer numEmissionPoint) {
+            else
+                codGenerar = "" + numEmissionPoint;
 
-		if (numEmissionPoint != null) {
+            return codGenerar;
+        }
+        return ConstanteUtil.COD_DEFAULT_EMISSION_POINT;
 
-			String codGenerar = null;
+    }
 
-			if (numEmissionPoint < 10)
-				codGenerar = "00" + numEmissionPoint;
-			else if (numEmissionPoint >= 10 && numEmissionPoint < 100)
-				codGenerar = "0" + numEmissionPoint;
+    public static EmissionPoint create(String codePoint) {
 
-			else
-				codGenerar = "" + numEmissionPoint;
+        EmissionPoint emissionPoint = new EmissionPoint();
+        emissionPoint.setCodePoint(codePoint);
+        emissionPoint.setDateRegister(new Date());;
+        emissionPoint.setStatus(false);
+        return emissionPoint;
+    }
 
-			return codGenerar;
-		}
-		return ConstanteUtil.COD_DEFAULT_EMISSION_POINT;
 
-	}
+    private static Integer getNumberNextEmissionPoint(Integer numberNext) {
 
-	private static Integer getNumberNextEmissionPoint(Integer numberNext) {
-
-		return numberNext == null ? 1 : (numberNext + 1);
-	}
+        return numberNext == null ? 1 : (numberNext + 1);
+    }
 
 }

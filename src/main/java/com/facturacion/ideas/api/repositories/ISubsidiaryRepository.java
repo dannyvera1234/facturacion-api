@@ -40,5 +40,7 @@ public interface ISubsidiaryRepository extends JpaRepository<Subsidiary, Long> {
 
 	@Query("select sub from Subsidiary sub left  join  fetch  sub.emissionPoints where  sub.sender.ruc = :ruc")
 	List<Subsidiary> fetchSubsidiaryAndEmissionPointsByRuc(@Param("ruc") String ruc);
-	
+
+	Boolean existsByCodeAndSenderIde(String code, Long ide);
+
 }

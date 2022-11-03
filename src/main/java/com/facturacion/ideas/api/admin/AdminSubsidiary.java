@@ -2,6 +2,7 @@ package com.facturacion.ideas.api.admin;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.dto.SubsidiaryNewDTO;
@@ -12,35 +13,6 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 
 public class AdminSubsidiary {
 
-	/**
-	 * Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento,
-	 * automaticamente se creará el primer punto de emisión para este
-	 * Establecimiento. Este metodo es llamado solo cuando se crea un nuevo Sender
-	 * 
-	 * @param sender
-	 * @param idCount
-	 * @param numberNext
-	 * @return : Un objeto {@link Subsidiary}
-	 */
-	public static Subsidiary create(SenderNewDTO sender, Integer numberNext) {
-
-		Subsidiary subsidiary = new Subsidiary();
-
-		String codSubsidiary = getCodSubsidiary(numberNext);
-
-		subsidiary.setCode(codSubsidiary);
-		subsidiary.setAddress(sender.getMatrixAddress());
-		subsidiary.setDateCreate(new Date());
-		subsidiary.setPrincipal(numberNext == 1);
-		subsidiary.setStatus(true);
-		subsidiary.setSocialReason(sender.getSocialReason());
-
-		// Crear el primer Punto de emision y agregar al establecimiento recien creado
-		// Pasamos Null para que valide como el primer punto de emision de este
-		// establecimiento
-		subsidiary.addEmissionPoint(AdminEmissionPoint.create(null, sender.getRuc()));
-		return subsidiary;
-	}
 
 	/**
 	 * Crea un nuevo Establecimiento, cuando se crea un nuevo Establecimiento,
@@ -51,7 +23,6 @@ public class AdminSubsidiary {
 	 * 
 	 * @param subsidiaryNewDTO
 	 * @param sender
-	 * @param idCount
 	 * @param numberNext
 	 */
 	public static void createOther(SubsidiaryNewDTO subsidiaryNewDTO, Sender sender, Integer numberNext) {
@@ -108,6 +79,39 @@ public class AdminSubsidiary {
 	public static Integer getNumberNextSubsidiary(Integer numberMax) {
 
 		return numberMax == null ? 1 : (numberMax + 1);
+	}
+
+	public static boolean  isValidFormat(String subsidiaryAndPointEmission){
+
+		if (subsidiaryAndPointEmission !=null){
+
+			Pattern pat = Pattern.compile("[0-9]{3}-[0-9]{3}");
+
+			return  pat.matcher(subsidiaryAndPointEmission).matches();
+		}
+
+		return  false;
+	}
+
+
+	public static Subsidiary create(SenderNewDTO sender, String codSubsidiary) {
+
+		Subsidiary subsidiary = new Subsidiary();
+		subsidiary.setCode(codSubsidiary);
+		subsidiary.setAddress(sender.getMatrixAddress());
+		subsidiary.setDateCreate(new Date());
+		subsidiary.setPrincipal(true);
+		subsidiary.setStatus(true);
+		subsidiary.setSocialReason(sender.getSocialReason());
+
+		return subsidiary;
+	}
+	public static String[]  numberSubsidiaryAndEmissionPoint(String subsidiaryAndPointEmission){
+		if (subsidiaryAndPointEmission !=null){
+
+			return  subsidiaryAndPointEmission.split("-");
+		}
+		return  null;
 	}
 
 }
