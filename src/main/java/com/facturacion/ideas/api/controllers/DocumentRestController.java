@@ -1,6 +1,7 @@
 package com.facturacion.ideas.api.controllers;
 
 import com.facturacion.ideas.api.entities.Product;
+import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
 import com.facturacion.ideas.api.repositories.IProductRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +44,8 @@ public class DocumentRestController {
 		} catch (NotDataAccessException e) {
 			
 			throw new NotDataAccessException(e.getMessage());
+		}catch (GenerateXMLExeption e){
+			throw new GenerateXMLExeption(e.getMessage());
 		}
 	}
 

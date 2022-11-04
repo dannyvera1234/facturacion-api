@@ -10,6 +10,7 @@ import com.facturacion.ideas.api.documents.factura.Factura;
 import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.exeption.BadRequestException;
+import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
 import com.facturacion.ideas.api.repositories.*;
 import com.facturacion.ideas.api.util.ArchivoUtils;
 import com.facturacion.ideas.api.util.PathDocuments;
@@ -62,8 +63,7 @@ public class DocumentServiceImpl implements IDocumentService {
     public InvoiceResposeDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
         try {
 
-            // Buscar Punto de Emision de la factura
-            EmissionPoint emissionPoint = emissionPointRepository.findById(invoiceNewDTO.getIdEmissionPoint())
+            EmissionPoint emissionPoint = emissionPointRepository.fechtSubsidiaryToSender(invoiceNewDTO.getIdEmissionPoint())
                     .orElseThrow(() -> new NotFoundException("Punto Emisión id " + invoiceNewDTO.getIdEmissionPoint()
                             + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
@@ -99,7 +99,7 @@ public class DocumentServiceImpl implements IDocumentService {
             // Tipo de emision
             invoiceNewDTO.setTypoEmision(sender.getTypeEmission());
 
-            String keyAccess = AdminDocument.generateKeyAcces(invoiceNewDTO, sender, subsidiary, emissionPoint);
+            String keyAccess = AdminDocument.generateKeyAcces(invoiceNewDTO,  emissionPoint);
 
             LOGGER.info("Clave acceso documento: " + keyAccess + " Longitud : " + keyAccess.length());
 
@@ -126,73 +126,22 @@ public class DocumentServiceImpl implements IDocumentService {
             if (invoiceNewDTO.getIdPerson() != null) {
 
                 // Buscar Persona(cliente o Transportista) y asignar a al Factura
-                invoice.setPerson(personRepository.findById(invoiceNewDTO.getIdPerson())
-                        .orElseThrow(() -> new NotFoundException("Persona con id " + invoiceNewDTO.getIdPerson()
-                                + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
-
+                invoice.setPerson(new Person(personRepository.selectIdeByIde(invoiceNewDTO.getIdPerson()).orElseThrow(
+                        () -> new NotFoundException("Cliente con ide " + invoiceNewDTO.getIdPerson() + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)
+                )));
                 // Asgino null, que representa a consumidor final
             } else
                 invoice.setPerson(null);
 
+
+            // Primero generar el documento xml de la factura, si todo va bien, persisto la factura en la bd
+            AdminInvoice.guardarfacturaXML(invoice, emissionPoint);
+
             // Persistir la factura
             Invoice invoiceSaved = invoiceRepository.save(invoice);
 
-            // Actualizar datos del numero secuencial del documento generado
-            InvoiceNumber invoiceNumber = new InvoiceNumber();
-            invoiceNumber.setSubsidiary(subsidiary);
-            invoiceNumber.setCurrentSequentialNumber(numberSecuncial);
-            invoiceNumber.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(invoiceSaved.getTypeDocument()));
-
-            // Guardar
-            saveInvoiceNumber(invoiceNumber);
-
-            Factura factura = AdminInvoice.createFacturaXML(invoiceSaved, sender);
-
-            try {
-
-                String baseUrl = PathDocuments.PATH_BASE + "/" + sender.getRuc()
-                        + "/est_"+ subsidiary.getCode()+"/emi_"+ emissionPoint.getCodePoint();
-                File file = new File(baseUrl);
-
-                if (!file.exists()){
-                    file.mkdirs();
-                }
-
-                 String pathArchivo = file.getAbsolutePath() + "/" + invoiceSaved.getTypeDocument() + "_" + invoiceSaved.getNumberAutorization() + "_" + FunctionUtil.convertDateToString(invoiceSaved.getDateEmission());
-                boolean genearXML = ArchivoUtils.realizarMarshall(factura, pathArchivo);
-                // Verificar si el emisor ya tiene registrado un directorio
-                /*if (!file.exists()) {
-                    if (file.mkdir()) {
-
-                        // Ruta del directorio principal del emisor
-                        String pathAbsolute = file.getAbsolutePath();
-
-                        // Crear directorio para el establecimiento
-                        String pathSubsidiary = pathAbsolute + "/est_" + subsidiary.getCode();
-
-                        File fileSubsidiary = new File(pathSubsidiary);
-
-                        // Directorio para el establecimiento
-                        fileSubsidiary.mkdir();
-
-                        String pathEmissionPoint = fileSubsidiary.getAbsolutePath() + "/emi_" + emissionPoint.getCodePoint();
-
-                        File fileEmissionPoint = new File(pathEmissionPoint);
-                        fileEmissionPoint.mkdir();
-
-                        String pathArchivos = fileEmissionPoint.getAbsolutePath();
-
-                        pathArchivos += "/" + invoiceSaved.getTypeDocument() + "_" + invoiceSaved.getNumberAutorization() + "_" + FunctionUtil.convertDateToString(invoiceSaved.getDateEmission());
-
-                        boolean genearXML = ArchivoUtils.realizarMarshall(factura, pathArchivos);
-                    } else LOGGER.info("Path:" + file.getAbsolutePath());
-                }*/
-
-
-            } catch (Exception e) {
-                LOGGER.info("Error  : " + e.getMessage());
-            }
-
+            // Actualizar contador de documetos
+            saveInvoiceNumber(AdminDocument.createInvoiceNumber(subsidiary, numberSecuncial, invoiceSaved.getTypeDocument()));
 
             return documentMapper.mapperToDTO(invoiceSaved);
 
@@ -203,6 +152,9 @@ public class DocumentServiceImpl implements IDocumentService {
 
             LOGGER.error("Error al foramto fecha guardar factura", e);
             throw new NotDataAccessException("Error, formato de fechas de factura es incorrecto");
+        }catch (GenerateXMLExeption e){
+            LOGGER.error(e.getMessage(), e);
+            throw new GenerateXMLExeption( e.getMessage());
         }
     }
 
@@ -228,22 +180,21 @@ public class DocumentServiceImpl implements IDocumentService {
 
     @Override
     @Transactional
-    public void saveInvoiceNumber(InvoiceNumber invoiceNumberCurrent) {
+    public void saveInvoiceNumber(InvoiceNumber invoiceNumber) {
 
         try {
-
             InvoiceNumber optionalInvoice = invoiceNumberRepository.findByTypeDocumentAndSubsidiary(
-                    invoiceNumberCurrent.getTypeDocument(), invoiceNumberCurrent.getSubsidiary()).orElse(null);
+                    invoiceNumber.getTypeDocument(), invoiceNumber.getSubsidiary()).orElse(null);
 
             // Indica que un nuevo tipo de documento del emisor
             if (optionalInvoice == null) {
 
                 // Nuevo registro
-                invoiceNumberRepository.save(invoiceNumberCurrent);
+                invoiceNumberRepository.save(invoiceNumber);
             } else {
 
                 // Indica que debe actualizar el numero de documento
-                optionalInvoice.setCurrentSequentialNumber(invoiceNumberCurrent.getCurrentSequentialNumber());
+                optionalInvoice.setCurrentSequentialNumber(invoiceNumber.getCurrentSequentialNumber());
 
                 // Actualizar
                 invoiceNumberRepository.save(optionalInvoice);

@@ -9,9 +9,13 @@ import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 import com.facturacion.ideas.api.enums.TypePorcentajeIvaEnum;
 import com.facturacion.ideas.api.enums.TypeTaxEnum;
 import com.facturacion.ideas.api.exeption.BadRequestException;
+import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
+import com.facturacion.ideas.api.util.ArchivoUtils;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
+import com.facturacion.ideas.api.util.PathDocuments;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +24,32 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdminInvoice {
+
+    public static boolean guardarfacturaXML(Invoice invoiceSaved, EmissionPoint emissionPoint) {
+        Subsidiary subsidiary = emissionPoint.getSubsidiary();
+        Sender sender = subsidiary.getSender();
+
+        try {
+            Factura factura = AdminInvoice.createFacturaXML(invoiceSaved, sender);
+
+            String baseUrl = PathDocuments.PATH_BASE + "/" + sender.getRuc()
+                    + "/est_" + subsidiary.getCode() + "/emi_" + emissionPoint.getCodePoint();
+            File file = new File(baseUrl);
+
+            if (!file.exists()) {
+
+                file.mkdirs();
+            }
+
+
+            String pathArchivo = file.getAbsolutePath() + "/" + invoiceSaved.getTypeDocument() + "_" + invoiceSaved.getNumberAutorization() + "_" + FunctionUtil.convertDateToString(invoiceSaved.getDateEmission());
+            return ArchivoUtils.realizarMarshall(factura, pathArchivo);
+
+        } catch (Exception e) {
+            throw new GenerateXMLExeption(e.getMessage());
+        }
+
+    }
 
 
     /**
@@ -318,7 +348,7 @@ public class AdminInvoice {
         infoFactura.setMoneda(ConstanteUtil.TEXT_DEFAULT_MODEDA);
 
 
-        List<TotalImpuesto> totalImpuestos= createTotalImpuestos(invoiceSaved);
+        List<TotalImpuesto> totalImpuestos = createTotalImpuestos(invoiceSaved);
 
         // aqui se guardara los  impuesto
         TotalConImpuestos totalConImpuestos = new TotalConImpuestos();

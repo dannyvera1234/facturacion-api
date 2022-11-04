@@ -53,6 +53,10 @@ public class Person implements Serializable {
 		initData();
 	}
 
+	public  Person(Long ide){
+		this.ide =ide;
+	}
+
 	public Person(Long ide, TypeIdentificationEnum typeIdentification, String numberIdentification, String socialReason, String email,
 			String address) {
 		super();
@@ -62,6 +66,7 @@ public class Person implements Serializable {
 		this.socialReason = socialReason;
 		this.email = email;
 		this.address = address;
+		initData();
 	}
 
 	private void initData() {

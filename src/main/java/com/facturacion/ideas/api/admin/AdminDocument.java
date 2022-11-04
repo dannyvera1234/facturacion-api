@@ -23,8 +23,11 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 
 public class AdminDocument {
 
-    public static String generateKeyAcces(InvoiceNewDTO invoiceNewDTO, Sender sender, Subsidiary subsidiary,
-                                          EmissionPoint emissionPoint) {
+    public static String generateKeyAcces(InvoiceNewDTO invoiceNewDTO
+            , EmissionPoint emissionPoint) {
+
+        Subsidiary subsidiary = emissionPoint.getSubsidiary();
+        Sender sender = subsidiary.getSender();
 
         // * 1) Fecha Actual
         String today = new SimpleDateFormat(ConstanteUtil.DATE_FORMAT_KEY_ACCESS)
@@ -58,7 +61,6 @@ public class AdminDocument {
 
         // * 8 Tipo emission
         String codeTypeEmission = invoiceNewDTO.getTypoEmision();
-        // invoiceNewDTO.setTypoEmision(squentialNumberDocument);
 
         String keyAccess = today + codeTypeDocument + ruc + codeTypeEnviroment + serie + squentialNumberDocument
                 + codeNumeric + codeTypeEmission;
@@ -132,7 +134,14 @@ public class AdminDocument {
 
     }
 
+    public static InvoiceNumber createInvoiceNumber(Subsidiary subsidiary, int curreSequencial, String typeDocument ){
+        InvoiceNumber invoiceNumber = new InvoiceNumber();
+        invoiceNumber.setSubsidiary(subsidiary);
+        invoiceNumber.setCurrentSequentialNumber(curreSequencial);
+        invoiceNumber.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(typeDocument));
 
+        return  invoiceNumber;
 
+    }
 
 }
