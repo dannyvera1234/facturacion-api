@@ -28,16 +28,13 @@ public class AdminInvoice {
      * @param invoiceSaved : La informacion de la factura guardada
      * @return : La factura que representara el XML
      */
-    public static Factura generarFactura(Invoice invoiceSaved, Sender sender) {
+    public static Factura createFacturaXML(Invoice invoiceSaved, Sender sender) {
 
         Factura factura = new Factura();
 
         factura.setInfoTributaria(createInfoTributaria(invoiceSaved, sender));
         factura.setInfoFactura(createInfoFactura(invoiceSaved));
-
         return factura;
-
-
     }
 
 

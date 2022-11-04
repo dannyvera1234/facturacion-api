@@ -46,7 +46,8 @@ public class ApiExceptionHandler {
             MissingPathVariableException.class,
             MissingServletRequestParameterException.class,
             KeyAccessException.class,
-            ViolectRestrictException.class
+            ViolectRestrictException.class,
+            GenerateXMLExeption.class
     })
     @ResponseBody
     public ErrorMessage badRequest(Exception exception) {

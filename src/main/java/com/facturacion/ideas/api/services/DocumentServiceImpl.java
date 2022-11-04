@@ -1,14 +1,18 @@
 package com.facturacion.ideas.api.services;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.admin.AdminInvoice;
+import com.facturacion.ideas.api.documents.factura.Factura;
 import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.repositories.*;
+import com.facturacion.ideas.api.util.ArchivoUtils;
+import com.facturacion.ideas.api.util.PathDocuments;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +70,9 @@ public class DocumentServiceImpl implements IDocumentService {
             // Consultar los productos del detalle
             List<Product> products = searchProductsDetailsByIds(invoiceNewDTO.
                     getDeatailsInvoiceProductDTOs()
-                        .stream()
-                        .map(DeatailsInvoiceProductDTO::getIdProducto)
-                        .collect(Collectors.toList()));
+                    .stream()
+                    .map(DeatailsInvoiceProductDTO::getIdProducto)
+                    .collect(Collectors.toList()));
 
             // Asociar cada producto con su detalle correspondiente
             List<DeatailsInvoiceProduct> detalles = AdminInvoice.createDeatailsInvoiceProduct(products, invoiceNewDTO.getDeatailsInvoiceProductDTOs());
@@ -101,7 +105,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
             invoiceNewDTO.setKeyAccess(keyAccess);
             invoiceNewDTO.setNumberAutorization(keyAccess);
-            invoiceNewDTO.setDateEmission( FunctionUtil.convertDateToString(new Date()));
+            invoiceNewDTO.setDateEmission(FunctionUtil.convertDateToString(new Date()));
 
             // Crear factura y mapear a Entitidad
             Invoice invoice = documentMapper.mapperToEntity(invoiceNewDTO);
@@ -141,6 +145,54 @@ public class DocumentServiceImpl implements IDocumentService {
 
             // Guardar
             saveInvoiceNumber(invoiceNumber);
+
+            Factura factura = AdminInvoice.createFacturaXML(invoiceSaved, sender);
+
+            try {
+
+                String baseUrl = PathDocuments.PATH_BASE + "/" + sender.getRuc()
+                        + "/est_"+ subsidiary.getCode()+"/emi_"+ emissionPoint.getCodePoint();
+                File file = new File(baseUrl);
+
+                if (!file.exists()){
+                    file.mkdirs();
+                }
+
+                 String pathArchivo = file.getAbsolutePath() + "/" + invoiceSaved.getTypeDocument() + "_" + invoiceSaved.getNumberAutorization() + "_" + FunctionUtil.convertDateToString(invoiceSaved.getDateEmission());
+                boolean genearXML = ArchivoUtils.realizarMarshall(factura, pathArchivo);
+                // Verificar si el emisor ya tiene registrado un directorio
+                /*if (!file.exists()) {
+                    if (file.mkdir()) {
+
+                        // Ruta del directorio principal del emisor
+                        String pathAbsolute = file.getAbsolutePath();
+
+                        // Crear directorio para el establecimiento
+                        String pathSubsidiary = pathAbsolute + "/est_" + subsidiary.getCode();
+
+                        File fileSubsidiary = new File(pathSubsidiary);
+
+                        // Directorio para el establecimiento
+                        fileSubsidiary.mkdir();
+
+                        String pathEmissionPoint = fileSubsidiary.getAbsolutePath() + "/emi_" + emissionPoint.getCodePoint();
+
+                        File fileEmissionPoint = new File(pathEmissionPoint);
+                        fileEmissionPoint.mkdir();
+
+                        String pathArchivos = fileEmissionPoint.getAbsolutePath();
+
+                        pathArchivos += "/" + invoiceSaved.getTypeDocument() + "_" + invoiceSaved.getNumberAutorization() + "_" + FunctionUtil.convertDateToString(invoiceSaved.getDateEmission());
+
+                        boolean genearXML = ArchivoUtils.realizarMarshall(factura, pathArchivos);
+                    } else LOGGER.info("Path:" + file.getAbsolutePath());
+                }*/
+
+
+            } catch (Exception e) {
+                LOGGER.info("Error  : " + e.getMessage());
+            }
+
 
             return documentMapper.mapperToDTO(invoiceSaved);
 
@@ -223,7 +275,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
             // Obtener los ids de los Productos
             List<Long> idsProduts = idsProducts.stream()
-                    .filter(item -> (item!= null && item> 0))
+                    .filter(item -> (item != null && item > 0))
                     .collect(Collectors.toList());
 
             // Verificar si todo los ids Productos  pasados diferentes de null
@@ -234,7 +286,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
                 // Verificar que todos los productos del detall factura estubieran registrados en BD
                 if (!products.isEmpty() && products.size() == idsProduts.size())
-                    return  products;
+                    return products;
 
                 throw new BadRequestException("La Factura contiene productos no registrados en la base de datos");
             }
