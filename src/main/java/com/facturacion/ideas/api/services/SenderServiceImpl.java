@@ -41,12 +41,9 @@ public class SenderServiceImpl implements ISenderService {
     @Autowired
     private ISenderMapper senderMapper;
 
-    @Autowired
-    private ICodeDocumentService codeDocumentService;
-
     @Override
     @Transactional
-    public SenderResponseDTO save(SenderNewDTO senderNewDTO, Long idCount) {
+    public SenderResponseDTO save(final SenderNewDTO senderNewDTO, Long idCount) {
 
         try {
 

@@ -71,7 +71,7 @@ public class ProductServiceImpl implements IProductService {
             List<TaxProduct> taxValues = new ArrayList<>();
 
             // IVA
-            String codeImpuesto = product.getIva(); // codigo impuesto IVA
+            String codeImpuesto = product.getIva(); // codigo impuesto IVA, tipo de iva
             AdminProduct.asignarSiNoImpuesto(TypeTaxEnum.IVA, product);
             if (codeImpuesto != null)
                 taxValues.add(finTaxProduct(TypeTaxEnum.IVA, codeImpuesto, product));

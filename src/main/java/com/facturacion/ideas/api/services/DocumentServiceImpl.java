@@ -107,7 +107,8 @@ public class DocumentServiceImpl implements IDocumentService {
             invoiceNewDTO.setNumberAutorization(keyAccess);
             invoiceNewDTO.setDateEmission(FunctionUtil.convertDateToString(new Date()));
 
-            // Crear factura y mapear a Entitidad
+            // Crear factura y mapear a Entitidad, no se mapea las relaciones, en el mapper ya se asigno la
+            // relacion con formas de pago
             Invoice invoice = documentMapper.mapperToEntity(invoiceNewDTO);
 
             // El punto de emsion es boligatorio para la factuara
@@ -126,16 +127,16 @@ public class DocumentServiceImpl implements IDocumentService {
             if (invoiceNewDTO.getIdPerson() != null) {
 
                 // Buscar Persona(cliente o Transportista) y asignar a al Factura
-                invoice.setPerson(new Person(personRepository.selectIdeByIde(invoiceNewDTO.getIdPerson()).orElseThrow(
-                        () -> new NotFoundException("Cliente con ide " + invoiceNewDTO.getIdPerson() + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)
-                )));
+                invoice.setPerson(personRepository.findById(invoiceNewDTO.getIdPerson()).orElseThrow(()->
+                        new NotFoundException("Cliente con ide " + invoiceNewDTO.getIdPerson() +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+
                 // Asgino null, que representa a consumidor final
             } else
                 invoice.setPerson(null);
 
-
             // Primero generar el documento xml de la factura, si todo va bien, persisto la factura en la bd
-            AdminInvoice.guardarfacturaXML(invoice, emissionPoint);
+            // Ademas paso la formas de pago para xml de pagos
+            AdminInvoice.guardarfacturaXML(invoice, invoiceNewDTO.getPaymenNewtDTOS());
 
             // Persistir la factura
             Invoice invoiceSaved = invoiceRepository.save(invoice);

@@ -42,7 +42,9 @@ public class ConstanteUtil {
 
 	// valor agegado expresado en Dolar
 	public static final Double VALOR_IVA_IRBPNR = 0.02;
-	
+
+	// Constantes para version xml
+	public static final String VERSION_XML = "1.0.0";
 	
 	
 }

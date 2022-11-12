@@ -17,10 +17,6 @@ public class Payment implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "FPG_COD")
-	private Long ide;
-
 	@Column(name = "FPG_COD_PAG")
 	private String code;
 
@@ -37,22 +33,19 @@ public class Payment implements Serializable {
 		super();
 	}
 
-	public Payment(Long ide, String code, String description, Date dateStart, Date dateEnd) {
+	public Payment(String code) {
 		super();
-		this.ide = ide;
+		this.code = code;
+	}
+
+	public Payment(String code, String description, Date dateStart, Date dateEnd) {
+		super();
 		this.code = code;
 		this.description = description;
 		this.dateStart = dateStart;
 		this.dateEnd = dateEnd;
 	}
 
-	public Long getIde() {
-		return ide;
-	}
-
-	public void setIde(Long ide) {
-		this.ide = ide;
-	}
 
 	public String getCode() {
 		return code;
@@ -88,7 +81,7 @@ public class Payment implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Payment [ide=" + ide + ", code=" + code + ", description=" + description + ", dateStart=" + dateStart
+		return "Payment [ code=" + code + ", description=" + description + ", dateStart=" + dateStart
 				+ ", dateEnd=" + dateEnd + "]";
 	}
 	

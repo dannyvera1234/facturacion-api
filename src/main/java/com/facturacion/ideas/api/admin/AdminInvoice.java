@@ -3,11 +3,9 @@ package com.facturacion.ideas.api.admin;
 import com.facturacion.ideas.api.documents.InfoTributaria;
 import com.facturacion.ideas.api.documents.factura.*;
 import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
+import com.facturacion.ideas.api.dto.PaymenNewtDTO;
 import com.facturacion.ideas.api.entities.*;
-import com.facturacion.ideas.api.enums.QuestionEnum;
-import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
-import com.facturacion.ideas.api.enums.TypePorcentajeIvaEnum;
-import com.facturacion.ideas.api.enums.TypeTaxEnum;
+import com.facturacion.ideas.api.enums.*;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
 import com.facturacion.ideas.api.util.ArchivoUtils;
@@ -18,31 +16,32 @@ import com.facturacion.ideas.api.util.PathDocuments;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdminInvoice {
 
-    public static boolean guardarfacturaXML(Invoice invoiceSaved, EmissionPoint emissionPoint) {
+    public static boolean guardarfacturaXML(Invoice invoiceSaved, List<PaymenNewtDTO> paymenNewtDTOS) {
+
+        EmissionPoint emissionPoint = invoiceSaved.getEmissionPoint();
         Subsidiary subsidiary = emissionPoint.getSubsidiary();
         Sender sender = subsidiary.getSender();
 
         try {
-            Factura factura = AdminInvoice.createFacturaXML(invoiceSaved, sender);
+            Factura factura = AdminInvoice.createFacturaXML(invoiceSaved, sender, paymenNewtDTOS);
 
             String baseUrl = PathDocuments.PATH_BASE + "/" + sender.getRuc()
                     + "/est_" + subsidiary.getCode() + "/emi_" + emissionPoint.getCodePoint();
             File file = new File(baseUrl);
 
             if (!file.exists()) {
-
                 file.mkdirs();
             }
 
+            factura.setId("comprobante");
+            factura.setVersion(ConstanteUtil.VERSION_XML);
 
-            String pathArchivo = file.getAbsolutePath() + "/" + invoiceSaved.getTypeDocument() + "_" + invoiceSaved.getNumberAutorization() + "_" + FunctionUtil.convertDateToString(invoiceSaved.getDateEmission());
+            String pathArchivo = file.getAbsolutePath() + "/" + invoiceSaved.getTypeDocument() + "_" + invoiceSaved.getNumberAutorization() + "_" + FunctionUtil.convertDateToString(invoiceSaved.getDateEmission()) + ".xml";
             return ArchivoUtils.realizarMarshall(factura, pathArchivo);
 
         } catch (Exception e) {
@@ -58,12 +57,13 @@ public class AdminInvoice {
      * @param invoiceSaved : La informacion de la factura guardada
      * @return : La factura que representara el XML
      */
-    public static Factura createFacturaXML(Invoice invoiceSaved, Sender sender) {
+    public static Factura createFacturaXML(Invoice invoiceSaved, Sender sender, List<PaymenNewtDTO> paymenNewtDTOS) {
 
         Factura factura = new Factura();
 
         factura.setInfoTributaria(createInfoTributaria(invoiceSaved, sender));
-        factura.setInfoFactura(createInfoFactura(invoiceSaved));
+        factura.setInfoFactura(createInfoFactura(invoiceSaved, paymenNewtDTOS));
+        factura.setDetalles(createDetalleFactura(invoiceSaved));
         return factura;
     }
 
@@ -133,6 +133,7 @@ public class AdminInvoice {
         valorIvaVigente += valorICE;
 
         //subtotal = subtotalDoceIvaActual + subtotalCeroIva + subtotalNoObjetoIva + subtotalExeptoIva;
+        // Subtotal sin impuesto
         subtotal = subtotalDoceIvaActual + subtotalCeroIva + subtotalNoObjetoIva + subtotalExeptoIva;
 
 
@@ -272,12 +273,20 @@ public class AdminInvoice {
 
         InfoTributaria infoTributaria = new InfoTributaria();
 
+        EmissionPoint emissionPoint = invoiceSaved.getEmissionPoint();
+
+        Subsidiary subsidiary = emissionPoint.getSubsidiary();
+
+
         infoTributaria.setSecuencial(invoiceSaved.getNumberSecuencial());
         infoTributaria.setAmbiente(sender.getTypeEnvironment());
         infoTributaria.setTipoEmision(sender.getTypeEmission());
         infoTributaria.setRazonSocial(sender.getSocialReason());
         infoTributaria.setRuc(sender.getRuc());
         infoTributaria.setCodDoc(invoiceSaved.getTypeDocument());
+        infoTributaria.setPtoEmi(emissionPoint.getCodePoint());
+        infoTributaria.setEstab(subsidiary.getCode());
+        infoTributaria.setDirMatriz(sender.getMatrixAddress());
 
         // Seteo el valor que debe ir en la xml
         if (sender.isRimpe())
@@ -302,7 +311,7 @@ public class AdminInvoice {
      * @param invoiceSaved : Factura guardara
      * @return
      */
-    public static InfoFactura createInfoFactura(Invoice invoiceSaved) {
+    public static InfoFactura createInfoFactura(Invoice invoiceSaved, List<PaymenNewtDTO> paymenNewtDTOS) {
 
         InfoFactura infoFactura = new InfoFactura();
 
@@ -345,8 +354,8 @@ public class AdminInvoice {
         infoFactura.setPropina(BigDecimal.valueOf(valueInvoice.getPropina()));
 
         infoFactura.setImporteTotal(null);
-        infoFactura.setMoneda(ConstanteUtil.TEXT_DEFAULT_MODEDA);
 
+        infoFactura.setMoneda(ConstanteUtil.TEXT_DEFAULT_MODEDA);
 
         List<TotalImpuesto> totalImpuestos = createTotalImpuestos(invoiceSaved);
 
@@ -356,7 +365,10 @@ public class AdminInvoice {
 
         infoFactura.setTotalConImpuestos(totalConImpuestos);
 
-        // infoFactura.setPagos(null);
+        if (paymenNewtDTOS != null && paymenNewtDTOS.size() > 0) {
+            infoFactura.setPagos(createPagos(paymenNewtDTOS));
+        } else throw new BadRequestException("Debe seleccionar almenos una forma  de pago");
+
 
         Sender sender = invoiceSaved.getEmissionPoint().getSubsidiary().getSender();
 
@@ -370,15 +382,163 @@ public class AdminInvoice {
 
     }
 
+    private static Pagos createPagos(List<PaymenNewtDTO> paymenNewtDTOS) {
+
+
+        Pagos pagos = new Pagos();
+
+        List<DetallePago> detallePagoList = new ArrayList<>();
+
+        paymenNewtDTOS.forEach(item -> {
+            DetallePago detallePago = new DetallePago();
+            detallePago.setFormaPago(item.getCode());
+            //detallePago.setTotal(item.getTotal());
+            detallePago.setTotal(BigDecimal.valueOf(200)); // correguir esto
+
+            // Estos no son olbigatorio
+            if (item.getPlazo() != null && item.getPlazo().matches("[0-9]+")) {
+                detallePago.setPlazo(item.getPlazo());
+            }
+            // Estos no son olbigatorio
+            if (item.getUnidadTiempo() != null && !item.getPlazo().isEmpty()) {
+                detallePago.setUnidadTiempo(item.getUnidadTiempo());
+            }
+            detallePagoList.add(detallePago);
+        });
+
+        pagos.setPago(detallePagoList);
+
+        return pagos;
+    }
+
 
     public static Detalles createDetalleFactura(Invoice invoiceSaved) {
 
+        // Contenedor
+        Detalles detallesRoot = new Detalles();
 
-        Detalles detalles = new Detalles();
+        List<Detalle> detalleList = new ArrayList<>();
 
+        // Aqui el valor del precio del producto, fue el que llego desde el Fronted
+        List<DeatailsInvoiceProduct> detailsProducto = invoiceSaved.getDeatailsInvoiceProducts();
+
+        for (DeatailsInvoiceProduct item : detailsProducto) {
+
+            Detalle detalleItem = createDetalleFactura(item);
+            detalleList.add(detalleItem);
+        }
+        detallesRoot.setDetalle(detalleList);
+
+        return detallesRoot;
+    }
+
+    private static Detalle createDetalleFactura(DeatailsInvoiceProduct itemDetails) {
 
         Detalle detalleItem = new Detalle();
-        return null;
+
+        Product productDetalle = itemDetails.getProduct();
+
+        detalleItem.setCodigoPrincipal(productDetalle.getCodePrivate());
+        detalleItem.setDescripcion(productDetalle.getName());
+        detalleItem.setCantidad(BigDecimal.valueOf(itemDetails.getAmount()));
+        detalleItem.setPrecioUnitario(BigDecimal.valueOf(productDetalle.getUnitValue()));
+        detalleItem.setPrecioTotalSinImpuesto(BigDecimal.valueOf(itemDetails.getSubtotal()));
+
+        // Detalles Adicionales del Producto
+        List<ProductInformation> infoAdicionalList = productDetalle.getProductInformations();
+
+        if (infoAdicionalList != null && infoAdicionalList.size() > 0) {
+            detalleItem.setDetallesAdicionales(createDetailsAdditionalProduct(infoAdicionalList));
+        }
+
+        detalleItem.setImpuestos(createDetalleImpuestos(productDetalle));
+
+        return detalleItem;
+
+    }
+
+    private static Impuestos createDetalleImpuestos(Product product) {
+
+        // Elemento ROOT
+        Impuestos impuestos = new Impuestos();
+
+        // Lista de impuestos
+        List<Impuesto> impuestoList = new ArrayList<>();
+
+        List<TaxProduct> productImpuestos = product.getTaxProducts();
+
+        BigDecimal valorIce = BigDecimal.ZERO;
+
+        BigDecimal valorIva = BigDecimal.ZERO;
+
+        TaxValue impuestoICE = productImpuestos.stream()
+                .map(TaxProduct::getTaxValue)
+                .filter(item -> item.getTax().getTypeTax().equalsIgnoreCase(TypeTaxEnum.ICE.getCode()))
+                .findFirst().orElse(null);
+
+        if (impuestoICE != null) {
+
+            Impuesto iceImp = new Impuesto();
+
+            iceImp.setCodigo(impuestoICE.getTax().getTypeTax());
+            iceImp.setCodigoPorcentaje(impuestoICE.getCode());
+            iceImp.setTarifa(BigDecimal.ZERO);
+            iceImp.setBaseImponible(BigDecimal.valueOf(product.getUnitValue()));
+
+            // Esto se debe cambiar
+            valorIce = BigDecimal.valueOf(0);
+
+            iceImp.setValor(valorIce);
+
+            impuestoList.add(iceImp);
+        }
+
+
+        TaxValue impuestoIVA = productImpuestos.stream()
+                .map(TaxProduct::getTaxValue)
+                .filter(item -> item.getTax().getTypeTax().equalsIgnoreCase(TypeTaxEnum.IVA.getCode()))
+                .findFirst().orElse(null);
+
+        if (impuestoIVA != null) {
+
+
+            Impuesto ivaImp = new Impuesto();
+
+            ivaImp.setCodigo(impuestoIVA.getTax().getTypeTax());
+            ivaImp.setCodigoPorcentaje(impuestoIVA.getCode());
+            ivaImp.setTarifa(BigDecimal.valueOf(impuestoIVA.getPorcentage()));
+
+            // Al precio del producto se le suma el valor del ICE
+
+            valorIva = BigDecimal.valueOf(product.getUnitValue()).add(BigDecimal.valueOf(product.getUnitValue()));
+            ivaImp.setBaseImponible(valorIva);
+
+            impuestoList.add(ivaImp);
+        }
+        // iVA
+        impuestos.setImpuesto(impuestoList);
+
+        return impuestos;
+    }
+
+    private static DetallesAdicionales createDetailsAdditionalProduct(List<ProductInformation> infoAdicionalList) {
+
+        // Informacion adicional ROOT
+        DetallesAdicionales detallesAdicionales = new DetallesAdicionales();
+
+        List<DetAdicional> detAdicionalsList = new ArrayList<>();
+        for (ProductInformation proInformacion : infoAdicionalList) {
+
+            DetAdicional detAdicional = new DetAdicional();
+            detAdicional.setNombre(proInformacion.getAttribute());
+            detAdicional.setValor(proInformacion.getValue());
+            detAdicionalsList.add(detAdicional);
+        }
+
+        // Asigno al elemento root de detalles adicional
+        detallesAdicionales.setDetAdicional(detAdicionalsList);
+
+        return detallesAdicionales;
     }
 
     public static List<TotalImpuesto> createTotalImpuestos(Invoice invoiceSaved) {
@@ -386,9 +546,20 @@ public class AdminInvoice {
 
         List<TotalImpuesto> totalImpuestos = new ArrayList<>();
 
+        //invoiceSaved.getDeatailsInvoiceProducts().get(0).
+
+
         // Impuestos: ICE-IRPNR-ICE
+
+
         TotalImpuesto totalImpuestoICE = new TotalImpuesto();
         totalImpuestoICE.setCodigo(TypeTaxEnum.ICE.getCode());
+        totalImpuestoICE.setCodigoPorcentaje("2");
+
+        // SOlo para  el iva se le pasa la tarifa
+        totalImpuestoICE.setTarifa(BigDecimal.valueOf(12));
+
+        totalImpuestoICE.setValor(BigDecimal.valueOf(222));
 
         totalImpuestos.add(totalImpuestoICE);
 

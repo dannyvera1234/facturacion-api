@@ -71,6 +71,10 @@ public class Invoice extends Document implements Serializable {
 		this.detailsInvoicePayments.add(detailsInvoicePayment);
 	}
 
+	public void setDetailsInvoicePayments(List<DetailsInvoicePayment> detailsInvoicePayments) {
+		this.detailsInvoicePayments = detailsInvoicePayments;
+	}
+
 	public List<DeatailsInvoiceProduct> getDeatailsInvoiceProducts() {
 		return deatailsInvoiceProducts;
 	}

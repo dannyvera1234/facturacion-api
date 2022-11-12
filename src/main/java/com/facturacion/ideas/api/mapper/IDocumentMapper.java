@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.entities.DeatailsInvoiceProduct;
+import com.facturacion.ideas.api.entities.DetailsInvoicePayment;
 import com.facturacion.ideas.api.entities.Invoice;
 import com.facturacion.ideas.api.entities.ValueInvoice;
 
@@ -24,6 +25,8 @@ public interface IDocumentMapper {
 	ValueInvoiceResponseDTO  mapperToDTO(ValueInvoice valueInvoice);
 
 	DeatailsInvoiceProduct mapperToEntity( DeatailsInvoiceProductDTO deatailsInvoiceProductDTO);
+
+	List<DetailsInvoicePayment> mapperToEntity(List<PaymenNewtDTO> paymenNewtDTOS);
 	
 	
 	

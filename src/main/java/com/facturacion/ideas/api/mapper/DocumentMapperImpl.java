@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.dto.*;
-import com.facturacion.ideas.api.entities.DeatailsInvoiceProduct;
+import com.facturacion.ideas.api.entities.*;
 import org.springframework.stereotype.Component;
 
-import com.facturacion.ideas.api.entities.Invoice;
-import com.facturacion.ideas.api.entities.ValueInvoice;
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
 import com.facturacion.ideas.api.enums.TypeEmissionEnum;
 import com.facturacion.ideas.api.util.FunctionUtil;
@@ -18,99 +16,121 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 @Component
 public class DocumentMapperImpl implements IDocumentMapper {
 
-	@Override
-	public Invoice mapperToEntity(InvoiceNewDTO invoiceNewDTO) throws ParseException {
+    @Override
+    public Invoice mapperToEntity(InvoiceNewDTO invoiceNewDTO) throws ParseException {
 
-		Invoice invoice = new Invoice();
-		invoice.setIde(invoiceNewDTO.getIde());
-		invoice.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(invoiceNewDTO.getTypeDocument()));
-		invoice.setNumberSecuencial(invoiceNewDTO.getNumberSecuencial());
-		invoice.setKeyAccess(invoiceNewDTO.getKeyAccess());
-		// Es igual al keyAccess
-		invoice.setNumberAutorization(invoiceNewDTO.getKeyAccess());
+        Invoice invoice = new Invoice();
+        invoice.setIde(invoiceNewDTO.getIde());
+        invoice.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(invoiceNewDTO.getTypeDocument()));
+        invoice.setNumberSecuencial(invoiceNewDTO.getNumberSecuencial());
+        invoice.setKeyAccess(invoiceNewDTO.getKeyAccess());
+        // Es igual al keyAccess
+        invoice.setNumberAutorization(invoiceNewDTO.getKeyAccess());
 
-		invoice.setDateAutorization(FunctionUtil.convertStringToDate(invoiceNewDTO.getDateAutorization()));
-		invoice.setDateEmission(FunctionUtil.convertStringToDate(invoiceNewDTO.getDateEmission()));
-		invoice.setTypoEmision(invoiceNewDTO.getTypoEmision());
-		invoice.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
-		return invoice;
-	}
+        invoice.setDateAutorization(FunctionUtil.convertStringToDate(invoiceNewDTO.getDateAutorization()));
+        invoice.setDateEmission(FunctionUtil.convertStringToDate(invoiceNewDTO.getDateEmission()));
+        invoice.setTypoEmision(invoiceNewDTO.getTypoEmision());
+        invoice.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
 
-	@Override
-	public InvoiceResposeDTO mapperToDTO(Invoice invoice) {
+        // Asignar lista con formas de pagos
+        invoice.setDetailsInvoicePayments( mapperToEntity(invoiceNewDTO.getPaymenNewtDTOS()));
 
-		InvoiceResposeDTO invoiceResposeDTO = new InvoiceResposeDTO();
-		invoiceResposeDTO.setIde(invoice.getIde());
-		invoiceResposeDTO.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(invoice.getTypeDocument()).name());
-		invoiceResposeDTO.setNumberSecuencial(invoice.getNumberSecuencial());
-		invoiceResposeDTO.setKeyAccess(invoice.getKeyAccess());
-		// Es igual al keyAccess
-		invoiceResposeDTO.setNumberAutorization(invoice.getKeyAccess());
-		invoiceResposeDTO.setRemissionGuideNumber(invoice.getGuiaRemission());
-		invoiceResposeDTO.setDateAutorization(FunctionUtil.convertDateToString(invoice.getDateAutorization()));
-		invoiceResposeDTO.setDateEmission(FunctionUtil.convertDateToString(invoice.getDateEmission()));
-		invoiceResposeDTO.setTypoEmision(TypeEmissionEnum.getTypeEmissionEnum(invoice.getTypoEmision()).name());
-		return invoiceResposeDTO;
-	}
+        return invoice;
+    }
 
-	@Override
-	public List<InvoiceResposeDTO> mapperToDTO(List<Invoice> invoices) {
+    @Override
+    public InvoiceResposeDTO mapperToDTO(Invoice invoice) {
 
-		List<InvoiceResposeDTO> invoiceResposeDTOs = new ArrayList<>();
+        InvoiceResposeDTO invoiceResposeDTO = new InvoiceResposeDTO();
+        invoiceResposeDTO.setIde(invoice.getIde());
+        invoiceResposeDTO.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(invoice.getTypeDocument()).name());
+        invoiceResposeDTO.setNumberSecuencial(invoice.getNumberSecuencial());
+        invoiceResposeDTO.setKeyAccess(invoice.getKeyAccess());
+        // Es igual al keyAccess
+        invoiceResposeDTO.setNumberAutorization(invoice.getKeyAccess());
+        invoiceResposeDTO.setRemissionGuideNumber(invoice.getGuiaRemission());
+        invoiceResposeDTO.setDateAutorization(FunctionUtil.convertDateToString(invoice.getDateAutorization()));
+        invoiceResposeDTO.setDateEmission(FunctionUtil.convertDateToString(invoice.getDateEmission()));
+        invoiceResposeDTO.setTypoEmision(TypeEmissionEnum.getTypeEmissionEnum(invoice.getTypoEmision()).name());
+        return invoiceResposeDTO;
+    }
 
-		if (invoices.size() > 0) {
-			invoiceResposeDTOs = invoices.stream().map(item -> mapperToDTO(item)).collect(Collectors.toList());
-		}
-		return invoiceResposeDTOs;
-	}
+    @Override
+    public List<InvoiceResposeDTO> mapperToDTO(List<Invoice> invoices) {
 
-	@Override
-	public ValueInvoice mapperToEntity(ValueInvoiceNewDTO valueInvoiceNewDTO) {
+        List<InvoiceResposeDTO> invoiceResposeDTOs = new ArrayList<>();
 
-		ValueInvoice valueInvoice = new ValueInvoice();
+        if (invoices.size() > 0) {
+            invoiceResposeDTOs = invoices.stream().map(item -> mapperToDTO(item)).collect(Collectors.toList());
+        }
+        return invoiceResposeDTOs;
+    }
 
-		valueInvoice.setIde(valueInvoiceNewDTO.getIde());
-		valueInvoice.setSubtIvaActual(valueInvoiceNewDTO.getSubtIvaActual());
-		valueInvoice.setSubtIvaCero(valueInvoiceNewDTO.getSubtIvaCero());
-		valueInvoice.setSubtNoObjIva(valueInvoiceNewDTO.getSubtNoObjIva());
-		valueInvoice.setSubtExceptoIva(valueInvoiceNewDTO.getSubtExceptoIva());
-		valueInvoice.setSubtotal(valueInvoiceNewDTO.getSubtotal());
-		valueInvoice.setDescuento(valueInvoiceNewDTO.getDescuento());
-		valueInvoice.setIce(valueInvoiceNewDTO.getIce());
-		valueInvoice.setRbpnr(valueInvoiceNewDTO.getRbpnr());
-		valueInvoice.setIva(valueInvoiceNewDTO.getIva());
-		valueInvoice.setPropina(valueInvoiceNewDTO.getPropina());
-		valueInvoice.setTotal(valueInvoiceNewDTO.getTotal());
-		return valueInvoice;
-	}
+    @Override
+    public ValueInvoice mapperToEntity(ValueInvoiceNewDTO valueInvoiceNewDTO) {
 
-	@Override
-	public ValueInvoiceResponseDTO mapperToDTO(ValueInvoice valueInvoice) {
+        ValueInvoice valueInvoice = new ValueInvoice();
 
-		ValueInvoiceResponseDTO valueInvoiceResponseDTO = new ValueInvoiceResponseDTO();
+        valueInvoice.setIde(valueInvoiceNewDTO.getIde());
+        valueInvoice.setSubtIvaActual(valueInvoiceNewDTO.getSubtIvaActual());
+        valueInvoice.setSubtIvaCero(valueInvoiceNewDTO.getSubtIvaCero());
+        valueInvoice.setSubtNoObjIva(valueInvoiceNewDTO.getSubtNoObjIva());
+        valueInvoice.setSubtExceptoIva(valueInvoiceNewDTO.getSubtExceptoIva());
+        valueInvoice.setSubtotal(valueInvoiceNewDTO.getSubtotal());
+        valueInvoice.setDescuento(valueInvoiceNewDTO.getDescuento());
+        valueInvoice.setIce(valueInvoiceNewDTO.getIce());
+        valueInvoice.setRbpnr(valueInvoiceNewDTO.getRbpnr());
+        valueInvoice.setIva(valueInvoiceNewDTO.getIva());
+        valueInvoice.setPropina(valueInvoiceNewDTO.getPropina());
+        valueInvoice.setTotal(valueInvoiceNewDTO.getTotal());
+        return valueInvoice;
+    }
 
-		valueInvoiceResponseDTO.setIde(valueInvoice.getIde());
-		valueInvoiceResponseDTO.setSubtIvaActual(valueInvoice.getSubtIvaActual());
-		valueInvoiceResponseDTO.setSubtIvaCero(valueInvoice.getSubtIvaCero());
-		valueInvoiceResponseDTO.setSubtNoObjIva(valueInvoice.getSubtNoObjIva());
-		valueInvoiceResponseDTO.setSubtExceptoIva(valueInvoice.getSubtExceptoIva());
-		valueInvoiceResponseDTO.setSubtotal(valueInvoice.getSubtotal());
-		valueInvoiceResponseDTO.setDescuento(valueInvoice.getDescuento());
-		valueInvoiceResponseDTO.setIce(valueInvoice.getIce());
-		valueInvoiceResponseDTO.setRbpnr(valueInvoice.getRbpnr());
-		valueInvoiceResponseDTO.setIva(valueInvoice.getIva());
-		valueInvoiceResponseDTO.setPropina(valueInvoice.getPropina());
-		valueInvoiceResponseDTO.setTotal(valueInvoice.getTotal());
-		return valueInvoiceResponseDTO;
-	}
+    @Override
+    public ValueInvoiceResponseDTO mapperToDTO(ValueInvoice valueInvoice) {
 
-	@Override
-	public DeatailsInvoiceProduct mapperToEntity(DeatailsInvoiceProductDTO deatailsInvoiceProductDTO) {
-		DeatailsInvoiceProduct detaails = new DeatailsInvoiceProduct();
-		detaails.setIde(deatailsInvoiceProductDTO.getIde());
-		detaails.setAmount(deatailsInvoiceProductDTO.getAmount());
-		detaails.setSubtotal(deatailsInvoiceProductDTO.getSubtotal());
-		return detaails;
-	}
+        ValueInvoiceResponseDTO valueInvoiceResponseDTO = new ValueInvoiceResponseDTO();
+
+        valueInvoiceResponseDTO.setIde(valueInvoice.getIde());
+        valueInvoiceResponseDTO.setSubtIvaActual(valueInvoice.getSubtIvaActual());
+        valueInvoiceResponseDTO.setSubtIvaCero(valueInvoice.getSubtIvaCero());
+        valueInvoiceResponseDTO.setSubtNoObjIva(valueInvoice.getSubtNoObjIva());
+        valueInvoiceResponseDTO.setSubtExceptoIva(valueInvoice.getSubtExceptoIva());
+        valueInvoiceResponseDTO.setSubtotal(valueInvoice.getSubtotal());
+        valueInvoiceResponseDTO.setDescuento(valueInvoice.getDescuento());
+        valueInvoiceResponseDTO.setIce(valueInvoice.getIce());
+        valueInvoiceResponseDTO.setRbpnr(valueInvoice.getRbpnr());
+        valueInvoiceResponseDTO.setIva(valueInvoice.getIva());
+        valueInvoiceResponseDTO.setPropina(valueInvoice.getPropina());
+        valueInvoiceResponseDTO.setTotal(valueInvoice.getTotal());
+        return valueInvoiceResponseDTO;
+    }
+
+    @Override
+    public DeatailsInvoiceProduct mapperToEntity(DeatailsInvoiceProductDTO deatailsInvoiceProductDTO) {
+        DeatailsInvoiceProduct detaails = new DeatailsInvoiceProduct();
+        detaails.setIde(deatailsInvoiceProductDTO.getIde());
+        detaails.setAmount(deatailsInvoiceProductDTO.getAmount());
+        detaails.setSubtotal(deatailsInvoiceProductDTO.getSubtotal());
+        return detaails;
+    }
+
+    @Override
+    public List<DetailsInvoicePayment> mapperToEntity(List<PaymenNewtDTO> paymenNewtDTOS) {
+
+        if (paymenNewtDTOS == null) return new ArrayList<>();
+
+        List<DetailsInvoicePayment> pagos = new ArrayList<>();
+        paymenNewtDTOS.forEach(item -> {
+
+            DetailsInvoicePayment detailsInvoicePayment = new DetailsInvoicePayment();
+
+            detailsInvoicePayment.setPayment(new Payment(item.getCode()));
+
+            pagos.add(detailsInvoicePayment);
+        });
+
+        return pagos;
+    }
 
 }

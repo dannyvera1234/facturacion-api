@@ -27,7 +27,7 @@ public class DeatailsInvoiceProduct implements Serializable {
 	private double amount;
 
 
-	@Column(name = " DTF_VAL")
+	@Column(name = "DTF_VAL_UNI")
 	private Double	 unitValue;
 
 	@Column(name = " DTF_SUB")
