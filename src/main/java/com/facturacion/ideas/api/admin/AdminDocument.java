@@ -23,10 +23,9 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 
 public class AdminDocument {
 
-    public static String generateKeyAcces(InvoiceNewDTO invoiceNewDTO
-            , EmissionPoint emissionPoint) {
+    public static String generateKeyAcces(Invoice invoiceXMl) {
 
-        Subsidiary subsidiary = emissionPoint.getSubsidiary();
+        Subsidiary subsidiary = invoiceXMl.getEmissionPoint().getSubsidiary();
         Sender sender = subsidiary.getSender();
 
         // * 1) Fecha Actual
@@ -34,10 +33,10 @@ public class AdminDocument {
                 .format(Calendar.getInstance().getTime());
 
         // Tipo Comprobante
-        TypeDocumentEnum typeDocument = TypeDocumentEnum.getTypeDocumentEnum(invoiceNewDTO.getTypeDocument());
+        TypeDocumentEnum typeDocument = TypeDocumentEnum.getTypeDocumentEnum(invoiceXMl.getTypeDocument());
 
         if (typeDocument == null) {
-            throw new NotFoundException("Tipo Documento " + invoiceNewDTO.getTypeDocument() + " no es valido");
+            throw new NotFoundException("Tipo Documento " + invoiceXMl.getTypeDocument() + " no es valido");
         }
 
         // * 2) Codigo del tipo documento
@@ -50,17 +49,17 @@ public class AdminDocument {
         String codeTypeEnviroment = sender.getTypeEnvironment();
 
         // * 5 Serie : conformada por codigo de establecimiento y codigo punto emision
-        String serie = subsidiary.getCode() + emissionPoint.getCodePoint();
+        String serie = subsidiary.getCode() + invoiceXMl.getEmissionPoint().getCodePoint();
 
         // * 6 Numero de comprobante secuencial
-        String squentialNumberDocument = invoiceNewDTO.getNumberSecuencial();
+        String squentialNumberDocument = invoiceXMl.getNumberSecuencial();
 
 
         // * 7 Codigo numerico
         String codeNumeric = ConstanteUtil.CODE_NUMERIC_KEY_ACCESS;
 
         // * 8 Tipo emission
-        String codeTypeEmission = invoiceNewDTO.getTypoEmision();
+        String codeTypeEmission = invoiceXMl.getTypoEmision();
 
         String keyAccess = today + codeTypeDocument + ruc + codeTypeEnviroment + serie + squentialNumberDocument
                 + codeNumeric + codeTypeEmission;
@@ -134,13 +133,13 @@ public class AdminDocument {
 
     }
 
-    public static InvoiceNumber createInvoiceNumber(Subsidiary subsidiary, int curreSequencial, String typeDocument ){
+    public static InvoiceNumber createInvoiceNumber(Subsidiary subsidiary, int curreSequencial, String typeDocument) {
         InvoiceNumber invoiceNumber = new InvoiceNumber();
         invoiceNumber.setSubsidiary(subsidiary);
         invoiceNumber.setCurrentSequentialNumber(curreSequencial);
         invoiceNumber.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(typeDocument));
 
-        return  invoiceNumber;
+        return invoiceNumber;
 
     }
 

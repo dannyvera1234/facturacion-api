@@ -66,7 +66,8 @@ public class Product implements Serializable {
 	@JoinColumn(name = "INF_FK_COD_PRO")
 	private List<ProductInformation> productInformations;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "product")
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "PDI_FK_COD_PRO")
 	private List<TaxProduct> taxProducts;
 
 	public Product() {

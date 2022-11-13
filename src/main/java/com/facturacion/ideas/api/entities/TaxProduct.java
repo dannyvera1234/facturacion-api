@@ -23,10 +23,11 @@ public class TaxProduct implements Serializable {
 	@Column(name = "PDI_COD")
 	private Long ide;
 
+	/*
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "PDI_FK_COD_PRO")
 	private Product product;
-
+	*/
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "PDI_FK_COD_IMP_VAL")
 	private TaxValue taxValue;
@@ -38,12 +39,12 @@ public class TaxProduct implements Serializable {
 	public TaxProduct(Long ide, Product product, TaxValue taxValue) {
 		super();
 		this.ide = ide;
-		this.product = product;
+		//this.product = product;
 		this.taxValue = taxValue;
 	}
 
 	public TaxProduct(Product product, TaxValue taxValue) {
-		this.product = product;
+		//this.product = product;
 		this.taxValue = taxValue;
 	}
 
@@ -55,13 +56,14 @@ public class TaxProduct implements Serializable {
 		this.ide = ide;
 	}
 
+	/*
 	public Product getProduct() {
 		return product;
 	}
 
 	public void setProduct(Product product) {
 		this.product = product;
-	}
+	}*/
 
 	public TaxValue getTaxValue() {
 		return taxValue;
@@ -71,9 +73,17 @@ public class TaxProduct implements Serializable {
 		this.taxValue = taxValue;
 	}
 
+	/*
 	@Override
 	public String toString() {
 		return "TaxProduct [ide=" + ide + ", product=" + product.getIde() + ", taxValue=" + taxValue.getIde() + "]";
-	}
+	}*/
 
+	@Override
+	public String toString() {
+		return "TaxProduct{" +
+				"ide=" + ide +
+				", taxValue=" + taxValue.getIde() +
+				'}';
+	}
 }

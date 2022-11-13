@@ -1,19 +1,16 @@
 package com.facturacion.ideas.api.services;
 
-import java.io.File;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.admin.AdminInvoice;
 import com.facturacion.ideas.api.documents.factura.Factura;
-import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.entities.*;
+import com.facturacion.ideas.api.enums.TypeDocumentEnum;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
 import com.facturacion.ideas.api.repositories.*;
-import com.facturacion.ideas.api.util.ArchivoUtils;
-import com.facturacion.ideas.api.util.PathDocuments;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.admin.AdminDocument;
-import com.facturacion.ideas.api.documents.InfoTributaria;
-import com.facturacion.ideas.api.documents.factura.InfoFactura;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
-import com.facturacion.ideas.api.dto.ValueInvoiceNewDTO;
-import com.facturacion.ideas.api.enums.TypeDocumentEnum;
-import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IDocumentMapper;
 import com.facturacion.ideas.api.util.ConstanteUtil;
-import com.facturacion.ideas.api.util.FunctionUtil;
 
 @Service
 public class DocumentServiceImpl implements IDocumentService {
@@ -62,25 +53,15 @@ public class DocumentServiceImpl implements IDocumentService {
     @Transactional
     public InvoiceResposeDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
         try {
+            Invoice invoiceXML = new Invoice();
 
             EmissionPoint emissionPoint = emissionPointRepository.fechtSubsidiaryToSender(invoiceNewDTO.getIdEmissionPoint())
                     .orElseThrow(() -> new NotFoundException("Punto Emisión id " + invoiceNewDTO.getIdEmissionPoint()
                             + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
             // Consultar los productos del detalle
-            List<Product> products = searchProductsDetailsByIds(invoiceNewDTO.
-                    getDeatailsInvoiceProductDTOs()
-                    .stream()
-                    .map(DeatailsInvoiceProductDTO::getIdProducto)
-                    .collect(Collectors.toList()));
-
-            // Asociar cada producto con su detalle correspondiente
-            List<DeatailsInvoiceProduct> detalles = AdminInvoice.createDeatailsInvoiceProduct(products, invoiceNewDTO.getDeatailsInvoiceProductDTOs());
-
-            Double propina = invoiceNewDTO.getValueInvoiceNewDTO().getPropina();
-
-            // Obtener los valores de la factura
-            ValueInvoice valueInvoice = AdminInvoice.calcularDetalleFactura(detalles, propina);
+            List<Product> products = searchProductsDetailsByIds(
+                    AdminInvoice.getIdsProductDetails(invoiceNewDTO.getDeatailsInvoiceProductDTOs()));
 
             // Establecimiento del punto emision
             Subsidiary subsidiary = emissionPoint.getSubsidiary();
@@ -88,31 +69,50 @@ public class DocumentServiceImpl implements IDocumentService {
             // Emisor punto emision
             Sender sender = subsidiary.getSender();
 
+            invoiceXML.setEmissionPoint(emissionPoint);
+
+            // Cliente
+            if (invoiceNewDTO.getIdPerson() != null) {
+                // Buscar Persona(cliente o Transportista) y asignar a al Factura
+                invoiceXML.setPerson(personRepository.findById(invoiceNewDTO.getIdPerson()).orElseThrow(() ->
+                        new NotFoundException("Cliente con ide " + invoiceNewDTO.getIdPerson() + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+
+                // Asgino null, que representa a consumidor final
+            } else
+                invoiceXML.setPerson(null);
+
+
             // Numero actual del documento + 1, segun su tipo de documento
             // IMPORTANTE: este numero se guardara en el factura valores
             int numberSecuncial = (getCurrentSequentialNumberBySubsidiary(invoiceNewDTO.getTypeDocument(),
                     subsidiary.getIde())) + 1;
 
             // Numero secuencia del Documento
-            invoiceNewDTO.setNumberSecuencial(AdminDocument.nextSquentialNumberDocument(numberSecuncial));
-
+            invoiceXML.setNumberSecuencial(AdminDocument.nextSquentialNumberDocument(numberSecuncial));
+            invoiceXML.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(invoiceNewDTO.getTypeDocument()));
             // Tipo de emision
-            invoiceNewDTO.setTypoEmision(sender.getTypeEmission());
+            invoiceXML.setTypoEmision(sender.getTypeEmission());
 
-            String keyAccess = AdminDocument.generateKeyAcces(invoiceNewDTO,  emissionPoint);
+            String keyAccess = AdminDocument.generateKeyAcces(invoiceXML);
 
             LOGGER.info("Clave acceso documento: " + keyAccess + " Longitud : " + keyAccess.length());
 
-            invoiceNewDTO.setKeyAccess(keyAccess);
-            invoiceNewDTO.setNumberAutorization(keyAccess);
-            invoiceNewDTO.setDateEmission(FunctionUtil.convertDateToString(new Date()));
+            invoiceXML.setKeyAccess(keyAccess);
+            invoiceXML.setNumberAutorization(keyAccess);
+            invoiceXML.setDateEmission(new Date());
+
+            AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
+
+            Factura facturaGenerada = AdminInvoice.getFacturaGenerada();
+
+
+            /*
+            // Obtener los valores de la factura
+            ValueInvoice valueInvoice = AdminInvoice.calcularDetalleFactura(detalles, 0.0);
 
             // Crear factura y mapear a Entitidad, no se mapea las relaciones, en el mapper ya se asigno la
             // relacion con formas de pago
             Invoice invoice = documentMapper.mapperToEntity(invoiceNewDTO);
-
-            // El punto de emsion es boligatorio para la factuara
-            invoice.setEmissionPoint(emissionPoint);
 
             // Asignar detalles
             invoice.setDeatailsInvoiceProducts(detalles);
@@ -120,23 +120,6 @@ public class DocumentServiceImpl implements IDocumentService {
             // Agregar valores factura a la factura
             invoice.setValueInvoice(valueInvoice);
 
-            /**
-             * Asignar Persona a al factura, si es null, quiere decir que es consumidor
-             * final y persisto en la relacion el valor null
-             */
-            if (invoiceNewDTO.getIdPerson() != null) {
-
-                // Buscar Persona(cliente o Transportista) y asignar a al Factura
-                invoice.setPerson(personRepository.findById(invoiceNewDTO.getIdPerson()).orElseThrow(()->
-                        new NotFoundException("Cliente con ide " + invoiceNewDTO.getIdPerson() +  ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
-
-                // Asgino null, que representa a consumidor final
-            } else
-                invoice.setPerson(null);
-
-            // Primero generar el documento xml de la factura, si todo va bien, persisto la factura en la bd
-            // Ademas paso la formas de pago para xml de pagos
-            AdminInvoice.guardarfacturaXML(invoice, invoiceNewDTO.getPaymenNewtDTOS());
 
             // Persistir la factura
             Invoice invoiceSaved = invoiceRepository.save(invoice);
@@ -144,18 +127,17 @@ public class DocumentServiceImpl implements IDocumentService {
             // Actualizar contador de documetos
             saveInvoiceNumber(AdminDocument.createInvoiceNumber(subsidiary, numberSecuncial, invoiceSaved.getTypeDocument()));
 
-            return documentMapper.mapperToDTO(invoiceSaved);
+
+            return documentMapper.mapperToDTO(invoiceSaved);*/
+
+            return new InvoiceResposeDTO();
 
         } catch (DataAccessException e) {
             LOGGER.error("Error guardar factura", e);
             throw new NotDataAccessException("Error al guardar factura");
-        } catch (ParseException e) {
-
-            LOGGER.error("Error al foramto fecha guardar factura", e);
-            throw new NotDataAccessException("Error, formato de fechas de factura es incorrecto");
-        }catch (GenerateXMLExeption e){
+        } catch (GenerateXMLExeption e) {
             LOGGER.error(e.getMessage(), e);
-            throw new GenerateXMLExeption( e.getMessage());
+            throw new GenerateXMLExeption(e.getMessage());
         }
     }
 
@@ -223,26 +205,22 @@ public class DocumentServiceImpl implements IDocumentService {
         // Validar que la factura tenga detalles
         if (idsProducts != null && idsProducts.size() > 0) {
 
-            int numberProducts = idsProducts.size();
-
             // Obtener los ids de los Productos
             List<Long> idsProduts = idsProducts.stream()
                     .filter(item -> (item != null && item > 0))
                     .collect(Collectors.toList());
 
-            // Verificar si todo los ids Productos  pasados diferentes de null
-            if (!idsProduts.isEmpty() && idsProduts.size() == numberProducts) {
+            // Consultar los productos a la BD
+            List<Product> products = productRepository.fetchTaxValueTaxByIdeIn(idsProduts);
+            System.out.println(products);
 
-                // Consultar los productos a la BD
-                List<Product> products = productRepository.findByIdeIn(idsProduts);
-
-                // Verificar que todos los productos del detall factura estubieran registrados en BD
-                if (!products.isEmpty() && products.size() == idsProduts.size())
-                    return products;
-
-                throw new BadRequestException("La Factura contiene productos no registrados en la base de datos");
+            // Verificar que todos los productos del detall factura estubieran registrados en BD
+            if (!products.isEmpty() && products.size() == idsProduts.size()){
+               // products.get(0).getTaxProducts().get(0).getTaxValue();
+                return products;
             }
-            throw new BadRequestException("La Factura contiene productos con identificacion incorrecta");
+
+            throw new BadRequestException("La Factura contiene productos no registrados en la base de datos");
 
         }
         throw new BadRequestException("La Factura debe  contener al menos un detalle o más");

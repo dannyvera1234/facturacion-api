@@ -1,6 +1,7 @@
 package com.facturacion.ideas.api.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class DeatailsInvoiceProductDTO implements Serializable {
 
@@ -12,6 +13,9 @@ public class DeatailsInvoiceProductDTO implements Serializable {
     private Double unitValue;
 
     private double amount;
+
+    // Este es opcional
+    private double valorIce;
 
     private double subtotal;
 
@@ -79,6 +83,15 @@ public class DeatailsInvoiceProductDTO implements Serializable {
     public void setUnitValue(Double unitValue) {
         this.unitValue = unitValue;
     }
+
+    public double getValorIce() {
+        return valorIce;
+    }
+
+    public void setValorIce(double valorIce) {
+        this.valorIce = valorIce;
+    }
+
 
     @Override
     public String toString() {

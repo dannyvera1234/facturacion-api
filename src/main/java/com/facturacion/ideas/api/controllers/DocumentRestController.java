@@ -54,9 +54,12 @@ public class DocumentRestController {
 	public List<Product> test (){
 
 
-		List<Long> ids = Arrays.asList(6L, 28L, 3L);
+		List<Long> ids = List.of(1L);
 
-		return productRepository.findByIdeIn(ids);
+		return  documentService.searchProductsDetailsByIds(ids);
+
+
+		//return productRepository.fetchTaxValueTaxByIdeIn(ids);
 	}
 	
 	
