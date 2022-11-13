@@ -38,6 +38,16 @@ public class FunctionUtil {
 
 		return null;
 	}
+
+	public static String convertDateToStringSRI(Date date) {
+
+		if (date != null) {
+			SimpleDateFormat format = new SimpleDateFormat(ConstanteUtil.DATE_FORMAT_FACTURA_SRI);
+			return format.format(date);
+		}
+
+		return null;
+	}
 	
 	public static Date convertStringToDate(String dateString) throws ParseException {
 

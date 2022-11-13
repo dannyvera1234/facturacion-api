@@ -84,7 +84,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
             // Numero actual del documento + 1, segun su tipo de documento
             // IMPORTANTE: este numero se guardara en el factura valores
-            int numberSecuncial = (getCurrentSequentialNumberBySubsidiary(invoiceNewDTO.getTypeDocument(),
+            final int numberSecuncial = (getCurrentSequentialNumberBySubsidiary(invoiceNewDTO.getTypeDocument(),
                     subsidiary.getIde())) + 1;
 
             // Numero secuencia del Documento
@@ -100,10 +100,16 @@ public class DocumentServiceImpl implements IDocumentService {
             invoiceXML.setKeyAccess(keyAccess);
             invoiceXML.setNumberAutorization(keyAccess);
             invoiceXML.setDateEmission(new Date());
+            invoiceXML.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
 
             AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
 
             Factura facturaGenerada = AdminInvoice.getFacturaGenerada();
+
+            // Actualizar contador de documentos
+            saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
+                    numberSecuncial,
+                    facturaGenerada.getInfoTributaria().getCodDoc()));
 
 
             /*
@@ -124,11 +130,9 @@ public class DocumentServiceImpl implements IDocumentService {
             // Persistir la factura
             Invoice invoiceSaved = invoiceRepository.save(invoice);
 
-            // Actualizar contador de documetos
-            saveInvoiceNumber(AdminDocument.createInvoiceNumber(subsidiary, numberSecuncial, invoiceSaved.getTypeDocument()));
+                    */
 
-
-            return documentMapper.mapperToDTO(invoiceSaved);*/
+          //  return documentMapper.mapperToDTO(invoiceSaved);
 
             return new InvoiceResposeDTO();
 
@@ -212,11 +216,16 @@ public class DocumentServiceImpl implements IDocumentService {
 
             // Consultar los productos a la BD
             List<Product> products = productRepository.fetchTaxValueTaxByIdeIn(idsProduts);
-            System.out.println(products);
+
+            System.out.println(products.size());
+            for (Product it : products) {
+                System.out.println("Ide: " + it.getIde());
+
+            }
 
             // Verificar que todos los productos del detall factura estubieran registrados en BD
-            if (!products.isEmpty() && products.size() == idsProduts.size()){
-               // products.get(0).getTaxProducts().get(0).getTaxValue();
+            if (!products.isEmpty() && products.size() == idsProduts.size()) {
+                // products.get(0).getTaxProducts().get(0).getTaxValue();
                 return products;
             }
 

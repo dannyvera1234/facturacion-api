@@ -172,15 +172,28 @@ public class AdminInvoice {
 
         InfoFactura infoFactura = new InfoFactura();
 
-        infoFactura.setFechaEmision(FunctionUtil.convertDateToString(invoiceXML.getDateEmission()));
+        infoFactura.setFechaEmision(FunctionUtil.convertDateToStringSRI(invoiceXML.getDateEmission()));
 
-        // calcular el subsidrio,aun no se calcula
-        infoFactura.setTotalSubsidio(BigDecimal.valueOf(0.00));
+        // calcular el subsidrio, esta pendiente
+        BigDecimal totalSubsidio = BigDecimal.ZERO;
+
+        // Esto es provicional, ya que no se utiliza mucho
+        if (totalSubsidio.compareTo(BigDecimal.ONE) > 0) {
+            infoFactura.setTotalSubsidio(BigDecimal.valueOf(0.00));
+        }
 
         infoFactura.setDirEstablecimiento(invoiceXML.getEmissionPoint().getSubsidiary().getAddress());
 
-        if (invoiceXML.getGuiaRemission() != null && !invoiceXML.getGuiaRemission().isEmpty())
-            infoFactura.setGuiaRemision(invoiceXML.getGuiaRemission());
+        if (invoiceXML.getGuiaRemission() != null && !invoiceXML.getGuiaRemission().isEmpty()) {
+
+
+            //  Longitud guia es 15 digitoa
+            if (invoiceXML.getGuiaRemission().matches("[0-9]{15}")) {
+                infoFactura.setGuiaRemision(invoiceXML.getGuiaRemission());
+            }else throw  new BadRequestException("El número para la guia de remision debe contener 15 dígitos, actualmente tiene " + invoiceXML.getGuiaRemission().length() + " dígitos");
+
+        }
+
 
         // Obtener el cliente de la factura Guardada
         Person person = invoiceXML.getPerson();
@@ -289,11 +302,26 @@ public class AdminInvoice {
 
         totalConImpuestos.setTotalImpuesto(totalImpuestosList);
 
-        // Total de todo, precio sin impuestos + los impuestos
-        importeTotal = importeTotal.add(infoFactura.getTotalSinImpuestos());
+        infoFactura.setPropina(validarPropina(
+                BigDecimal.valueOf(invoiceNewDTO.getValueInvoiceNewDTO().getPropina()), infoFactura.getTotalSinImpuestos()
+        ));
 
+        // Total de todo, precio sin impuestos + los impuestos
+        importeTotal = importeTotal.add(infoFactura.getTotalSinImpuestos()).add(infoFactura.getPropina());
+
+        /**
+         * Validar que el total de la factura  corresponda a un cliente correcto:
+         * Ejem: Si el cliente esta como consumirdor final, el total de la factua no pueder exceder a 200,
+         * pueder seg == 200 pero no mayor
+         */
+
+        // Es un consumidor final qu excede en 200 el valor de factura
+        if (importeTotal.compareTo(ConstanteUtil.VALOR_LIMITE_CONSUMIR_FINAL)>0 && invoiceXML.getPerson() ==null ){
+
+            throw  new BadRequestException("El total del comprobante $"+ importeTotal.setScale(2)+" , excede el límite de $"+ ConstanteUtil.VALOR_LIMITE_CONSUMIR_FINAL+ " para " +
+                    "clientes tipo Consumidor final, por favor, seleccione un cliente");
+        }
         infoFactura.setTotalConImpuestos(totalConImpuestos);
-        infoFactura.setPropina(BigDecimal.valueOf(invoiceNewDTO.getValueInvoiceNewDTO().getPropina()));
         infoFactura.setImporteTotal(importeTotal);
         infoFactura.setMoneda(ConstanteUtil.TEXT_DEFAULT_MODEDA);
 
@@ -313,6 +341,17 @@ public class AdminInvoice {
 
         return infoFactura;
 
+    }
+
+    private static BigDecimal validarPropina(BigDecimal propina, BigDecimal substotalSinImpuesto) {
+
+        BigDecimal valorCalculado = (substotalSinImpuesto.multiply(BigDecimal.TEN)).divide(BigDecimal.valueOf(100));
+        if (propina.compareTo(valorCalculado) > 0) {
+            throw new BadRequestException("Valor de propina " + propina.setScale(2) + ", excede al 10% del total sin impuesto " +
+                    substotalSinImpuesto + " (" + valorCalculado + " )");
+        }
+
+        return propina;
     }
 
     private static List<Impuesto> getTipoImpuestoFactura(List<Detalle> detalles, TypeTaxEnum typeTaxEnum) {

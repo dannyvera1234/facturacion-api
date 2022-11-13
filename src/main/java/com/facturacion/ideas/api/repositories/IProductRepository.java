@@ -15,7 +15,7 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
 	List<Product> findBySubsidiaryIde(Long subsidiary);
 
 	List<Product> findByIdeIn(List<Long> ide);
-	@Query("select pro from Product pro  join fetch  pro.taxProducts taxpro  join fetch  taxpro.taxValue taxvl  where  pro.ide in :ide")
+	@Query("select  distinct pro from Product pro  join fetch  pro.taxProducts taxpro  join fetch  taxpro.taxValue taxvl  where  pro.ide in :ide")
 	List<Product> fetchTaxValueTaxByIdeIn( @Param("ide") List<Long> ide);
 
 	Optional<Product> findByCodePrivate(String codePrivate);
