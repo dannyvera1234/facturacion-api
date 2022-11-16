@@ -62,7 +62,7 @@ public class AdminInvoice {
             if (!file.mkdirs()) throw new GenerateXMLExeption("No se pudo crear el directorio para el comprobante");
         }
 
-        String pathArchivo = file.getAbsolutePath() + "/" + invoiceXML.getTypeDocument() + "_" + invoiceXML.getNumberAutorization() + ".xml";
+        String pathArchivo = file.getAbsolutePath() + "/" + invoiceXML.getNumberAutorization() + ".xml";
         return ArchivoUtils.realizarMarshall(factura, pathArchivo);
 
     }
@@ -147,7 +147,7 @@ public class AdminInvoice {
                 productDetalle.getName());
         detalleItem.setCantidad(BigDecimal.valueOf(itemDetailsProd.getAmount()));
         detalleItem.setPrecioUnitario(BigDecimal.valueOf(itemDetailsProd.getUnitValue()));
-        detalleItem.setDescuento(BigDecimal.ZERO);
+        detalleItem.setDescuento(BigDecimal.ZERO.setScale(2));
         detalleItem.setPrecioTotalSinImpuesto(
                 detalleItem.getPrecioUnitario().multiply(detalleItem.getCantidad()));
 
@@ -190,7 +190,8 @@ public class AdminInvoice {
             //  Longitud guia es 15 digitoa
             if (invoiceXML.getGuiaRemission().matches("[0-9]{15}")) {
                 infoFactura.setGuiaRemision(invoiceXML.getGuiaRemission());
-            }else throw  new BadRequestException("El número para la guia de remision debe contener 15 dígitos, actualmente tiene " + invoiceXML.getGuiaRemission().length() + " dígitos");
+            } else
+                throw new BadRequestException("El número para la guia de remision debe contener 15 dígitos, actualmente tiene " + invoiceXML.getGuiaRemission().length() + " dígitos");
 
         }
 
@@ -220,7 +221,7 @@ public class AdminInvoice {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         infoFactura.setTotalSinImpuestos(totalSinImpuestos);
-        infoFactura.setTotalDescuento(BigDecimal.valueOf(invoiceNewDTO.getValueInvoiceNewDTO().getDescuento()));
+        infoFactura.setTotalDescuento(BigDecimal.valueOf(invoiceNewDTO.getValueInvoiceNewDTO().getDescuento()).setScale(2));
 
 
         BigDecimal importeTotal = BigDecimal.ZERO;
@@ -292,8 +293,8 @@ public class AdminInvoice {
                 // Obtener el porcentaje del tipo de iva, mediante su codigo
                 totalImpuesto.setTarifa(
                         BigDecimal.valueOf(TypePorcentajeIvaEnum.findTpePorcentajeIvaEnum(totalImpuesto.getCodigoPorcentaje()).getPorcentaje()
-                        ));
-                totalImpuesto.setValor(valorPorTipo);
+                        ).setScale(2));
+                totalImpuesto.setValor(valorPorTipo.setScale(2));
                 totalImpuestosList.add(totalImpuesto);
             }
 
@@ -304,7 +305,7 @@ public class AdminInvoice {
 
         infoFactura.setPropina(validarPropina(
                 BigDecimal.valueOf(invoiceNewDTO.getValueInvoiceNewDTO().getPropina()), infoFactura.getTotalSinImpuestos()
-        ));
+        ).setScale(2));
 
         // Total de todo, precio sin impuestos + los impuestos
         importeTotal = importeTotal.add(infoFactura.getTotalSinImpuestos()).add(infoFactura.getPropina());
@@ -316,13 +317,13 @@ public class AdminInvoice {
          */
 
         // Es un consumidor final qu excede en 200 el valor de factura
-        if (importeTotal.compareTo(ConstanteUtil.VALOR_LIMITE_CONSUMIR_FINAL)>0 && invoiceXML.getPerson() ==null ){
+        if (importeTotal.compareTo(ConstanteUtil.VALOR_LIMITE_CONSUMIR_FINAL) > 0 && invoiceXML.getPerson() == null) {
 
-            throw  new BadRequestException("El total del comprobante $"+ importeTotal.setScale(2)+" , excede el límite de $"+ ConstanteUtil.VALOR_LIMITE_CONSUMIR_FINAL+ " para " +
+            throw new BadRequestException("El total del comprobante $" + importeTotal.setScale(2) + " , excede el límite de $" + ConstanteUtil.VALOR_LIMITE_CONSUMIR_FINAL + " para " +
                     "clientes tipo Consumidor final, por favor, seleccione un cliente");
         }
         infoFactura.setTotalConImpuestos(totalConImpuestos);
-        infoFactura.setImporteTotal(importeTotal);
+        infoFactura.setImporteTotal(importeTotal.setScale(2));
         infoFactura.setMoneda(ConstanteUtil.TEXT_DEFAULT_MODEDA);
 
         List<PaymenNewtDTO> pagos = invoiceNewDTO.getPaymenNewtDTOS();
@@ -593,7 +594,7 @@ public class AdminInvoice {
             ivaImp.setBaseImponible(detalleItem.getPrecioTotalSinImpuesto().add(valueICE));
             BigDecimal calculoIva = (ivaImp.getBaseImponible().multiply(ivaImp.getTarifa())).divide(BigDecimal.valueOf(100));
 
-            ivaImp.setValor(calculoIva);
+            ivaImp.setValor(calculoIva.setScale(2));
             impuestoList.add(ivaImp);
         }
         impuestos.setImpuesto(impuestoList);
@@ -648,7 +649,7 @@ public class AdminInvoice {
         if ((impuesto.getTax().getIde() + "").equalsIgnoreCase(TypeTaxEnum.ICE.getCode())) {
             impuestoItem.setTarifa(BigDecimal.ZERO);
         } else if ((impuesto.getTax().getIde() + "").equalsIgnoreCase(TypeTaxEnum.IVA.getCode())) {
-            impuestoItem.setTarifa(BigDecimal.valueOf(impuesto.getPorcentage()));
+            impuestoItem.setTarifa(BigDecimal.valueOf(impuesto.getPorcentage()).setScale(2));
         }
 
         impuestoItem.setBaseImponible(item.getPrecioTotalSinImpuesto());

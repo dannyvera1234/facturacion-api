@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "infoTributaria", propOrder = { "ambiente", "tipoEmision", "razonSocial", "nombreComercial", "ruc",
+@XmlType(name = "infoTributaria", propOrder = { "ambiente", "tipoEmision", "razonSocial","nombreComercial", "ruc",
 		"claveAcceso", "codDoc", "estab", "ptoEmi", "secuencial", "dirMatriz", "agenteRetencion",
 		"contribuyenteRimpe" })
 public class InfoTributaria {
@@ -19,10 +19,12 @@ public class InfoTributaria {
 	@XmlElement(required = true)
 	private String razonSocial;
 
-	private String nombreComercial;
-
 	@XmlElement(required = true)
 	private String ruc;
+
+	private String nombreComercial;
+
+
 
 	@XmlElement(required = true)
 	private String claveAcceso;

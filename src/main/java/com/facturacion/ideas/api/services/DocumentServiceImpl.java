@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.services;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import com.facturacion.ideas.api.enums.TypeDocumentEnum;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
 import com.facturacion.ideas.api.repositories.*;
+import com.facturacion.ideas.api.sri.cliente.ClienteSRI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +51,15 @@ public class DocumentServiceImpl implements IDocumentService {
     @Autowired
     private IDocumentMapper documentMapper;
 
+
+    @Autowired
+    private ClienteSRI clienteSRI;
+
     @Override
     @Transactional
     public InvoiceResposeDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
+
+
         try {
             Invoice invoiceXML = new Invoice();
 
@@ -106,10 +114,13 @@ public class DocumentServiceImpl implements IDocumentService {
 
             Factura facturaGenerada = AdminInvoice.getFacturaGenerada();
 
+         ///  clienteSRI.validarComprobante(facturaGenerada);
+
             // Actualizar contador de documentos
             saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
                     numberSecuncial,
                     facturaGenerada.getInfoTributaria().getCodDoc()));
+
 
 
             /*
