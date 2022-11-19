@@ -14,8 +14,7 @@ public class ArchivoUtils {
 
     private static final Logger LOGGER = LogManager.getLogger(ArchivoUtils.class);
 
-
-    public static boolean realizarMarshall(Object comprobate, String pathArchivoSalida) {
+    public static String realizarMarshall(Object comprobate, String pathArchivoSalida){
 
         try {
 
@@ -24,7 +23,7 @@ public class ArchivoUtils {
             }
         } catch (JAXBException e) {
 
-            LOGGER.error("Error de formato de comprobate XML Factura", e);
+           LOGGER.error("Error de formato de comprobate XML Factura", e);
             throw new GenerateXMLExeption("Ocurrio un error con el formato XML de Factura: " + e.getMessage());
 
         } catch (IOException e) {
@@ -35,6 +34,6 @@ public class ArchivoUtils {
             throw new GenerateXMLExeption("Ocurrio un error inesperado al generar el XML: " + e.getMessage());
         }
 
-        return false;
+        return null;
     }
 }

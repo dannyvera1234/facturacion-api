@@ -25,7 +25,7 @@ public class ConstanteUtil {
 
     // Codigo numerico para la generacion del clave de acceso, puede ser cualquier valor de 8 digitos
     //public static final String CODE_NUMERIC_KEY_ACCESS = "22040612";
-    public static final String CODE_NUMERIC_KEY_ACCESS = "33333337";
+    public static final String CODE_NUMERIC_KEY_ACCESS = "12345678";
 
     // Texto por defecto para las personas que sean tipo regimen rimpe, esto texto no se persiste en la BD
     public static final String TEXT_DEFAULT_REGIMEN_RIMPE = "CONTRIBUYENTE RÉGIMEN RIMPE";

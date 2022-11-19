@@ -1,10 +1,9 @@
 package com.facturacion.ideas.api.controllers;
 
-import com.facturacion.ideas.api.admin.AdminDocument;
 import com.facturacion.ideas.api.entities.Product;
+import com.facturacion.ideas.api.enums.WSTypeEnum;
 import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
-import com.facturacion.ideas.api.repositories.IProductRepository;
-import com.facturacion.ideas.api.sri.cliente.ClienteSRI;
+import com.facturacion.ideas.api.sri.cliente.ClientSRI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,6 @@ import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.IDocumentService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
@@ -33,7 +30,7 @@ public class DocumentRestController {
 
 
     @Autowired
-    private ClienteSRI clienteSRI;
+    private ClientSRI clienteSRI;
 
     @PostMapping("/invoices")
     public ResponseEntity<InvoiceResposeDTO> saveInvoice(@RequestBody InvoiceNewDTO invoiceNewDTO) {
@@ -82,7 +79,7 @@ public class DocumentRestController {
      //  clienteSRI.recepcionComprobante();
 
 
-       clienteSRI.autorizacion();
+       //clienteSRI.autorizacion();
 
         //AdminDocument.generateCheckDigit("200920200117231242580011001001000397193123456781");
 
@@ -91,9 +88,13 @@ public class DocumentRestController {
        // return  AdminDocument.generateCheckDigit("151120220113087541990011001001000000019333333371");
 
         //return productRepository.fetchTaxValueTaxByIdeIn(ids);
+        clienteSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, "1911202201130875419900110010010000000271234567816");
 
         return  "HOla";
     }
-
-
 }
+// 19112022  01 1308754199001 001 001 000000012 12345678 1 4
+
+// 1911202201130875419900110010010000000121234567810
+
+// 19112022  01 1308754199001

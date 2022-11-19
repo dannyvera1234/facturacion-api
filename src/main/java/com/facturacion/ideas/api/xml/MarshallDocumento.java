@@ -12,8 +12,9 @@ import java.io.*;
 
 public class MarshallDocumento {
 
-    public static boolean marshalFactura(Factura comprobante, String pathArchivoSalida) throws JAXBException, IOException {
+    public static String marshalFactura(Factura comprobante, String pathArchivoSalida) throws JAXBException, IOException {
 
+            String pathFileGenerate = null;
             JAXBContext context = JAXBContext.newInstance(new Class[]{Factura.class});
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty("jaxb.encoding", "UTF-8");
@@ -25,7 +26,10 @@ public class MarshallDocumento {
             byteArrayOutputStream.writeTo(outputStream);
             byteArrayOutputStream.close();
             outputStream.close();
-            return true;
+
+            pathFileGenerate = pathArchivoSalida;
+
+            return  pathFileGenerate;
     }
 
 

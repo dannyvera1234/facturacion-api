@@ -6,7 +6,10 @@ import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.PaymenNewtDTO;
 import com.facturacion.ideas.api.entities.*;
-import com.facturacion.ideas.api.enums.*;
+import com.facturacion.ideas.api.enums.QuestionEnum;
+import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
+import com.facturacion.ideas.api.enums.TypePorcentajeIvaEnum;
+import com.facturacion.ideas.api.enums.TypeTaxEnum;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
 import com.facturacion.ideas.api.util.ArchivoUtils;
@@ -15,7 +18,6 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 import com.facturacion.ideas.api.util.PathDocuments;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +28,8 @@ public class AdminInvoice {
 
     private static Factura facturaGenerada = null;
 
-    public static void generatorFractureXML(Invoice invoiceXML, final InvoiceNewDTO invoiceNewDTO,
-                                            List<Product> products) {
+    public static String generatorFractureXML(Invoice invoiceXML, final InvoiceNewDTO invoiceNewDTO,
+                                              List<Product> products) throws GenerateXMLExeption {
 
         // Reiniciar
         facturaGenerada = null;
@@ -39,22 +41,26 @@ public class AdminInvoice {
         factura.setId("comprobante");
         factura.setVersion(ConstanteUtil.VERSION_XML);
 
-        if (escribirFactura(invoiceXML, factura)) {
+
+        String pathNewFileGenerate = writeInvoiceXML(invoiceXML, factura);
+        if (pathNewFileGenerate != null) {
             facturaGenerada = factura;
         } else facturaGenerada = null;
+
+        return pathNewFileGenerate;
     }
 
     public static Factura getFacturaGenerada() {
         return facturaGenerada;
     }
 
-    private static boolean escribirFactura(Invoice invoiceXML, Factura factura) {
+    private static String writeInvoiceXML(Invoice invoiceXML, Factura factura) throws GenerateXMLExeption {
 
         EmissionPoint emissionPoint = invoiceXML.getEmissionPoint();
         Subsidiary subsidiary = emissionPoint.getSubsidiary();
         Sender sender = subsidiary.getSender();
 
-        String baseUrl = PathDocuments.PATH_BASE + "/" + sender.getRuc()
+        final String baseUrl = PathDocuments.PATH_BASE  + sender.getRuc()
                 + "/est_" + subsidiary.getCode() + "/emi_" + emissionPoint.getCodePoint();
         File file = new File(baseUrl);
 
@@ -63,8 +69,20 @@ public class AdminInvoice {
         }
 
         String pathArchivo = file.getAbsolutePath() + "/" + invoiceXML.getNumberAutorization() + ".xml";
-        return ArchivoUtils.realizarMarshall(factura, pathArchivo);
 
+        // Retorna la ruta de nuevo archivo xm generado
+        String  path = ArchivoUtils.realizarMarshall(factura, pathArchivo);
+
+        if (path  !=null) {
+            File fileToSigned = new File(baseUrl.concat("/firmados"));
+
+            if (!fileToSigned.exists()) {
+                 if (!fileToSigned.mkdirs()){
+                     throw  new GenerateXMLExeption("EL directorio para los documentos firmados no pudo ser creado");
+                 }
+            }
+        }
+        return  path;
     }
 
 

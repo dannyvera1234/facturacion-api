@@ -1,7 +1,5 @@
 package com.facturacion.ideas.api.services;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -9,10 +7,11 @@ import com.facturacion.ideas.api.admin.AdminInvoice;
 import com.facturacion.ideas.api.documents.factura.Factura;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
-import com.facturacion.ideas.api.exeption.BadRequestException;
-import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
+import com.facturacion.ideas.api.enums.WSTypeEnum;
+import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.repositories.*;
-import com.facturacion.ideas.api.sri.cliente.ClienteSRI;
+import com.facturacion.ideas.api.sri.cliente.ClientSRI;
+import com.facturacion.ideas.api.util.SignatureDocumentXML;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.facturacion.ideas.api.admin.AdminDocument;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
-import com.facturacion.ideas.api.exeption.NotDataAccessException;
-import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IDocumentMapper;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
@@ -51,9 +48,11 @@ public class DocumentServiceImpl implements IDocumentService {
     @Autowired
     private IDocumentMapper documentMapper;
 
+    @Autowired
+    private ClientSRI clientSRI;
 
     @Autowired
-    private ClienteSRI clienteSRI;
+    private SignatureDocumentXML signatureDocumentXML;
 
     @Override
     @Transactional
@@ -110,11 +109,16 @@ public class DocumentServiceImpl implements IDocumentService {
             invoiceXML.setDateEmission(new Date());
             invoiceXML.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
 
-            AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
+            String pathNewInvoiceXML = AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
 
             Factura facturaGenerada = AdminInvoice.getFacturaGenerada();
 
-         ///  clienteSRI.validarComprobante(facturaGenerada);
+            String pathFileSigned =  signatureDocumentXML.setDataDocumentXML(facturaGenerada.getInfoTributaria().getRuc()
+                    , pathNewInvoiceXML,
+                    "VERO1308", "VERONICA_PATRICIA_QUIMIS_LEON_130922105723.p12", facturaGenerada.getInfoTributaria().getClaveAcceso());
+
+
+           clientSRI.receptionDocument( pathFileSigned, WSTypeEnum.WS_TEST_RECEPTION);
 
             // Actualizar contador de documentos
             saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
@@ -143,16 +147,20 @@ public class DocumentServiceImpl implements IDocumentService {
 
                     */
 
-          //  return documentMapper.mapperToDTO(invoiceSaved);
+            //  return documentMapper.mapperToDTO(invoiceSaved);
 
             return new InvoiceResposeDTO();
 
         } catch (DataAccessException e) {
             LOGGER.error("Error guardar factura", e);
-            throw new NotDataAccessException("Error al guardar factura");
-        } catch (GenerateXMLExeption e) {
+            throw new NotDataAccessException("Error al guardar la factura");
+        } catch (GenerateXMLExeption e) { // Exception al generar el xml e guardarlo  y crear el directorio de firmados
             LOGGER.error(e.getMessage(), e);
             throw new GenerateXMLExeption(e.getMessage());
+        } catch (SignatureException e) { // Excepcion al  firmar el documento
+            throw new NotDataAccessException(e.getMessage());
+        } catch (NotDataAccessException e) { // Excepcion al actualizar el secuencial de la factura
+            throw new NotDataAccessException(e.getMessage());
         }
     }
 
@@ -200,7 +208,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
         } catch (DataAccessException e) {
             LOGGER.error("Error al guardar numero de factura", e);
-            throw new NotDataAccessException("Error al guardar numero factura");
+            throw new NotDataAccessException("Error al actualizar el número de factura");
 
         }
 

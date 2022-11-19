@@ -88,7 +88,7 @@ public class AdminDocument {
         int suma = 0;
         int factor = 7;
         for (int index = 0; index < digits.length; index++) {
-            suma += Integer.parseInt(digits[index]) * 7;
+            suma += Integer.parseInt(digits[index]) * factor;
             factor -= 1;
 
             if (factor == 1) {
