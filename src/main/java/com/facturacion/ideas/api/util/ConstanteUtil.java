@@ -53,6 +53,8 @@ public class ConstanteUtil {
     // Constantes para version xml
     public static final String VERSION_XML = "1.0.0";
 
+    public  static  final int PAUSA_WS =3000;
+
 
 
 }

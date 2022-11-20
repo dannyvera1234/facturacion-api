@@ -76,10 +76,8 @@ public class DocumentRestController {
 		}*/
 
 
-     //  clienteSRI.recepcionComprobante();
+      //clienteSRI.receptionDocument("/home/ronny/Documentos/1911202201130875419900110010010000000281234567811_sign.xml", WSTypeEnum.WS_TEST_RECEPTION);
 
-
-       //clienteSRI.autorizacion();
 
         //AdminDocument.generateCheckDigit("200920200117231242580011001001000397193123456781");
 
@@ -88,7 +86,7 @@ public class DocumentRestController {
        // return  AdminDocument.generateCheckDigit("151120220113087541990011001001000000019333333371");
 
         //return productRepository.fetchTaxValueTaxByIdeIn(ids);
-        clienteSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, "1911202201130875419900110010010000000271234567816");
+       clienteSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, "1911202201130875419900110010010000000281234567811");
 
         return  "HOla";
     }

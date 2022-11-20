@@ -54,6 +54,8 @@ public class DocumentServiceImpl implements IDocumentService {
     @Autowired
     private SignatureDocumentXML signatureDocumentXML;
 
+    private  String pathNewInvoiceXML = null;
+
     @Override
     @Transactional
     public InvoiceResposeDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
@@ -109,22 +111,33 @@ public class DocumentServiceImpl implements IDocumentService {
             invoiceXML.setDateEmission(new Date());
             invoiceXML.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
 
-            String pathNewInvoiceXML = AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
+             pathNewInvoiceXML = AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
 
             Factura facturaGenerada = AdminInvoice.getFacturaGenerada();
 
-            String pathFileSigned =  signatureDocumentXML.setDataDocumentXML(facturaGenerada.getInfoTributaria().getRuc()
+            // Si el documento no puede ser firmado, se lo elimina
+            String pathFileSigned = signatureDocumentXML.setDataDocumentXML(facturaGenerada.getInfoTributaria().getRuc()
                     , pathNewInvoiceXML,
                     "VERO1308", "VERONICA_PATRICIA_QUIMIS_LEON_130922105723.p12", facturaGenerada.getInfoTributaria().getClaveAcceso());
 
+            clientSRI.receptionDocument(pathFileSigned, WSTypeEnum.WS_TEST_RECEPTION);
 
-           clientSRI.receptionDocument( pathFileSigned, WSTypeEnum.WS_TEST_RECEPTION);
+            // Realizar una espera de 3 segundo antes de invocar al web service de autorizacion
+            try {
+                Thread.sleep(ConstanteUtil.PAUSA_WS);
 
-            // Actualizar contador de documentos
+            } catch (InterruptedException e) {
+                LOGGER.error("Error al hacer pasusa 3 segundos" + e.getMessage());
+                //throw new RuntimeException(e);
+            }
+
+            clientSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, facturaGenerada.getInfoTributaria().getClaveAcceso());
+
+
+            // Actualizar contador de documentos si todo el proceso fue realizado con exito
             saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
                     numberSecuncial,
                     facturaGenerada.getInfoTributaria().getCodDoc()));
-
 
 
             /*
@@ -158,6 +171,11 @@ public class DocumentServiceImpl implements IDocumentService {
             LOGGER.error(e.getMessage(), e);
             throw new GenerateXMLExeption(e.getMessage());
         } catch (SignatureException e) { // Excepcion al  firmar el documento
+
+            /**
+             * Si el documento no pudo ser firmado, se lo elimina
+             */
+            AdminDocument.deleteDocument(pathNewInvoiceXML);
             throw new NotDataAccessException(e.getMessage());
         } catch (NotDataAccessException e) { // Excepcion al actualizar el secuencial de la factura
             throw new NotDataAccessException(e.getMessage());

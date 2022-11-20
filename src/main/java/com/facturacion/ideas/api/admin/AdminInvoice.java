@@ -71,18 +71,7 @@ public class AdminInvoice {
         String pathArchivo = file.getAbsolutePath() + "/" + invoiceXML.getNumberAutorization() + ".xml";
 
         // Retorna la ruta de nuevo archivo xm generado
-        String  path = ArchivoUtils.realizarMarshall(factura, pathArchivo);
-
-        if (path  !=null) {
-            File fileToSigned = new File(baseUrl.concat("/firmados"));
-
-            if (!fileToSigned.exists()) {
-                 if (!fileToSigned.mkdirs()){
-                     throw  new GenerateXMLExeption("EL directorio para los documentos firmados no pudo ser creado");
-                 }
-            }
-        }
-        return  path;
+        return ArchivoUtils.realizarMarshall(factura, pathArchivo);
     }
 
 

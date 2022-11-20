@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.admin;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -140,6 +141,16 @@ public class AdminDocument {
         invoiceNumber.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(typeDocument));
 
         return invoiceNumber;
+
+    }
+
+
+    public  static  void deleteDocument(String pathFile){
+        File file = new File(pathFile);
+        if (file.exists()){
+
+            file.delete();
+        }
 
     }
 

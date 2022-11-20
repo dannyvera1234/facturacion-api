@@ -103,7 +103,7 @@ public class ClientSRI {
         File file = new File(pathXMLSigned);
 
         if (!file.exists()) {
-            throw new NotFoundException("La factura a firmar' " + pathXMLSigned + " ' no se encuentra guardada");
+            throw new NotFoundException("La factura a enviar' " + pathXMLSigned + " ' no se encuentra guardada");
         }
         return file;
 
