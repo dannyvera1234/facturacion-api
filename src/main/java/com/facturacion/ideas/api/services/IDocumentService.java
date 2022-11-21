@@ -5,13 +5,14 @@ import java.util.List;
 import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
+import com.facturacion.ideas.api.dto.ResponseWebServiceDTO;
 import com.facturacion.ideas.api.entities.InvoiceNumber;
 import com.facturacion.ideas.api.entities.Product;
 
 public interface IDocumentService {
 	
 	
-	InvoiceResposeDTO saveInvoice(InvoiceNewDTO invoiceNewDTO);
+	ResponseWebServiceDTO saveInvoice(InvoiceNewDTO invoiceNewDTO);
 	
 	List<InvoiceResposeDTO> findBySender(Long idSender);
 	

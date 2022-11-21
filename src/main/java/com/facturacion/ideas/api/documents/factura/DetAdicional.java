@@ -9,27 +9,28 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "detAdicional")
 public class DetAdicional {
 
-	@XmlAttribute
+    @XmlAttribute
     protected String nombre;
-    
+
     @XmlAttribute
     protected String valor;
 
-	public String getNombre() {
-		return nombre;
-	}
+    public String getNombre() {
+        return nombre;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-	public String getValor() {
-		return valor;
-	}
+    public String getValor() {
+        return valor;
+    }
 
-	public void setValor(String valor) {
-		this.valor = valor;
-	}
-    
-    
+    public void setValor(String valor) {
+        this.valor = valor;
+    }
+
+
 }
+

@@ -59,4 +59,14 @@ public class FunctionUtil {
 		return null;
 	}
 
+	public static Date convertStringToDateNormal(String dateString) throws ParseException {
+
+		if (dateString != null) {
+			SimpleDateFormat format = new SimpleDateFormat();
+			return format.parse(dateString);
+		}
+
+		return null;
+	}
+
 }

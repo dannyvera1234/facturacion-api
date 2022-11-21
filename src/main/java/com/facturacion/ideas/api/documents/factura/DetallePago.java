@@ -11,47 +11,47 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "pago", propOrder = {"formaPago", "total", "plazo", "unidadTiempo"})
 public class DetallePago {
 
-	@XmlElement(required = true)
-	private String formaPago;
-	
-	@XmlElement(required = true)
-	private BigDecimal total;
-	
-	private String plazo;
-	
-	private String unidadTiempo;
+    @XmlElement(required = true)
+    private String formaPago;
 
-	public String getFormaPago() {
-		return formaPago;
-	}
+    @XmlElement(required = true)
+    private BigDecimal total;
 
-	public void setFormaPago(String formaPago) {
-		this.formaPago = formaPago;
-	}
+    private String plazo;
 
-	public BigDecimal getTotal() {
-		return total;
-	}
+    private String unidadTiempo;
 
-	public void setTotal(BigDecimal total) {
-		this.total = total;
-	}
+    public String getFormaPago() {
+        return formaPago;
+    }
 
-	public String getPlazo() {
-		return plazo;
-	}
+    public void setFormaPago(String formaPago) {
+        this.formaPago = formaPago;
+    }
 
-	public void setPlazo(String plazo) {
-		this.plazo = plazo;
-	}
+    public BigDecimal getTotal() {
+        return total;
+    }
 
-	public String getUnidadTiempo() {
-		return unidadTiempo;
-	}
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
 
-	public void setUnidadTiempo(String unidadTiempo) {
-		this.unidadTiempo = unidadTiempo;
-	}
-	
-	
+    public String getPlazo() {
+        return plazo;
+    }
+
+    public void setPlazo(String plazo) {
+        this.plazo = plazo;
+    }
+
+    public String getUnidadTiempo() {
+        return unidadTiempo;
+    }
+
+    public void setUnidadTiempo(String unidadTiempo) {
+        this.unidadTiempo = unidadTiempo;
+    }
+
+
 }

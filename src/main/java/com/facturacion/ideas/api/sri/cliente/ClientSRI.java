@@ -2,10 +2,17 @@ package com.facturacion.ideas.api.sri.cliente;
 
 
 import com.facturacion.ideas.api.enums.WSTypeEnum;
+import com.facturacion.ideas.api.exeption.ConnectionWSException;
+import com.facturacion.ideas.api.exeption.ConsumeWebServiceException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
+import com.facturacion.ideas.api.sri.responses.ProcessResponseAuthorization;
+import com.facturacion.ideas.api.sri.responses.ProcessResponseReception;
+import com.facturacion.ideas.api.sri.ws.autorizacion.RespuestaComprobante;
+import com.facturacion.ideas.api.sri.ws.recepcion.RespuestaSolicitud;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.NodeList;
 
@@ -17,7 +24,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Map;
 
 @Component
 public class ClientSRI {
@@ -31,7 +37,14 @@ public class ClientSRI {
 
     // FALTA CERRAR LA CONEXION PLZ
 
-    public void receptionDocument(final String pathXMLSigned, WSTypeEnum wsTypeEnum) {
+    @Autowired
+    private ProcessResponseReception marshallResponseReception;
+
+    @Autowired
+    private ProcessResponseAuthorization processResponseAuthorization;
+
+
+    public RespuestaSolicitud receptionDocument(final String pathXMLSigned, WSTypeEnum wsTypeEnum) {
 
         try {
             this.wsTypeEnum = wsTypeEnum;
@@ -50,26 +63,29 @@ public class ClientSRI {
             sendRequestSOAP(params);
 
             // Verifier request connexion
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                responseOKRecepcion();
-            } else {
-                System.err.println("ERROR HTTP : " + conn.getResponseMessage());
-            }
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK)
+                return responseOKRecepcion();
+            else
+                throw new ConsumeWebServiceException("ERROR HTTP: " + conn.getResponseMessage());
 
         } catch (MalformedURLException e) {
+            throw new ConsumeWebServiceException("URL MAL FORMADO: " + e.getMessage());
 
-            System.out.println("URL MAL FORMADO " + e.getMessage());
-        } catch (NotFoundException e) {
+            // El mensaje viene desde sus metodos  metodo
+        } catch (NotFoundException | ConnectionWSException e) {
 
-            System.out.println("FILE NO encontrado: " + e.getMessage());
+            throw new ConsumeWebServiceException(e.getMessage());
+
         } catch (IOException e) {
+            throw new ConsumeWebServiceException("ERROR DE LECTURA RESPUESTA: " + e.getMessage());
 
-            System.out.println("ERROR DE CONEXION: " + e.getMessage());
-            //throw new RuntimeException(e);
+        } catch (SOAPException e) {
+            throw new ConsumeWebServiceException("ERROR AL ACCCEDER AL BODY DE SOAP" + e.getMessage());
         }
+
     }
 
-    public void authorizationDocument(WSTypeEnum wsTypeEnum, final String keyAccess) {
+    public RespuestaComprobante authorizationDocument(WSTypeEnum wsTypeEnum, final String keyAccess) {
 
         try {
             this.wsTypeEnum = wsTypeEnum;
@@ -81,21 +97,23 @@ public class ClientSRI {
             // Sender POST
             sendRequestSOAP(params);
 
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                responseOkAuthorization();
-            } else {
-                System.err.println("HTTP ERROR: " + conn.getResponseMessage());
-            }
-
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK)
+                return responseOkAuthorization();
+            else throw new ConsumeWebServiceException("ERROR HTTP: " + conn.getResponseMessage());
 
         } catch (MalformedURLException e) {
+            throw new ConsumeWebServiceException("URL MAL FORMADO: " + e.getMessage());
 
-            System.out.println("URL MAL FORMADO " + e.getMessage());
+            // El mensaje viene desde sus metodos  metodo
+        } catch (ConnectionWSException e) {
+            throw new ConsumeWebServiceException(e.getMessage());
         } catch (IOException e) {
+            throw new ConsumeWebServiceException("ERROR DE LECTURA RESPUESTA: " + e.getMessage());
 
-            System.out.println("ERROR DE CONEXION: " + e.getMessage());
-            //throw new RuntimeException(e);
+        } catch (SOAPException e) {
+            throw new ConsumeWebServiceException("ERROR AL ACCCEDER AL BODY DE SOAP" + e.getMessage());
         }
+
     }
 
     private File getFileXml(String pathXMLSigned) {
@@ -103,7 +121,7 @@ public class ClientSRI {
         File file = new File(pathXMLSigned);
 
         if (!file.exists()) {
-            throw new NotFoundException("La factura a enviar' " + pathXMLSigned + " ' no se encuentra guardada");
+            throw new NotFoundException("El comprobante a enviar' " + pathXMLSigned + " ' no existe");
         }
         return file;
 
@@ -126,27 +144,34 @@ public class ClientSRI {
                 "    <x:Header/>" +
                 "    <x:Body>" +
                 "        <ec:autorizacionComprobante>" +
-                "            <claveAccesoComprobante>"+keyAccess+"</claveAccesoComprobante>" +
+                "            <claveAccesoComprobante>" + keyAccess + "</claveAccesoComprobante>" +
                 "        </ec:autorizacionComprobante>" +
                 "    </x:Body>" +
                 "</x:Envelope>";
     }
 
 
-    private void openConnection() throws IOException {
+    private void openConnection() {
 
         conn = null;
         uriLogin = null;
 
-        uriLogin = new URL(wsTypeEnum.getWsdl());
-        conn = (HttpURLConnection) uriLogin.openConnection();
-        conn.setDoInput(true);
-        conn.setDoOutput(true);
-        conn.setReadTimeout(15000);
-        conn.setConnectTimeout(15000);
-        conn.setRequestMethod("POST");
-    }
+        try {
 
+            uriLogin = new URL(wsTypeEnum.getWsdl());
+            conn = (HttpURLConnection) uriLogin.openConnection();
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setReadTimeout(15000);
+            conn.setConnectTimeout(15000);
+            conn.setRequestMethod("POST");
+        } catch (IOException e) {
+            throw new ConnectionWSException("Error al abrir coneccion con Web Service: " + e.getMessage());
+
+        }
+
+
+    }
 
     private void sendRequestSOAP(String params) throws IOException {
 
@@ -156,62 +181,40 @@ public class ClientSRI {
         wr.close();
     }
 
-    private void responseOKRecepcion() {
+    private RespuestaSolicitud responseOKRecepcion() throws SOAPException, IOException {
+        // Read response as String
+        StringBuilder responseStrBuilder = getDataReadResponse();
 
-        try {
-            // Read response as String
-            StringBuilder responseStrBuilder = getDataReadResponse();
+        // Converter to SOAP BODY la response leida anteriorment como String
+        SOAPBody body = getSOAPBodyResponse(responseStrBuilder);
 
-            // Converter to SOAP BODY la response leida anteriorment como String
-            SOAPBody body = getSOAPBodyResponse(responseStrBuilder);
+        //NodeList returnList = body.getElementsByTagName("web:RES");
+        //NodeList list = body.getElementsByTagName("autorizaciones");
 
-            //NodeList returnList = body.getElementsByTagName("web:RES");
-            NodeList list = body.getElementsByTagName("autorizaciones");
-
-                        /*Writer out = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("comprobante_"+numero+".xml"), "UTF-8"));
-                        try {
-                            out.write( body.getElementsByTagName("autorizacion").item(0).getTextContent().replaceAll("\\p{Cntrl}", "\n").replaceAll("\t\r", "")  );
-                        } finally {
-                            out.close();
-                        }*/
-
-        } catch (IOException e) {
-            System.out.println("Error al leer la informacion : " + e.getMessage());
-
-
-        } catch (SOAPException e) {
-
-            System.out.println("Erorr SOAP: " + e.getMessage());
-        }
+        return marshallResponseReception.processResponseRequest(body);
     }
 
-    private void responseOkAuthorization() {
-
-        try {
-
-            StringBuilder responseStrBuilder = getDataReadResponse();
-
-            SOAPBody body = getSOAPBodyResponse(responseStrBuilder);
-
-            //NodeList returnList = body.getElementsByTagName("web:RES");
-            NodeList list = body.getElementsByTagName("autorizaciones");
+    private RespuestaComprobante responseOkAuthorization() throws IOException, SOAPException {
 
 
-                        /*Writer out = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("comprobante_"+numero+".xml"), "UTF-8"));
-                        try {
-                            out.write( body.getElementsByTagName("autorizacion").item(0).getTextContent().replaceAll("\\p{Cntrl}", "\n").replaceAll("\t\r", "")  );
-                        } finally {
-                            out.close();
-                        }*/
+        StringBuilder responseStrBuilder = getDataReadResponse();
 
-        } catch (IOException e) {
-            System.out.println("Error al leer la informacion : " + e.getMessage());
+        SOAPBody body = getSOAPBodyResponse(responseStrBuilder);
+
+        //NodeList returnList = body.getElementsByTagName("web:RES");
+        //NodeList list = body.getElementsByTagName("autorizaciones");
 
 
-        } catch (SOAPException e) {
+        return processResponseAuthorization.processResponseRequest(body);
+           /* String respuesta = "/home/ronny/Documentos/respuestaxml";
+            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(respuesta + ".xml"), StandardCharsets.UTF_8));
+            try {
+                out.write(body.getElementsByTagName("autorizacion").item(0).getTextContent().replaceAll("\\p{Cntrl}", "\n").replaceAll("\t\r", ""));
+            } finally {
+                out.close();
+            }*/
 
-            System.out.println("Error SOAP: " + e.getMessage());
-        }
+
     }
 
     private StringBuilder getDataReadResponse() throws IOException {

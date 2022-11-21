@@ -1,3 +1,5 @@
+
+
 package com.facturacion.ideas.api.documents.factura;
 
 import java.util.ArrayList;
@@ -12,18 +14,18 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "impuestos", propOrder = { "impuesto" })
 public class Impuestos {
 
-	@XmlElement(required = true)
-	private List<Impuesto> impuesto;
+    @XmlElement(required = true)
+    private List<Impuesto> impuesto;
 
-	public List<Impuesto> getImpuesto() {
+    public List<Impuesto> getImpuesto() {
 
-		if (this.impuesto == null)
-			this.impuesto = new ArrayList<>();
+        if (this.impuesto == null)
+            this.impuesto = new ArrayList<>();
 
-		return impuesto;
-	}
+        return impuesto;
+    }
 
-	public void setImpuesto(List<Impuesto> impuesto) {
-		this.impuesto = impuesto;
-	}
+    public void setImpuesto(List<Impuesto> impuesto) {
+        this.impuesto = impuesto;
+    }
 }

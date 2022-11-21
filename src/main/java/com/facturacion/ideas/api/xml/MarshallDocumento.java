@@ -1,9 +1,6 @@
 package com.facturacion.ideas.api.xml;
 
 import com.facturacion.ideas.api.documents.factura.Factura;
-import com.facturacion.ideas.api.services.SenderServiceImpl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

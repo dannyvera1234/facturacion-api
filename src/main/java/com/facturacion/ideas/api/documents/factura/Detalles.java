@@ -12,17 +12,17 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "detalles", propOrder = { "detalle" })
 public class Detalles {
 
-	@XmlElement(required = true)
-	private List<Detalle> detalle;
+    @XmlElement(required = true)
+    private List<Detalle> detalle;
 
-	public List<Detalle> getDetalle() {
-		if (this.detalle == null)
-			this.detalle = new ArrayList<>();
+    public List<Detalle> getDetalle() {
+        if (this.detalle == null)
+            this.detalle = new ArrayList<>();
 
-		return detalle;
-	}
+        return detalle;
+    }
 
-	public void setDetalle(List<Detalle> detalle) {
-		this.detalle = detalle;
-	}
+    public void setDetalle(List<Detalle> detalle) {
+        this.detalle = detalle;
+    }
 }

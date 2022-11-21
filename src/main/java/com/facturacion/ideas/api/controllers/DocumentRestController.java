@@ -1,8 +1,11 @@
 package com.facturacion.ideas.api.controllers;
 
+import com.facturacion.ideas.api.dto.ResponseWebServiceDTO;
 import com.facturacion.ideas.api.entities.Product;
 import com.facturacion.ideas.api.enums.WSTypeEnum;
+import com.facturacion.ideas.api.exeption.ConsumeWebServiceException;
 import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
+import com.facturacion.ideas.api.exeption.SignatureException;
 import com.facturacion.ideas.api.sri.cliente.ClientSRI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,19 +36,18 @@ public class DocumentRestController {
     private ClientSRI clienteSRI;
 
     @PostMapping("/invoices")
-    public ResponseEntity<InvoiceResposeDTO> saveInvoice(@RequestBody InvoiceNewDTO invoiceNewDTO) {
+    public ResponseEntity<ResponseWebServiceDTO> saveInvoice(@RequestBody InvoiceNewDTO invoiceNewDTO) {
 
         LOGGER.info("Factura a guardar: " + invoiceNewDTO);
         try {
 
-            InvoiceResposeDTO invoiceResposeDTO = documentService.saveInvoice(invoiceNewDTO);
+            ResponseWebServiceDTO responseWebServiceDTO = documentService.saveInvoice(invoiceNewDTO);
 
-            return new ResponseEntity<>(invoiceResposeDTO, HttpStatus.CREATED);
+            return new ResponseEntity<>(responseWebServiceDTO, HttpStatus.CREATED);
 
         } catch (NotDataAccessException e) {
-
             throw new NotDataAccessException(e.getMessage());
-        } catch (GenerateXMLExeption e) {
+        } catch (GenerateXMLExeption | SignatureException | ConsumeWebServiceException e) {
             throw new GenerateXMLExeption(e.getMessage());
         }
     }
@@ -76,19 +78,19 @@ public class DocumentRestController {
 		}*/
 
 
-      //clienteSRI.receptionDocument("/home/ronny/Documentos/1911202201130875419900110010010000000281234567811_sign.xml", WSTypeEnum.WS_TEST_RECEPTION);
+        //clienteSRI.receptionDocument("/home/ronny/Documentos/1911202201130875419900110010010000000281234567811_sign.xml", WSTypeEnum.WS_TEST_RECEPTION);
 
 
         //AdminDocument.generateCheckDigit("200920200117231242580011001001000397193123456781");
 
         //return  AdminDocument.generateCheckDigit("200920200117231242540011001001000397193123456781");
 
-       // return  AdminDocument.generateCheckDigit("151120220113087541990011001001000000019333333371");
+        // return  AdminDocument.generateCheckDigit("151120220113087541990011001001000000019333333371");
 
         //return productRepository.fetchTaxValueTaxByIdeIn(ids);
-       clienteSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, "1911202201130875419900110010010000000281234567811");
+        clienteSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, "1911202201130875419900110010010000000281234567811");
 
-        return  "HOla";
+        return "HOla";
     }
 }
 // 19112022  01 1308754199001 001 001 000000012 12345678 1 4

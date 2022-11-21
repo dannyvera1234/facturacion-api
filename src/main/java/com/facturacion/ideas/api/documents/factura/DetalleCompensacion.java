@@ -11,39 +11,39 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "compensacion", propOrder = {"codigo", "tarifa", "valor"})
 public class DetalleCompensacion {
 
-	@XmlElement(required = true)
-	private int codigo;
-	
-	@XmlElement(required = true)
-	private int tarifa;
-	
-	@XmlElement(required = true)
-	private BigDecimal valor;
+    @XmlElement(required = true)
+    private int codigo;
 
-	public int getCodigo() {
-		return codigo;
-	}
+    @XmlElement(required = true)
+    private int tarifa;
 
-	public void setCodigo(int codigo) {
-		this.codigo = codigo;
-	}
+    @XmlElement(required = true)
+    private BigDecimal valor;
 
-	public int getTarifa() {
-		return tarifa;
-	}
+    public int getCodigo() {
+        return codigo;
+    }
 
-	public void setTarifa(int tarifa) {
-		this.tarifa = tarifa;
-	}
+    public void setCodigo(int codigo) {
+        this.codigo = codigo;
+    }
 
-	public BigDecimal getValor() {
-		return valor;
-	}
+    public int getTarifa() {
+        return tarifa;
+    }
 
-	public void setValor(BigDecimal valor) {
-		this.valor = valor;
-	}
-	
-	
-	
+    public void setTarifa(int tarifa) {
+        this.tarifa = tarifa;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
+    }
+
+
+
 }

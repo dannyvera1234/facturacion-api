@@ -1,3 +1,5 @@
+
+
 package com.facturacion.ideas.api.documents.factura;
 
 import java.util.ArrayList;
@@ -12,17 +14,17 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "infoAdicional", propOrder = { "campoAdicional" })
 public class InfoAdicional {
 
-	@XmlElement(required = true)
-	private List<CampoAdicional> campoAdicional;
+    @XmlElement(required = true)
+    private List<CampoAdicional> campoAdicional;
 
-	public List<CampoAdicional> getCampoAdicional() {
+    public List<CampoAdicional> getCampoAdicional() {
 
-		if (this.campoAdicional == null)
-			this.campoAdicional = new ArrayList<>();
-		return campoAdicional;
-	}
+        if (this.campoAdicional == null)
+            this.campoAdicional = new ArrayList<>();
+        return campoAdicional;
+    }
 
-	public void setCampoAdicional(List<CampoAdicional> campoAdicional) {
-		this.campoAdicional = campoAdicional;
-	}
+    public void setCampoAdicional(List<CampoAdicional> campoAdicional) {
+        this.campoAdicional = campoAdicional;
+    }
 }

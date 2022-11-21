@@ -5,12 +5,14 @@ import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.admin.AdminInvoice;
 import com.facturacion.ideas.api.documents.factura.Factura;
+import com.facturacion.ideas.api.dto.ResponseWebServiceDTO;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
 import com.facturacion.ideas.api.enums.WSTypeEnum;
 import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.repositories.*;
 import com.facturacion.ideas.api.sri.cliente.ClientSRI;
+import com.facturacion.ideas.api.sri.ws.recepcion.RespuestaSolicitud;
 import com.facturacion.ideas.api.util.SignatureDocumentXML;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,11 +56,14 @@ public class DocumentServiceImpl implements IDocumentService {
     @Autowired
     private SignatureDocumentXML signatureDocumentXML;
 
-    private  String pathNewInvoiceXML = null;
+    private String pathNewInvoiceXML = null;
+
+
+    private Factura facturaGenerada = null;
 
     @Override
     @Transactional
-    public InvoiceResposeDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
+    public ResponseWebServiceDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
 
 
         try {
@@ -111,75 +116,44 @@ public class DocumentServiceImpl implements IDocumentService {
             invoiceXML.setDateEmission(new Date());
             invoiceXML.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
 
-             pathNewInvoiceXML = AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
+            pathNewInvoiceXML = AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
 
-            Factura facturaGenerada = AdminInvoice.getFacturaGenerada();
+            facturaGenerada = AdminInvoice.getFacturaGenerada();
 
             // Si el documento no puede ser firmado, se lo elimina
             String pathFileSigned = signatureDocumentXML.setDataDocumentXML(facturaGenerada.getInfoTributaria().getRuc()
                     , pathNewInvoiceXML,
                     "VERO1308", "VERONICA_PATRICIA_QUIMIS_LEON_130922105723.p12", facturaGenerada.getInfoTributaria().getClaveAcceso());
 
-            clientSRI.receptionDocument(pathFileSigned, WSTypeEnum.WS_TEST_RECEPTION);
 
-            // Realizar una espera de 3 segundo antes de invocar al web service de autorizacion
-            try {
-                Thread.sleep(ConstanteUtil.PAUSA_WS);
+            return new ResponseWebServiceDTO();
 
-            } catch (InterruptedException e) {
-                LOGGER.error("Error al hacer pasusa 3 segundos" + e.getMessage());
-                //throw new RuntimeException(e);
-            }
-
-            clientSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, facturaGenerada.getInfoTributaria().getClaveAcceso());
-
-
-            // Actualizar contador de documentos si todo el proceso fue realizado con exito
-            saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
-                    numberSecuncial,
-                    facturaGenerada.getInfoTributaria().getCodDoc()));
-
-
-            /*
-            // Obtener los valores de la factura
-            ValueInvoice valueInvoice = AdminInvoice.calcularDetalleFactura(detalles, 0.0);
-
-            // Crear factura y mapear a Entitidad, no se mapea las relaciones, en el mapper ya se asigno la
-            // relacion con formas de pago
-            Invoice invoice = documentMapper.mapperToEntity(invoiceNewDTO);
-
-            // Asignar detalles
-            invoice.setDeatailsInvoiceProducts(detalles);
-
-            // Agregar valores factura a la factura
-            invoice.setValueInvoice(valueInvoice);
-
-
-            // Persistir la factura
-            Invoice invoiceSaved = invoiceRepository.save(invoice);
-
-                    */
-
-            //  return documentMapper.mapperToDTO(invoiceSaved);
-
-            return new InvoiceResposeDTO();
-
-        } catch (DataAccessException e) {
-            LOGGER.error("Error guardar factura", e);
-            throw new NotDataAccessException("Error al guardar la factura");
         } catch (GenerateXMLExeption e) { // Exception al generar el xml e guardarlo  y crear el directorio de firmados
             LOGGER.error(e.getMessage(), e);
             throw new GenerateXMLExeption(e.getMessage());
+
         } catch (SignatureException e) { // Excepcion al  firmar el documento
+            LOGGER.error(e.getMessage(), e);
 
             /**
              * Si el documento no pudo ser firmado, se lo elimina
              */
             AdminDocument.deleteDocument(pathNewInvoiceXML);
-            throw new NotDataAccessException(e.getMessage());
-        } catch (NotDataAccessException e) { // Excepcion al actualizar el secuencial de la factura
-            throw new NotDataAccessException(e.getMessage());
+            throw new SignatureException(e.getMessage());
+
+        } catch (ConsumeWebServiceException e) { // Excepcion al consumir web service
+            LOGGER.error(e.getMessage(), e);
+            throw new ConsumeWebServiceException(e.getMessage());
+        } catch (DataAccessException e) {
+            LOGGER.error("Error guardar factura", e);
+            throw new NotDataAccessException("Error al guardar la factura");
+
         }
+
+        /* catch (NotDataAccessException e) { // Excepcion al actualizar el secuencial de la factura
+            throw new NotDataAccessException(e.getMessage());
+        }*/
+
     }
 
     @Override
@@ -206,28 +180,21 @@ public class DocumentServiceImpl implements IDocumentService {
     @Transactional
     public void saveInvoiceNumber(InvoiceNumber invoiceNumber) {
 
-        try {
-            InvoiceNumber optionalInvoice = invoiceNumberRepository.findByTypeDocumentAndSubsidiary(
-                    invoiceNumber.getTypeDocument(), invoiceNumber.getSubsidiary()).orElse(null);
+        InvoiceNumber optionalInvoice = invoiceNumberRepository.findByTypeDocumentAndSubsidiary(
+                invoiceNumber.getTypeDocument(), invoiceNumber.getSubsidiary()).orElse(null);
 
-            // Indica que un nuevo tipo de documento del emisor
-            if (optionalInvoice == null) {
+        // Indica que un nuevo tipo de documento del emisor
+        if (optionalInvoice == null) {
 
-                // Nuevo registro
-                invoiceNumberRepository.save(invoiceNumber);
-            } else {
+            // Nuevo registro
+            invoiceNumberRepository.save(invoiceNumber);
+        } else {
 
-                // Indica que debe actualizar el numero de documento
-                optionalInvoice.setCurrentSequentialNumber(invoiceNumber.getCurrentSequentialNumber());
+            // Indica que debe actualizar el numero de documento
+            optionalInvoice.setCurrentSequentialNumber(invoiceNumber.getCurrentSequentialNumber());
 
-                // Actualizar
-                invoiceNumberRepository.save(optionalInvoice);
-            }
-
-        } catch (DataAccessException e) {
-            LOGGER.error("Error al guardar numero de factura", e);
-            throw new NotDataAccessException("Error al actualizar el número de factura");
-
+            // Actualizar
+            invoiceNumberRepository.save(optionalInvoice);
         }
 
     }
@@ -270,6 +237,40 @@ public class DocumentServiceImpl implements IDocumentService {
 
         }
         throw new BadRequestException("La Factura debe  contener al menos un detalle o más");
+    }
+
+    public ResponseWebServiceDTO consumeWebService(final String pathFileSigned, Invoice invoiceXML, int numberSecuncial) {
+
+        // LO que se enviara al front
+        ResponseWebServiceDTO responseWebService = new ResponseWebServiceDTO();
+
+        // Recepcion
+        RespuestaSolicitud respuestaSolicitud = clientSRI.receptionDocument(pathFileSigned, WSTypeEnum.WS_TEST_RECEPTION);
+
+        responseWebService.setRespuestaSolicitud(respuestaSolicitud);
+
+        if (respuestaSolicitud != null && respuestaSolicitud.getEstado().equalsIgnoreCase("RECIBIDA")) {
+
+            // Realizar una espera de 3 segundo antes de invocar al web service de autorizacion
+            try {
+                Thread.sleep(ConstanteUtil.PAUSA_WS);
+
+            } catch (InterruptedException e) {
+                LOGGER.error("Error al hacer pasusa 3 segundos" + e.getMessage());
+            }
+
+            clientSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, facturaGenerada.getInfoTributaria().getClaveAcceso());
+
+            // Actualizar contador de documentos si todo el proceso fue realizado con exito
+            saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
+                    numberSecuncial,
+                    facturaGenerada.getInfoTributaria().getCodDoc()));
+
+
+        }// elimihnar generado y firnado
+
+
+        return responseWebService;
     }
 
 

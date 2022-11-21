@@ -10,27 +10,27 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlType(name="campoAdicional", propOrder = {"value"})
 public class CampoAdicional {
 
-	@XmlValue
-	private String value;
-	
-	@XmlAttribute
-	private String nombre;
+    @XmlValue
+    private String value;
 
-	public String getValue() {
-		return value;
-	}
+    @XmlAttribute
+    private String nombre;
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-	
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
 
 }

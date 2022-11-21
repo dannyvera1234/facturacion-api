@@ -11,19 +11,19 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "totalConImpuestos", propOrder = {"totalImpuesto"})
 public class TotalConImpuestos {
-	
-	@XmlElement(required = true)
+
+    @XmlElement(required = true)
     private List<TotalImpuesto> totalImpuesto;
-    
+
     public List<TotalImpuesto> getTotalImpuesto() {
-      if (this.totalImpuesto == null)
-        this.totalImpuesto = new ArrayList<>(); 
-      return this.totalImpuesto;
+        if (this.totalImpuesto == null)
+            this.totalImpuesto = new ArrayList<>();
+        return this.totalImpuesto;
     }
 
-	public void setTotalImpuesto(List<TotalImpuesto> totalImpuesto) {
-		this.totalImpuesto = totalImpuesto;
-	}
-    
-	
+    public void setTotalImpuesto(List<TotalImpuesto> totalImpuesto) {
+        this.totalImpuesto = totalImpuesto;
+    }
+
+
 }

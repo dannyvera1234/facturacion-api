@@ -12,18 +12,18 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "detallesAdicionales", propOrder = { "detAdicional" })
 public class DetallesAdicionales {
 
-	@XmlElement(required = true)
-	private List<DetAdicional> detAdicional;
+    @XmlElement(required = true)
+    private List<DetAdicional> detAdicional;
 
-	public List<DetAdicional> getDetAdicional() {
-		if (this.detAdicional == null)
-			this.detAdicional = new ArrayList<>();
+    public List<DetAdicional> getDetAdicional() {
+        if (this.detAdicional == null)
+            this.detAdicional = new ArrayList<>();
 
-		return detAdicional;
-	}
+        return detAdicional;
+    }
 
-	public void setDetAdicional(List<DetAdicional> detAdicional) {
-		this.detAdicional = detAdicional;
-	}
+    public void setDetAdicional(List<DetAdicional> detAdicional) {
+        this.detAdicional = detAdicional;
+    }
 
 }

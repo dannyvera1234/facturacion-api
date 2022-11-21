@@ -1,26 +1,19 @@
 package com.facturacion.ideas.api.admin;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.documents.InfoTributaria;
 import com.facturacion.ideas.api.documents.factura.Factura;
 import com.facturacion.ideas.api.documents.factura.InfoFactura;
-import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
-import com.facturacion.ideas.api.dto.InvoiceNewDTO;
-import com.facturacion.ideas.api.dto.ValueInvoiceNewDTO;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.*;
-import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.KeyAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.util.ConstanteUtil;
-import com.facturacion.ideas.api.util.FunctionUtil;
 
 public class AdminDocument {
 

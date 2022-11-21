@@ -12,19 +12,19 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "pagos", propOrder = {"pago"})
 public class Pagos {
 
-	@XmlElement(required = true)
-	private List<DetallePago> pago;
-	
-	public List<DetallePago> getPago() {
-		
-		if (this.pago == null) {
-			this.pago = new ArrayList<>();
-		}
-		
-		return pago;
-	}
-	
-	public void setPago(List<DetallePago> pago) {
-		this.pago = pago;
-	}
+    @XmlElement(required = true)
+    private List<DetallePago> pago;
+
+    public List<DetallePago> getPago() {
+
+        if (this.pago == null) {
+            this.pago = new ArrayList<>();
+        }
+
+        return pago;
+    }
+
+    public void setPago(List<DetallePago> pago) {
+        this.pago = pago;
+    }
 }

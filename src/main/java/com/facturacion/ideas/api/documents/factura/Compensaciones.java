@@ -12,17 +12,17 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "compensaciones", propOrder = {"compensacion"})
 public class Compensaciones {
 
-	@XmlElement(required = true)
-	private List<DetalleCompensacion> compensacion;
+    @XmlElement(required = true)
+    private List<DetalleCompensacion> compensacion;
 
-	
-	public List<DetalleCompensacion> getCompensacion() {
-		if (this.compensacion ==null) 
-			this.compensacion = new ArrayList<>();
-		return compensacion;
-	}
-	
-	public void setCompensacion(List<DetalleCompensacion> compensacion) {
-		this.compensacion = compensacion;
-	}
+
+    public List<DetalleCompensacion> getCompensacion() {
+        if (this.compensacion ==null)
+            this.compensacion = new ArrayList<>();
+        return compensacion;
+    }
+
+    public void setCompensacion(List<DetalleCompensacion> compensacion) {
+        this.compensacion = compensacion;
+    }
 }

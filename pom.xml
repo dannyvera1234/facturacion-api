@@ -122,8 +122,12 @@
                 </executions>
                 <configuration>
                     <wsdlUrls>
-                        <wsdlUrl>
+                     <!--   <wsdlUrl>
+
                             https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl
+                        </wsdlUrl>-->
+                        <wsdlUrl>
+                            https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl
                         </wsdlUrl>
                     </wsdlUrls>
                     <packageName>com.facturacion.ideas.api.sri.ws</packageName>
