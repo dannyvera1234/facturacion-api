@@ -6,9 +6,8 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
-
 import javax.xml.soap.*;
-import java.util.List;
+
 
 @Component
 public class ProcessResponseReception {

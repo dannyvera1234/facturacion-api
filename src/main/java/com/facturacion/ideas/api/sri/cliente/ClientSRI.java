@@ -204,16 +204,7 @@ public class ClientSRI {
         //NodeList returnList = body.getElementsByTagName("web:RES");
         //NodeList list = body.getElementsByTagName("autorizaciones");
 
-
         return processResponseAuthorization.processResponseRequest(body);
-           /* String respuesta = "/home/ronny/Documentos/respuestaxml";
-            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(respuesta + ".xml"), StandardCharsets.UTF_8));
-            try {
-                out.write(body.getElementsByTagName("autorizacion").item(0).getTextContent().replaceAll("\\p{Cntrl}", "\n").replaceAll("\t\r", ""));
-            } finally {
-                out.close();
-            }*/
-
 
     }
 

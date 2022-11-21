@@ -7,11 +7,14 @@ import com.facturacion.ideas.api.admin.AdminInvoice;
 import com.facturacion.ideas.api.documents.factura.Factura;
 import com.facturacion.ideas.api.dto.ResponseWebServiceDTO;
 import com.facturacion.ideas.api.entities.*;
+import com.facturacion.ideas.api.enums.StatusDocumentsEnum;
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
 import com.facturacion.ideas.api.enums.WSTypeEnum;
 import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.repositories.*;
 import com.facturacion.ideas.api.sri.cliente.ClientSRI;
+import com.facturacion.ideas.api.sri.ws.autorizacion.Autorizacion;
+import com.facturacion.ideas.api.sri.ws.autorizacion.RespuestaComprobante;
 import com.facturacion.ideas.api.sri.ws.recepcion.RespuestaSolicitud;
 import com.facturacion.ideas.api.util.SignatureDocumentXML;
 import org.apache.logging.log4j.LogManager;
@@ -57,6 +60,8 @@ public class DocumentServiceImpl implements IDocumentService {
     private SignatureDocumentXML signatureDocumentXML;
 
     private String pathNewInvoiceXML = null;
+
+    private String pathFileSigned = null;
 
 
     private Factura facturaGenerada = null;
@@ -121,12 +126,13 @@ public class DocumentServiceImpl implements IDocumentService {
             facturaGenerada = AdminInvoice.getFacturaGenerada();
 
             // Si el documento no puede ser firmado, se lo elimina
-            String pathFileSigned = signatureDocumentXML.setDataDocumentXML(facturaGenerada.getInfoTributaria().getRuc()
+            pathFileSigned = signatureDocumentXML.setDataDocumentXML(facturaGenerada.getInfoTributaria().getRuc()
                     , pathNewInvoiceXML,
                     "VERO1308", "VERONICA_PATRICIA_QUIMIS_LEON_130922105723.p12", facturaGenerada.getInfoTributaria().getClaveAcceso());
 
 
-            return new ResponseWebServiceDTO();
+            //consumeWebService(invoiceXML, numberSecuncial);
+            return consumeWebService(invoiceXML, numberSecuncial);
 
         } catch (GenerateXMLExeption e) { // Exception al generar el xml e guardarlo  y crear el directorio de firmados
             LOGGER.error(e.getMessage(), e);
@@ -239,9 +245,9 @@ public class DocumentServiceImpl implements IDocumentService {
         throw new BadRequestException("La Factura debe  contener al menos un detalle o más");
     }
 
-    public ResponseWebServiceDTO consumeWebService(final String pathFileSigned, Invoice invoiceXML, int numberSecuncial) {
+    public ResponseWebServiceDTO consumeWebService(Invoice invoiceXML, int numberSecuncial) {
 
-        // LO que se enviara al front
+        // LO que se enviara al frontED
         ResponseWebServiceDTO responseWebService = new ResponseWebServiceDTO();
 
         // Recepcion
@@ -251,6 +257,10 @@ public class DocumentServiceImpl implements IDocumentService {
 
         if (respuestaSolicitud != null && respuestaSolicitud.getEstado().equalsIgnoreCase("RECIBIDA")) {
 
+            // Eliminar factura firmada
+            AdminDocument.deleteDocument(pathFileSigned);
+
+
             // Realizar una espera de 3 segundo antes de invocar al web service de autorizacion
             try {
                 Thread.sleep(ConstanteUtil.PAUSA_WS);
@@ -259,16 +269,38 @@ public class DocumentServiceImpl implements IDocumentService {
                 LOGGER.error("Error al hacer pasusa 3 segundos" + e.getMessage());
             }
 
-            clientSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, facturaGenerada.getInfoTributaria().getClaveAcceso());
-
-            // Actualizar contador de documentos si todo el proceso fue realizado con exito
-            saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
-                    numberSecuncial,
-                    facturaGenerada.getInfoTributaria().getCodDoc()));
+            // Autorizacion
+            RespuestaComprobante respuestaComprobante = clientSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, facturaGenerada.getInfoTributaria().getClaveAcceso());
 
 
-        }// elimihnar generado y firnado
+            responseWebService.setRespuestaComprobante(respuestaComprobante);
 
+            LOGGER.info("clave acceso consultada: " + respuestaComprobante.getClaveAccesoConsultada());
+
+            LOGGER.info("Numero comprobantes " + respuestaComprobante.getNumeroComprobantes());
+
+            for (Autorizacion item : respuestaComprobante.getAutorizaciones().getAutorizacion()) {
+
+                System.out.println(item.getEstado());
+                System.out.println(item.getNumeroAutorizacion());
+                System.out.println(item.getAmbiente());
+                System.out.println(item.getFechaAutorizacion());
+            }
+
+            if (respuestaComprobante.getAutorizaciones().getAutorizacion().get(0).getEstado().equals(StatusDocumentsEnum.AUTORIZADO.getName())) {
+                // Actualizar contador de documentos si todo el proceso fue realizado con exito
+                saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
+                        numberSecuncial,
+                        facturaGenerada.getInfoTributaria().getCodDoc()));
+
+            }
+
+
+            // Si el comprobante no fue RECIBIDO, se elimina tanto el comprobante generado como el que fue firmado
+        } else {
+            AdminDocument.deleteDocument(pathNewInvoiceXML);
+            AdminDocument.deleteDocument(pathFileSigned);
+        }
 
         return responseWebService;
     }

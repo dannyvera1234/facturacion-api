@@ -138,13 +138,11 @@ public class AdminDocument {
     }
 
 
-    public  static  void deleteDocument(String pathFile){
+    public static void deleteDocument(String pathFile) {
         File file = new File(pathFile);
-        if (file.exists()){
-
+        if (file.exists()) {
             file.delete();
         }
-
     }
 
 }

@@ -12,10 +12,13 @@ import com.facturacion.ideas.api.enums.TypePorcentajeIvaEnum;
 import com.facturacion.ideas.api.enums.TypeTaxEnum;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.GenerateXMLExeption;
+import com.facturacion.ideas.api.services.DocumentServiceImpl;
 import com.facturacion.ideas.api.util.ArchivoUtils;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import com.facturacion.ideas.api.util.FunctionUtil;
 import com.facturacion.ideas.api.util.PathDocuments;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -27,6 +30,11 @@ import java.util.stream.Collectors;
 public class AdminInvoice {
 
     private static Factura facturaGenerada = null;
+
+    // Almacena la ruta hasta el directorio punto de emision
+    private static String pathDirectory = null;
+
+    private static final Logger LOGGER = LogManager.getLogger(AdminInvoice.class);
 
     public static String generatorFractureXML(Invoice invoiceXML, final InvoiceNewDTO invoiceNewDTO,
                                               List<Product> products) throws GenerateXMLExeption {
@@ -60,7 +68,7 @@ public class AdminInvoice {
         Subsidiary subsidiary = emissionPoint.getSubsidiary();
         Sender sender = subsidiary.getSender();
 
-        final String baseUrl = PathDocuments.PATH_BASE  + sender.getRuc()
+        final String baseUrl = PathDocuments.PATH_BASE + sender.getRuc()
                 + "/est_" + subsidiary.getCode() + "/emi_" + emissionPoint.getCodePoint();
         File file = new File(baseUrl);
 
@@ -68,12 +76,38 @@ public class AdminInvoice {
             if (!file.mkdirs()) throw new GenerateXMLExeption("No se pudo crear el directorio para el comprobante");
         }
 
+        // Esto me sirve cuando escriba el xml autorizado o no autorizado
+        pathDirectory = file.getAbsolutePath();
+
+        createDirectory();
+
         String pathArchivo = file.getAbsolutePath() + "/" + invoiceXML.getNumberAutorization() + ".xml";
 
         // Retorna la ruta de nuevo archivo xm generado
         return ArchivoUtils.realizarMarshall(factura, pathArchivo);
     }
 
+    /**
+     * Método se encarga de crear los directorios para los comprobante firmados, autorizados y no_autorizados
+     * se deben crear solo si no existes
+     */
+    private static void createDirectory() {
+        String[] directories = {"firmados", "autorizados", "no_autorizados"};
+
+        for (String directory : directories) {
+            File file = new File(pathDirectory.concat("/").concat(directory));
+            if (!file.exists()) {
+                if (file.mkdirs()) {
+                    LOGGER.info("Directorio " + file.getAbsolutePath() + " creado con exito");
+                } else LOGGER.info("Directorio " + file.getAbsolutePath() + " no puso se creado");
+            }
+        }
+
+    }
+
+    public static String getPathDirectory() {
+        return pathDirectory;
+    }
 
     private static InfoTributaria createInfoTributaria(Invoice invoiceSaved) {
 
