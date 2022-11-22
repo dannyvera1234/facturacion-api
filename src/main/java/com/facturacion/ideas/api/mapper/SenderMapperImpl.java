@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.dto.EmailSenderNewDTO;
 import com.facturacion.ideas.api.entities.EmailSender;
+import com.facturacion.ideas.api.enums.TypeEmissionEnum;
 import com.facturacion.ideas.api.util.FunctionUtil;
 import org.springframework.stereotype.Component;
 
@@ -40,15 +41,15 @@ public class SenderMapperImpl implements ISenderMapper {
 
 		sender.setRimpe(senderNewDTO.isRimpe());
 
-		sender.setTypeEmission(senderNewDTO.getTypeEmission());
+		sender.setTypeEmission( TypeEmissionEnum.getTypeEmissionEnum(senderNewDTO.getTypeEmission()));
 		
 		sender.setTypeSender( senderNewDTO.getTypeSender());
 
-		sender.setTypeEnvironment(senderNewDTO.getTypeEnvironment());
+		sender.setTypeEnvironment(TypeEnvironmentEnum.getTypeEnvironmentEnum(senderNewDTO.getTypeEnvironment()));
 
 		sender.setAccountancy(senderNewDTO.getAccountancy());
 
-		sender.setProvince(senderNewDTO.getProvince());
+		sender.setProvince(ProvinceEnum.getProvinceEnum(senderNewDTO.getProvince()));
 
 		if (senderNewDTO.getEmailSenderNewDTOList() !=null && senderNewDTO.getEmailSenderNewDTOList().size()>0){
 

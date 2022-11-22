@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.services;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +8,7 @@ import com.facturacion.ideas.api.admin.AdminEmissionPoint;
 import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.exeption.BadRequestException;
+import com.facturacion.ideas.api.util.PathDocuments;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import com.facturacion.ideas.api.mapper.ISenderMapper;
 import com.facturacion.ideas.api.repositories.ICountRepository;
 import com.facturacion.ideas.api.repositories.ISenderRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class SenderServiceImpl implements ISenderService {
@@ -41,9 +44,12 @@ public class SenderServiceImpl implements ISenderService {
     @Autowired
     private ISenderMapper senderMapper;
 
+    @Autowired
+    private IUploadFileService uploadFileService;
+
     @Override
     @Transactional
-    public SenderResponseDTO save(final SenderNewDTO senderNewDTO, Long idCount) {
+    public SenderResponseDTO save(Long idCount, final SenderNewDTO senderNewDTO, MultipartFile file) {
 
         try {
 
@@ -66,10 +72,9 @@ public class SenderServiceImpl implements ISenderService {
 
                     if (AdminSubsidiary.isValidFormat(newSubsidiary + "-" + emisionPoint)) {
 
-
-                        Subsidiary subsidiary = AdminSubsidiary.create(senderNewDTO,  newSubsidiary);
+                        Subsidiary subsidiary = AdminSubsidiary.create(senderNewDTO, newSubsidiary);
                         EmissionPoint emissionPoint = AdminEmissionPoint.create(emisionPoint);
-                        
+
                         emissionPoint.setStatus(true);
                         emissionPoint.setKeyPoint(subsidiary.getCode() + "-" + emissionPoint.getCodePoint());
 
@@ -78,13 +83,15 @@ public class SenderServiceImpl implements ISenderService {
 
                         // Agrega Cuenta
                         sender.setCount(count);
+
+                        // Asignar logo
+                        String nameFile = uploadFileService.saveImage(file, PathDocuments.PATH_BASE.concat(sender.getRuc()));
+                        sender.setLogo(nameFile);
                         return senderMapper.mapperToDTO(senderRepository.save(sender));
                     }
                     throw new BadRequestException("Formato del establecimiento  " + newSubsidiary + " o punto emision " + " son  incorrectos");
                 }
                 throw new BadRequestException("Establecimiento " + newSubsidiary + " o punto emsion " + emisionPoint + " no pueder estar vacios");
-
-
             }
 
             throw new DuplicatedResourceException(

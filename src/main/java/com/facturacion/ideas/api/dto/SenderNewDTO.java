@@ -35,13 +35,13 @@ public class SenderNewDTO implements Serializable {
 	
 	private String logo;
 	
-	private TypeEnvironmentEnum typeEnvironment;
+	private String typeEnvironment;
 
-	private TypeEmissionEnum typeEmission;
+	private String typeEmission;
 
 	private boolean rimpe;
 	
-	private ProvinceEnum province;
+	private String province;
 
 	private List<EmailSenderNewDTO> emailSenderNewDTOList = new ArrayList<>();
 
@@ -54,7 +54,7 @@ public class SenderNewDTO implements Serializable {
 
 	public SenderNewDTO(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
 						String specialContributor, String  retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
-						TypeEnvironmentEnum typeEnvironment, TypeEmissionEnum typeEmission, boolean rimpe, ProvinceEnum province) {
+						String typeEnvironment, String typeEmission, boolean rimpe, String province) {
 		super();
 		this.ide = ide;
 		this.ruc = ruc;
@@ -154,19 +154,19 @@ public class SenderNewDTO implements Serializable {
 		this.logo = logo;
 	}
 
-	public TypeEnvironmentEnum getTypeEnvironment() {
+	public String getTypeEnvironment() {
 		return typeEnvironment;
 	}
 
-	public void setTypeEnvironment(TypeEnvironmentEnum typeEnvironment) {
+	public void setTypeEnvironment(String typeEnvironment) {
 		this.typeEnvironment = typeEnvironment;
 	}
 
-	public TypeEmissionEnum getTypeEmission() {
+	public String getTypeEmission() {
 		return typeEmission;
 	}
 
-	public void setTypeEmission(TypeEmissionEnum typeEmission) {
+	public void setTypeEmission(String typeEmission) {
 		this.typeEmission = typeEmission;
 	}
 
@@ -178,11 +178,11 @@ public class SenderNewDTO implements Serializable {
 		this.rimpe = rimpe;
 	}
 
-	public ProvinceEnum getProvince() {
+	public String getProvince() {
 		return province;
 	}
 
-	public void setProvince(ProvinceEnum province) {
+	public void setProvince(String province) {
 		this.province = province;
 	}
 
@@ -215,8 +215,8 @@ public class SenderNewDTO implements Serializable {
 		return "SenderNewDTO [ide=" + ide + ", ruc=" + ruc + ", socialReason=" + socialReason + ", commercialName="
 				+ commercialName + ", matrixAddress=" + matrixAddress + ", specialContributor=" + specialContributor
 				+  "retentionAgent" + retentionAgent+", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
-				+ ", typeEnvironment=" + typeEnvironment.getCode() + ", subsidiary= " + subsidiary+ ", emisionṔoint="+ emisionPoint+  ", typeEmission=" + typeEmission.getCode() + ", rimpe=" + rimpe
-				+ ", province=" + province.getName() + "]";
+				+ ", typeEnvironment=" + typeEnvironment + ", subsidiary= " + subsidiary+ ", emisionṔoint="+ emisionPoint+  ", typeEmission=" + typeEmission + ", rimpe=" + rimpe
+				+ ", province=" + province + "]";
 	}
 	
 	

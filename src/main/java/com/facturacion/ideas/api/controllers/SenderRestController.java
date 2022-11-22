@@ -4,6 +4,7 @@ import java.util.List;
 
 
 import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,12 @@ import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.ISenderService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
+import org.springframework.web.multipart.MultipartFile;
+
 /**
  * RestController que expone servicios web para la entidad {@link Sender}
- * 
- * @author Ronny Chamba
  *
+ * @author Ronny Chamba
  */
 
 @CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
@@ -31,77 +33,82 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 @RequestMapping("/facturacion")
 public class SenderRestController implements ISenderOperation {
 
-	private static final Logger LOGGER = LogManager.getLogger(SenderRestController.class);
+    private static final Logger LOGGER = LogManager.getLogger(SenderRestController.class);
 
-	@Autowired
-	private ISenderService senderService;
+    @Autowired
+    private ISenderService senderService;
 
-	@Override
-	public ResponseEntity<SenderResponseDTO> save(SenderNewDTO senderNewDTO, Long idCount) {
+    @Override
+    public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO, MultipartFile multipartFile) {
 
-		LOGGER.info(String.format("Emisor guardar %s  ; Id Cuenta: %s ", senderNewDTO, idCount));
 
-		try {
 
-			SenderResponseDTO senderResponseDTO = senderService.save(senderNewDTO, idCount);
+        try {
 
-			return  new ResponseEntity<>(senderResponseDTO, HttpStatus.CREATED);
+            SenderNewDTO senderConvert = new Gson().fromJson(jsonSenderNewDTO, SenderNewDTO.class);
 
-		} catch (NotDataAccessException e) {
+            LOGGER.info(String.format("Emisor guardar %s  ; Id Cuenta: %s ", senderConvert, idCount));
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+            SenderResponseDTO senderResponseDTO = senderService.save(idCount, senderConvert, multipartFile);
 
-	}
+            return new ResponseEntity<>(senderResponseDTO, HttpStatus.CREATED);
 
-	@Override
-	public ResponseEntity<SenderResponseDTO> findById(Long id) {
+        } catch (NotDataAccessException e) {
 
-		try {
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-			SenderResponseDTO senderResponseDTO = senderService.findById(id);
+    }
 
-			return ResponseEntity.ok(senderResponseDTO);
 
-		} catch (NotDataAccessException e) {
+    @Override
+    public ResponseEntity<SenderResponseDTO> findById(Long id) {
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+        try {
 
-	}
+            SenderResponseDTO senderResponseDTO = senderService.findById(id);
 
-	@Override
-	public ResponseEntity<SenderResponseDTO> update(SenderNewDTO senderNewDTO, Long id) {
+            return ResponseEntity.ok(senderResponseDTO);
 
-		LOGGER.info("Id Emisor: " + id);
+        } catch (NotDataAccessException e) {
 
-		try {
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-			
-			SenderResponseDTO senderResponseDTO = senderService.update(senderNewDTO, id);
-			
-			return ResponseEntity.ok(senderResponseDTO);
-			
-			
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
+    }
 
-		}
-	}
+    @Override
+    public ResponseEntity<SenderResponseDTO> update(SenderNewDTO senderNewDTO, Long id) {
 
-	@Override
-	public ResponseEntity<SenderResponseDTO> findByRuc(String ruc) {
-		try {
+        LOGGER.info("Id Emisor: " + id);
 
-			SenderResponseDTO senderResponseDTO = senderService.findByRuc(ruc);
+        try {
 
-			return ResponseEntity.ok(senderResponseDTO);
 
-		} catch (NotDataAccessException e) {
+            SenderResponseDTO senderResponseDTO = senderService.update(senderNewDTO, id);
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+            return ResponseEntity.ok(senderResponseDTO);
 
-	}
+
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+
+        }
+    }
+
+    @Override
+    public ResponseEntity<SenderResponseDTO> findByRuc(String ruc) {
+        try {
+
+            SenderResponseDTO senderResponseDTO = senderService.findByRuc(ruc);
+
+            return ResponseEntity.ok(senderResponseDTO);
+
+        } catch (NotDataAccessException e) {
+
+            throw new NotDataAccessException(e.getMessage());
+        }
+
+    }
 
 }

@@ -9,67 +9,67 @@ import com.facturacion.ideas.api.enums.TypeEnvironmentEnum;
 
 public class AdminSender {
 
-	/**
-	 * Metodo setea el ruc del Sender y asinga la relacion Count
-	 * 
-	 * @param sender
-	 * @param countCurrent : Count actual
-	 */
-	public static void create(Sender sender, Count countCurrent) {
+    /**
+     * Metodo setea el ruc del Sender y asinga la relacion Count
+     *
+     * @param sender
+     * @param countCurrent : Count actual
+     */
+    public static void create(Sender sender, Count countCurrent) {
 
-		// Por seguridad seteo el ruc de la cuenta
-		sender.setRuc(countCurrent.getRuc());
-		sender.setCount(countCurrent);
+        // Por seguridad seteo el ruc de la cuenta
+        sender.setRuc(countCurrent.getRuc());
+        sender.setCount(countCurrent);
 
-	}
+    }
 
-	/**
-	 * Actualiza un Sender : si el nuevo valor de un campo es null, no se realizara
-	 * ningun cambio en dicho campo
-	 * 
-	 * @param senderCurrent : El Sender actual consultado desde la Bd
-	 * @param senderNewDTO  : Los nuevos datos a actualizar
-	 */
-	public static void update(Sender senderCurrent, SenderNewDTO senderNewDTO) {
+    /**
+     * Actualiza un Sender : si el nuevo valor de un campo es null, no se realizara
+     * ningun cambio en dicho campo
+     *
+     * @param senderCurrent : El Sender actual consultado desde la Bd
+     * @param senderNewDTO  : Los nuevos datos a actualizar
+     */
+    public static void update(Sender senderCurrent, SenderNewDTO senderNewDTO) {
 
-		// Setear nuevos valores
-		senderCurrent.setSocialReason(senderNewDTO.getSocialReason() == null ? senderCurrent.getSocialReason()
-				: senderNewDTO.getSocialReason());
+        // Setear nuevos valores
+        senderCurrent.setSocialReason(senderNewDTO.getSocialReason() == null ? senderCurrent.getSocialReason()
+                : senderNewDTO.getSocialReason());
 
-		senderCurrent.setCommercialName(senderNewDTO.getCommercialName() == null ? senderCurrent.getCommercialName() :
+        senderCurrent.setCommercialName(senderNewDTO.getCommercialName() == null ? senderCurrent.getCommercialName() :
 
-				senderNewDTO.getCommercialName());
-		senderCurrent.setLogo(senderNewDTO.getLogo() == null ? senderCurrent.getLogo() : senderNewDTO.getLogo());
-		senderCurrent.setProvince(
+                senderNewDTO.getCommercialName());
+        senderCurrent.setLogo(senderNewDTO.getLogo() == null ? senderCurrent.getLogo() : senderNewDTO.getLogo());
+        senderCurrent.setProvince(
 
-				senderNewDTO.getProvince() == null ? ProvinceEnum.getProvinceEnum(senderCurrent.getProvince())
-						: senderNewDTO.getProvince());
+                senderNewDTO.getProvince() == null ? ProvinceEnum.getProvinceEnum(senderCurrent.getProvince())
+                        : ProvinceEnum.getProvinceEnum(senderNewDTO.getProvince()));
 
-		senderCurrent.setTypeEnvironment(
+        senderCurrent.setTypeEnvironment(
 
-				senderNewDTO.getTypeEnvironment() == null
-						? TypeEnvironmentEnum.getTypeEnvironmentEnum(senderCurrent.getTypeEnvironment())
-						: senderNewDTO.getTypeEnvironment());
+                senderNewDTO.getTypeEnvironment() == null
+                        ? TypeEnvironmentEnum.getTypeEnvironmentEnum(senderCurrent.getTypeEnvironment())
+                        : TypeEnvironmentEnum.getTypeEnvironmentEnum(senderNewDTO.getTypeEnvironment()));
 
-		senderCurrent.setMatrixAddress(senderNewDTO.getMatrixAddress() == null ? senderCurrent.getMatrixAddress()
-				: senderNewDTO.getMatrixAddress());
+        senderCurrent.setMatrixAddress(senderNewDTO.getMatrixAddress() == null ? senderCurrent.getMatrixAddress()
+                : senderNewDTO.getMatrixAddress());
 
-		senderCurrent.setSpecialContributor(
+        senderCurrent.setSpecialContributor(
 
-				senderNewDTO.getSpecialContributor() == null ? senderCurrent.getSpecialContributor()
-						: senderNewDTO.getSpecialContributor());
+                senderNewDTO.getSpecialContributor() == null ? senderCurrent.getSpecialContributor()
+                        : senderNewDTO.getSpecialContributor());
 
-		senderCurrent.setTypeEmission(
+        senderCurrent.setTypeEmission(
 
-				senderNewDTO.getTypeEmission() == null
-						? TypeEmissionEnum.getTypeEmissionEnum(senderCurrent.getTypeEmission())
-						: senderNewDTO.getTypeEmission());
+                senderNewDTO.getTypeEmission() == null
+                        ? TypeEmissionEnum.getTypeEmissionEnum(senderCurrent.getTypeEmission())
+                        : TypeEmissionEnum.getTypeEmissionEnum(senderNewDTO.getTypeEmission()));
 
-		senderCurrent.setTypeSender(
-				senderNewDTO.getTypeSender() == null ? senderCurrent.getTypeSender() : senderNewDTO.getTypeSender());
+        senderCurrent.setTypeSender(
+                senderNewDTO.getTypeSender() == null ? senderCurrent.getTypeSender() : senderNewDTO.getTypeSender());
 
-		senderCurrent.setAccountancy(
-				senderNewDTO.getAccountancy() == null ? senderCurrent.getAccountancy() : senderNewDTO.getAccountancy());
+        senderCurrent.setAccountancy(
+                senderNewDTO.getAccountancy() == null ? senderCurrent.getAccountancy() : senderNewDTO.getAccountancy());
 
-	}
+    }
 }

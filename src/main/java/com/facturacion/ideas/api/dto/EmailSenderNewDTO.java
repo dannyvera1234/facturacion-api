@@ -7,14 +7,14 @@ public class EmailSenderNewDTO implements Serializable {
 
     private String email;
 
-    private boolean isPrincipal;
+    private boolean principal;
 
     public EmailSenderNewDTO() {
     }
 
-    public EmailSenderNewDTO(String email, boolean isPrincipal) {
+    public EmailSenderNewDTO(String email, boolean principal) {
         this.email = email;
-        this.isPrincipal = isPrincipal;
+        this.principal = principal;
     }
 
     public String getEmail() {
@@ -25,19 +25,20 @@ public class EmailSenderNewDTO implements Serializable {
         this.email = email;
     }
 
+
     public boolean isPrincipal() {
-        return isPrincipal;
+        return principal;
     }
 
     public void setPrincipal(boolean principal) {
-        isPrincipal = principal;
+        this.principal = principal;
     }
 
     @Override
     public String toString() {
         return "EmailSenderNewDTO{" +
                 "email='" + email + '\'' +
-                ", isPrincipal=" + isPrincipal +
+                ", isPrincipal=" + principal +
                 '}';
     }
 }
