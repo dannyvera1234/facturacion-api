@@ -218,9 +218,7 @@ public class ClientSRI {
             responseStrBuilder.append(inputStr);
         }
 
-        System.out.println(
-                "Respuesta " + wsTypeEnum.getNameService() + " " + wsTypeEnum.getEnvironmentEnum().getCode() + " " + responseStrBuilder.toString()
-        );
+        LOGGER.debug(String.format("Respuesta WS: %s %s %s", wsTypeEnum.getNameService(), wsTypeEnum.getEnvironmentEnum().getCode(), responseStrBuilder));
 
         return responseStrBuilder;
     }

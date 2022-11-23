@@ -20,6 +20,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPBody;
@@ -158,18 +159,13 @@ public class ProcessResponseAuthorization {
                 case "fechaAutorizacion":
 
                     try {
-                        Date date = FunctionUtil.convertStringToDateNormal(nodeChild.getTextContent());
+                        LOGGER.debug(String.format("Fecha autoizacion: %s", nodeChild.getTextContent()));
 
-                        GregorianCalendar gc = new GregorianCalendar();
+                        XMLGregorianCalendar dateXml = DatatypeFactory.newInstance().newXMLGregorianCalendar(nodeChild.getTextContent());
 
-                        gc.setTime(date);
-                        autorizacion.setFechaAutorizacion(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+                        autorizacion.setFechaAutorizacion(dateXml);
 
-                    } catch (ParseException e) {
-                        //throw new RuntimeException(e);
-                        LOGGER.error("Error al convertir fecha xml: ", e);
-
-                    } catch (DatatypeConfigurationException e) {
+                    }  catch (DatatypeConfigurationException e) {
                         LOGGER.error("Error al convertir fecha xml: ", e);
                     }
 

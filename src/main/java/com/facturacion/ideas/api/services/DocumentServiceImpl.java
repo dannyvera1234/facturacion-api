@@ -73,6 +73,7 @@ public class DocumentServiceImpl implements IDocumentService {
     @Transactional
     public ResponseWebServiceDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
 
+        LOGGER.debug("Dentro de service saveInvoice");
 
         try {
             Invoice invoiceXML = new Invoice();
@@ -238,10 +239,10 @@ public class DocumentServiceImpl implements IDocumentService {
             // Consultar los productos a la BD
             List<Product> products = productRepository.fetchTaxValueTaxByIdeIn(idsProduts);
 
-            System.out.println(products.size());
-            for (Product it : products) {
-                System.out.println("Ide: " + it.getIde());
+            LOGGER.info("Longitud productos detalle: "+ products.size());
 
+            for (Product it : products) {
+                LOGGER.debug(String.format("Producto detalle:  %s - %s", it.getIde(), it.getName()));
             }
 
             // Verificar que todos los productos del detall factura estubieran registrados en BD
@@ -258,6 +259,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
     public ResponseWebServiceDTO consumeWebService(Invoice invoiceXML, int numberSecuncial) {
 
+        LOGGER.debug("Dentro del web services");
         // LO que se enviara al frontED
         ResponseWebServiceDTO responseWebService = new ResponseWebServiceDTO();
 
@@ -267,6 +269,8 @@ public class DocumentServiceImpl implements IDocumentService {
         responseWebService.setRespuestaSolicitud(respuestaSolicitud);
 
         if (respuestaSolicitud != null && respuestaSolicitud.getEstado().equalsIgnoreCase("RECIBIDA")) {
+
+            LOGGER.info("Web Service recepcion RECIBIDA");
 
             // Eliminar factura firmada
             AdminDocument.deleteDocument(pathFileSigned);
@@ -283,32 +287,35 @@ public class DocumentServiceImpl implements IDocumentService {
             // Autorizacion
             RespuestaComprobante respuestaComprobante = clientSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, facturaGenerada.getInfoTributaria().getClaveAcceso());
 
-
+            LOGGER.info("Web service Autorizacion consumida");
             responseWebService.setRespuestaComprobante(respuestaComprobante);
 
             LOGGER.info("clave acceso consultada: " + respuestaComprobante.getClaveAccesoConsultada());
 
-            LOGGER.info("Numero comprobantes " + respuestaComprobante.getNumeroComprobantes());
+            LOGGER.debug("Numero comprobantes " + respuestaComprobante.getNumeroComprobantes());
 
             for (Autorizacion item : respuestaComprobante.getAutorizaciones().getAutorizacion()) {
 
-                System.out.println(item.getEstado());
-                System.out.println(item.getNumeroAutorizacion());
-                System.out.println(item.getAmbiente());
-                System.out.println(item.getFechaAutorizacion());
+                LOGGER.debug(String.format("Comprobante autorizacion %s ", item.getNumeroAutorizacion()));
+                LOGGER.debug(String.format("Comprobante estado %s ", item.getEstado()));
+                LOGGER.debug(String.format("Comprobante ambiente %s ", item.getAmbiente()));
+                LOGGER.debug(String.format("Comprobante fecha %s ", item.getFechaAutorizacion()));
             }
 
-            if (respuestaComprobante.getAutorizaciones().getAutorizacion().get(0).getEstado().equals(StatusDocumentsEnum.AUTORIZADO.getName())) {
+            String estadoComprobate  =respuestaComprobante.getAutorizaciones().getAutorizacion().get(0).getEstado();
+            if (estadoComprobate.equalsIgnoreCase(StatusDocumentsEnum.AUTORIZADO.getName())) {
                 // Actualizar contador de documentos si todo el proceso fue realizado con exito
+
                 saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint(),
                         numberSecuncial,
                         facturaGenerada.getInfoTributaria().getCodDoc()));
 
-            }
+                LOGGER.info(String.format("Secuencia actualizado: %s   estado: %s", numberSecuncial, estadoComprobate));
 
-
+            }else LOGGER.info(String.format("Secuencia NO actualizado: %s   estado: %s", numberSecuncial, estadoComprobate));
             // Si el comprobante no fue RECIBIDO, se elimina tanto el comprobante generado como el que fue firmado
         } else {
+            LOGGER.info("Web Service recepcion NO RECIBIDA");
             AdminDocument.deleteDocument(pathNewInvoiceXML);
             AdminDocument.deleteDocument(pathFileSigned);
         }
