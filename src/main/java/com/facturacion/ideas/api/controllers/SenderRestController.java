@@ -4,7 +4,9 @@ import java.util.List;
 
 
 import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
+import com.facturacion.ideas.api.exeption.EncryptedException;
 import com.google.gson.Gson;
+import com.google.gson.stream.MalformedJsonException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,6 @@ public class SenderRestController implements ISenderOperation {
     public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO, MultipartFile multipartFile) {
 
 
-
         try {
 
             SenderNewDTO senderConvert = new Gson().fromJson(jsonSenderNewDTO, SenderNewDTO.class);
@@ -53,9 +54,11 @@ public class SenderRestController implements ISenderOperation {
 
             return new ResponseEntity<>(senderResponseDTO, HttpStatus.CREATED);
 
-        } catch (NotDataAccessException e) {
-
+        }
+        catch (NotDataAccessException e) {
             throw new NotDataAccessException(e.getMessage());
+        } catch (EncryptedException e) {
+            throw new EncryptedException(e.getMessage());
         }
 
     }

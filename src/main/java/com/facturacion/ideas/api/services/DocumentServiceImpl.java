@@ -63,8 +63,11 @@ public class DocumentServiceImpl implements IDocumentService {
 
     private String pathFileSigned = null;
 
-
     private Factura facturaGenerada = null;
+
+
+    @Autowired
+    private IEncryptionService encryptionService;
 
     @Override
     @Transactional
@@ -103,8 +106,8 @@ public class DocumentServiceImpl implements IDocumentService {
 
             // Numero actual del documento + 1, segun su tipo de documento
             // IMPORTANTE: este numero se guardara en el factura valores
-            final int numberSecuncial = (getCurrentSequentialNumberBySubsidiary(invoiceNewDTO.getTypeDocument(),
-                    subsidiary.getIde())) + 1;
+            final int numberSecuncial = (getCurrentSequentialNumberByEmissionPoint(invoiceNewDTO.getTypeDocument(),
+                    emissionPoint.getIde())) + 1;
 
             // Numero secuencia del Documento
             invoiceXML.setNumberSecuencial(AdminDocument.nextSquentialNumberDocument(numberSecuncial));
@@ -125,10 +128,15 @@ public class DocumentServiceImpl implements IDocumentService {
 
             facturaGenerada = AdminInvoice.getFacturaGenerada();
 
+            // Obtener datos de la firma electronica
+
+            final String claveDescriptada = encryptionService.deEncrypt(sender.getPasswordCerticate());
+
+
             // Si el documento no puede ser firmado, se lo elimina
             pathFileSigned = signatureDocumentXML.setDataDocumentXML(facturaGenerada.getInfoTributaria().getRuc()
                     , pathNewInvoiceXML,
-                    "VERO1308", "VERONICA_PATRICIA_QUIMIS_LEON_130922105723.p12", facturaGenerada.getInfoTributaria().getClaveAcceso());
+                    claveDescriptada, "VERONICA_PATRICIA_QUIMIS_LEON_130922105723.p12", facturaGenerada.getInfoTributaria().getClaveAcceso());
 
 
             //consumeWebService(invoiceXML, numberSecuncial);
@@ -150,6 +158,9 @@ public class DocumentServiceImpl implements IDocumentService {
         } catch (ConsumeWebServiceException e) { // Excepcion al consumir web service
             LOGGER.error(e.getMessage(), e);
             throw new ConsumeWebServiceException(e.getMessage());
+        } catch (EncryptedException e) { // mensjae viene desde el metodo
+            LOGGER.error("Error guardar factura, desecyptar passwor", e);
+            throw new EncryptedException(e.getMessage());
         } catch (DataAccessException e) {
             LOGGER.error("Error guardar factura", e);
             throw new NotDataAccessException("Error al guardar la factura");
@@ -176,18 +187,18 @@ public class DocumentServiceImpl implements IDocumentService {
 
     @Transactional(readOnly = true)
     @Override
-    public int getCurrentSequentialNumberBySubsidiary(String codDocument, Long idSubsidiary) {
+    public int getCurrentSequentialNumberByEmissionPoint(String codDocument, Long idEmissionPoint) {
 
         return invoiceNumberRepository
-                .findMaxCurrentSequentialNumberBySubsidiary(codDocument, idSubsidiary).orElse(0);
+                .findMaxCurrentSequentialNumberByEmissionPoint(codDocument, idEmissionPoint).orElse(0);
     }
 
     @Override
     @Transactional
     public void saveInvoiceNumber(InvoiceNumber invoiceNumber) {
 
-        InvoiceNumber optionalInvoice = invoiceNumberRepository.findByTypeDocumentAndSubsidiary(
-                invoiceNumber.getTypeDocument(), invoiceNumber.getSubsidiary()).orElse(null);
+        InvoiceNumber optionalInvoice = invoiceNumberRepository.findByTypeDocumentAndEmissionPointIde(
+                invoiceNumber.getTypeDocument(), invoiceNumber.getEmissionPoint().getIde()).orElse(null);
 
         // Indica que un nuevo tipo de documento del emisor
         if (optionalInvoice == null) {
@@ -289,7 +300,7 @@ public class DocumentServiceImpl implements IDocumentService {
 
             if (respuestaComprobante.getAutorizaciones().getAutorizacion().get(0).getEstado().equals(StatusDocumentsEnum.AUTORIZADO.getName())) {
                 // Actualizar contador de documentos si todo el proceso fue realizado con exito
-                saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint().getSubsidiary(),
+                saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint(),
                         numberSecuncial,
                         facturaGenerada.getInfoTributaria().getCodDoc()));
 

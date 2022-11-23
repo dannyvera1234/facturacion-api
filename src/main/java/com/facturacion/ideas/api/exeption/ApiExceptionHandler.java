@@ -47,7 +47,12 @@ public class ApiExceptionHandler {
             MissingServletRequestParameterException.class,
             KeyAccessException.class,
             ViolectRestrictException.class,
-            GenerateXMLExeption.class
+            GenerateXMLExeption.class,
+            EncryptedException.class,
+            SignatureException.class,
+            ConnectionWSException.class,
+            ConsumeWebServiceException.class
+
     })
     @ResponseBody
     public ErrorMessage badRequest(Exception exception) {

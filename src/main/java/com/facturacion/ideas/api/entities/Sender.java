@@ -78,6 +78,10 @@ public class Sender implements Serializable {
     @Column(name = "EMI_PRO")
     private String province;
 
+    @Column(name = "EMI_PAS_CER")
+    private String passwordCerticate;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMI_FK_COD_CUE")
     // @JsonBackReference
@@ -309,6 +313,14 @@ public class Sender implements Serializable {
 
     public void addEmailSenders(EmailSender emailSender) {
         this.emailSenders.add(emailSender);
+    }
+
+    public String getPasswordCerticate() {
+        return passwordCerticate;
+    }
+
+    public void setPasswordCerticate(String passwordCerticate) {
+        this.passwordCerticate = passwordCerticate;
     }
 
     @Override

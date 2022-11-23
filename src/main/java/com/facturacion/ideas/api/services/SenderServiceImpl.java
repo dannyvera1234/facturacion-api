@@ -7,7 +7,7 @@ import java.util.Optional;
 import com.facturacion.ideas.api.admin.AdminEmissionPoint;
 import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import com.facturacion.ideas.api.entities.*;
-import com.facturacion.ideas.api.exeption.BadRequestException;
+import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.util.PathDocuments;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,9 +21,6 @@ import com.facturacion.ideas.api.admin.AdminSender;
 import com.facturacion.ideas.api.admin.AdminSubsidiary;
 import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.dto.SenderResponseDTO;
-import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
-import com.facturacion.ideas.api.exeption.NotDataAccessException;
-import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.ISenderMapper;
 import com.facturacion.ideas.api.repositories.ICountRepository;
 import com.facturacion.ideas.api.repositories.ISenderRepository;
@@ -47,6 +44,10 @@ public class SenderServiceImpl implements ISenderService {
     @Autowired
     private IUploadFileService uploadFileService;
 
+
+    @Autowired
+    private IEncryptionService encryptionService;
+
     @Override
     @Transactional
     public SenderResponseDTO save(Long idCount, final SenderNewDTO senderNewDTO, MultipartFile file) {
@@ -61,6 +62,9 @@ public class SenderServiceImpl implements ISenderService {
 
             // Verificar si ya existe un emisor con el Ruc
             if (!senderRepository.existsByRuc(senderNewDTO.getRuc())) {
+
+                // Encryptar password certificado
+                senderNewDTO.setPasswordCerticate(encryptionService.encrypt(senderNewDTO.getPasswordCerticate()));
 
                 Sender sender = senderMapper.mapperToEntity(senderNewDTO);
 
@@ -97,6 +101,11 @@ public class SenderServiceImpl implements ISenderService {
             throw new DuplicatedResourceException(
                     "Ruc " + senderNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 
+        } catch (EncryptedException e) {
+
+            // EL mensaje viene desde el encriptar password del certificado
+            LOGGER.info(e.getMessage(), e);
+            throw new NotDataAccessException(e.getMessage());
         } catch (DataAccessException e) {
 
             LOGGER.info("Error guardar emisor", e);

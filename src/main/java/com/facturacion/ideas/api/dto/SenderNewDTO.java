@@ -39,6 +39,8 @@ public class SenderNewDTO implements Serializable {
 
 	private String typeEmission;
 
+	private String passwordCerticate;
+
 	private boolean rimpe;
 	
 	private String province;
@@ -192,6 +194,14 @@ public class SenderNewDTO implements Serializable {
 
 	public void setEmailSenderNewDTOList(List<EmailSenderNewDTO> emailSenderNewDTOList) {
 		this.emailSenderNewDTOList = emailSenderNewDTOList;
+	}
+
+	public String getPasswordCerticate() {
+		return passwordCerticate;
+	}
+
+	public void setPasswordCerticate(String passwordCerticate) {
+		this.passwordCerticate = passwordCerticate;
 	}
 
 	public String getSubsidiary() {

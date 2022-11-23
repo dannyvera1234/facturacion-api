@@ -32,17 +32,17 @@ public class InvoiceNumber implements Serializable {
 	private int currentSequentialNumber;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="NUF_FK_COD_EST")
-	private Subsidiary subsidiary;
+	@JoinColumn(name="NUF_FK_COD_PTE")
+	private EmissionPoint emissionPoint;
 
 	
 
-	public InvoiceNumber(Long ide, String typeDocument, int currentSequentialNumber, Subsidiary subsidiary) {
+	public InvoiceNumber(Long ide, String typeDocument, int currentSequentialNumber, EmissionPoint emissionPoint) {
 		super();
 		this.ide = ide;
 		this.typeDocument = typeDocument;
 		this.currentSequentialNumber = currentSequentialNumber;
-		this.subsidiary = subsidiary;
+		this.emissionPoint = emissionPoint;
 	}
 
 	public InvoiceNumber() {
@@ -65,12 +65,12 @@ public class InvoiceNumber implements Serializable {
 		this.currentSequentialNumber = currentSequentialNumber;
 	}
 
-	public Subsidiary getSubsidiary() {
-		return subsidiary;
+	public EmissionPoint getEmissionPoint() {
+		return emissionPoint;
 	}
 
-	public void setSubsidiary(Subsidiary subsidiary) {
-		this.subsidiary = subsidiary;
+	public void setEmissionPoint(EmissionPoint emissionPoint) {
+		this.emissionPoint = emissionPoint;
 	}
 	
 	public String getTypeDocument() {

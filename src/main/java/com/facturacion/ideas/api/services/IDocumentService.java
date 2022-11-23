@@ -2,7 +2,6 @@ package com.facturacion.ideas.api.services;
 
 import java.util.List;
 
-import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
 import com.facturacion.ideas.api.dto.ResponseWebServiceDTO;
@@ -18,7 +17,7 @@ public interface IDocumentService {
 	
 	void  deletedById(Long id);
 	
-	int getCurrentSequentialNumberBySubsidiary(String codDcoument, Long idSubsidiary);
+	int getCurrentSequentialNumberByEmissionPoint(String codDcoument, Long idSubsidiary);
 	
 	void saveInvoiceNumber(InvoiceNumber invoiceNumber);
 

@@ -6,9 +6,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.facturacion.ideas.api.documents.InfoTributaria;
-import com.facturacion.ideas.api.documents.factura.Factura;
-import com.facturacion.ideas.api.documents.factura.InfoFactura;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.*;
 import com.facturacion.ideas.api.exeption.KeyAccessException;
@@ -127,9 +124,9 @@ public class AdminDocument {
 
     }
 
-    public static InvoiceNumber createInvoiceNumber(Subsidiary subsidiary, int curreSequencial, String typeDocument) {
+    public static InvoiceNumber createInvoiceNumber(EmissionPoint emissionPoint, int curreSequencial, String typeDocument) {
         InvoiceNumber invoiceNumber = new InvoiceNumber();
-        invoiceNumber.setSubsidiary(subsidiary);
+        invoiceNumber.setEmissionPoint(emissionPoint);
         invoiceNumber.setCurrentSequentialNumber(curreSequencial);
         invoiceNumber.setTypeDocument(TypeDocumentEnum.getTypeDocumentEnum(typeDocument));
 
