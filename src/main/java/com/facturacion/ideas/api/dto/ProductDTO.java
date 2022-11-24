@@ -1,5 +1,9 @@
 package com.facturacion.ideas.api.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,18 +14,27 @@ public class ProductDTO implements Serializable {
 
 	private Long ide;
 
+	@NotBlank(message = "El código privado del producto no puede ser vacío")
+	@Size(min =1, max = 24,  message = "EL código privado del producto debe tener entre 1 y 24 dígitos")
 	private String codePrivate;
 
 	private String codeAuxilar;
 
+	@NotBlank(message = "El tipo de producto no puede ser vacío")
+	@Size(min =1, max = 1,  message = "El código del tipo de producto debe tener 1 dígito")
 	private String typeProductEnum;
 
+	@NotBlank(message = "El nombre/descripción del producto no puede ser vacío")
+	@Size(min =1, max = 95,  message = "El nombre/descripción  del producto debe tener entre 1 y 95 dígitos")
 	private String name;
 
+	@PositiveOrZero(message = "El precio unitario del producto no pueder ser negativo")
 	private double unitValue;
 
 	private String dateCreate;
 
+	@NotBlank(message = "El iva del producto no puede ser vacío")
+	@Size(min =1, max = 1,  message = "El código de iva del producto debe tener 1 dígito")
 	private String iva;
 
 	private String ice;

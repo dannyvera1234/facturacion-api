@@ -1,5 +1,7 @@
 package com.facturacion.ideas.api.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 public class EmissionPointNewDTO implements Serializable {
@@ -8,12 +10,15 @@ public class EmissionPointNewDTO implements Serializable {
 
 	private Long ide;
 
+	@NotBlank(message = "El código del punto emisión no puede ser vacío")
+	@Size(min = 3, max = 3, message = "El código del punto emisión debe tener 3 dígitos")
 	private String codePoint;
 
 	private boolean status;
 
 	private String dateRegister;
 
+	@NotBlank(message = "La clave del punto emisión no puede ser vacío")
 	private String keyPoint;
 
 	private Long idEmployee;

@@ -22,6 +22,7 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.validation.Valid;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -45,7 +46,7 @@ public class DocumentRestController {
     private IEncryptionService encryptionService;
 
     @PostMapping("/invoices")
-    public ResponseEntity<ResponseWebServiceDTO> saveInvoice(@RequestBody InvoiceNewDTO invoiceNewDTO) {
+    public ResponseEntity<ResponseWebServiceDTO> saveInvoice(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
 
         LOGGER.info("Factura a guardar: " + invoiceNewDTO);
         try {

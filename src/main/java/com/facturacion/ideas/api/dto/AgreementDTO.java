@@ -1,5 +1,8 @@
 package com.facturacion.ideas.api.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.io.Serializable;
 
 public class AgreementDTO implements Serializable {
@@ -8,8 +11,10 @@ public class AgreementDTO implements Serializable {
 
 	private Long codigo;
 
+	@NotBlank(message = "El tipo de plan no puede ser vacío")
 	private String typeAgreement;
 
+	@PositiveOrZero(message = "El precio de plan no pueder ser negativo")
 	private double value;
 
 	public AgreementDTO(Long codigo, String typeAgreement, double value) {

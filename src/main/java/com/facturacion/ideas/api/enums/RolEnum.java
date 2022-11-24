@@ -10,7 +10,7 @@ public enum RolEnum {
 
 			return RolEnum.USSER;
 		}
-		return rol.toLowerCase().equals("admin") ? RolEnum.ADMIN : RolEnum.USSER;
+		return rol.equalsIgnoreCase("admin") ? RolEnum.ADMIN : RolEnum.USSER;
 	}
 
 }

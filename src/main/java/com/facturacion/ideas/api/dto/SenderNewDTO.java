@@ -11,6 +11,10 @@ import com.facturacion.ideas.api.enums.TypeEmissionEnum;
 import com.facturacion.ideas.api.enums.TypeEnvironmentEnum;
 import com.facturacion.ideas.api.enums.TypeSenderEnum;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 public class SenderNewDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -19,38 +23,57 @@ public class SenderNewDTO implements Serializable {
 
 	private String ruc;
 
+	@NotBlank(message = "La razón social no pueder estar vacío")
+	@Size(min = 2, max =  200, message = "La razón social debe tener entre 2 y 200 caracteres")
 	private String socialReason;
 
+	@Size(max = 200, message = "EL nombre comercial debe tener maximo 200 caracteres")
 	private String commercialName;
 
+	@NotBlank(message = "La dirección del establecimiento no pueder estar vacío")
+	@Size(min = 2, max =  200, message = "La dirección del establecimiento debe tener entre 2 y 200 caracteres")
 	private String matrixAddress;
 
+	//@Size(max = 5, message = "EL código de contribuyente especial debe tener entre 3 y 5 dígitos")
 	private String specialContributor;
 	
 	private String  retentionAgent;
 
 	private QuestionEnum accountancy;
-	
+
 	private TypeSenderEnum typeSender;
-	
+
+	@Max(value = 200, message = "El nombre de logo debe tener maximo 200 caracteres")
 	private String logo;
-	
+
+	@NotBlank(message = "El tipo de ambiente no pueder ser vacío")
+	@Size(min = 1, max = 1, message = "EL tipo de ambiente debte tener solo 1 dígito")
 	private String typeEnvironment;
 
+	@NotBlank(message = "El tipo de emisión no pueder ser vacío")
+	@Size(min = 1, max = 1, message = "El tipo de emisión debe tener solo 1 dígito")
 	private String typeEmission;
 
+	//@Max(min = 3, value = 100, message = "La contraseña de la firma dígital puede tener hasta 100 caracteres")
 	private String passwordCerticate;
 
+	//@Max(value = 150, message = "El nombre de la firma dígital puede tener hasta 150 caracteres")
 	private String nameCerticate;
 
 	private boolean rimpe;
-	
+
+	@Size( min = 2, max = 2, message = "El código de provincia debe tener 2 caracteres")
 	private String province;
 
 	private List<EmailSenderNewDTO> emailSenderNewDTOList = new ArrayList<>();
 
+	@NotBlank(message = "El código del establecimiento es obligatorio")
+	@Size(min = 3, max = 3, message = "El codigo establecimiento debe tener 3 dígitos")
 	private String subsidiary;
 
+
+	@NotBlank(message = "El código del punto emisión es obligatorio")
+	@Size(min = 3, max = 3, message = "El codigo punto emisión debe tener 3 dígitos")
 	private String emisionPoint;
 
 	public SenderNewDTO() {

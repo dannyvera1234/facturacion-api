@@ -1,6 +1,7 @@
 package com.facturacion.ideas.api.controllers;
 
 import java.util.List;
+import java.util.Set;
 
 
 import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
@@ -12,7 +13,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.facturacion.ideas.api.controller.operation.ISenderOperation;
@@ -23,6 +26,10 @@ import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.ISenderService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 
 /**
  * RestController que expone servicios web para la entidad {@link Sender}
@@ -40,6 +47,7 @@ public class SenderRestController implements ISenderOperation {
     @Autowired
     private ISenderService senderService;
 
+
     @Override
     public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO,
                                                   MultipartFile multipartFile,
@@ -49,7 +57,6 @@ public class SenderRestController implements ISenderOperation {
         try {
 
             SenderNewDTO senderConvert = new Gson().fromJson(jsonSenderNewDTO, SenderNewDTO.class);
-
             LOGGER.info(String.format("Emisor guardar %s  ; Id Cuenta: %s ", senderConvert, idCount));
 
             SenderResponseDTO senderResponseDTO = senderService.save(idCount, senderConvert, multipartFile, multipartFileCerticado);

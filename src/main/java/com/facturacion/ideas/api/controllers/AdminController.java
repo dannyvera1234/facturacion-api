@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class AdminController {
     private IAgreementService agreementService;
 
     @PostMapping("/counts")
-    public ResponseEntity<CountResponseDTO> saveCount(@RequestBody CountNewDTO countNewDTO) {
+    public ResponseEntity<CountResponseDTO> saveCount( @RequestBody @Valid CountNewDTO countNewDTO) {
 
         LOGGER.info("Cuenta a guardar: " + countNewDTO);
 
@@ -50,7 +51,7 @@ public class AdminController {
 
     @PostMapping("/counts/{id}/agreements/{codigo}")
     ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(@PathVariable("id") Long idCount,
-                                                             @PathVariable(required = false, name = "codigo") Long codigoPlan){
+                                                             @PathVariable(required = false, name = "codigo") Long codigoPlan) {
 
         LOGGER.info("Id cuenta " + idCount + " Id Plan : " + codigoPlan);
 
@@ -118,12 +119,12 @@ public class AdminController {
     }
 
     @GetMapping("/senders")
-    public ResponseEntity< Map<String, Object>> listSenderAll() {
+    public ResponseEntity<Map<String, Object>> listSenderAll() {
 
         try {
 
             List<SenderResponseDTO> senderResponseDTOs = senderService.findAll();
-            Map<String, Object> mapaData= new HashMap<>();
+            Map<String, Object> mapaData = new HashMap<>();
             mapaData.put("data", senderResponseDTOs);
             mapaData.put("size", senderResponseDTOs.size());
             return ResponseEntity.ok(mapaData);
@@ -136,14 +137,14 @@ public class AdminController {
     }
 
     @PostMapping("/agreements")
-    public ResponseEntity<AgreementDTO> saveAgreement(@RequestBody AgreementDTO agreementDTO){
+    public ResponseEntity<AgreementDTO> saveAgreement(@RequestBody AgreementDTO agreementDTO) {
 
         LOGGER.info("Plan a guardar " + agreementDTO);
         try {
 
             AgreementDTO agreementSaved = agreementService.save(agreementDTO);
 
-            return  new ResponseEntity<>(agreementSaved, HttpStatus.CREATED);
+            return new ResponseEntity<>(agreementSaved, HttpStatus.CREATED);
 
         } catch (NotDataAccessException e) {
 
@@ -153,8 +154,8 @@ public class AdminController {
     }
 
 
-  @GetMapping("/agreements")
-    public ResponseEntity<  Map<String, Object>> listAgreementAll() {
+    @GetMapping("/agreements")
+    public ResponseEntity<Map<String, Object>> listAgreementAll() {
 
         try {
 
@@ -190,7 +191,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/agreements/{codigo}")
-    public ResponseEntity<String> deleteAgreenebtById(@PathVariable(required = false) Long codigo){
+    public ResponseEntity<String> deleteAgreenebtById(@PathVariable(required = false) Long codigo) {
 
         LOGGER.info("Plan ide a eliminar: " + codigo);
 
@@ -205,7 +206,7 @@ public class AdminController {
     }
 
     @PutMapping("/agreements/{id}")
-    public ResponseEntity<AgreementDTO> update(@RequestBody AgreementDTO agreementDTO, @PathVariable(required = false) Long id){
+    public ResponseEntity<AgreementDTO> update(@RequestBody AgreementDTO agreementDTO, @PathVariable(required = false) Long id) {
 
         LOGGER.info("Plan a actualizar " + id);
         try {
@@ -220,9 +221,7 @@ public class AdminController {
         }
 
 
-
     }
-
 
 
 }

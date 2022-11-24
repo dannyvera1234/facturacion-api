@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.dto;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 public class CustomerNewDTO extends PersonNewDTO implements Serializable {
@@ -12,6 +13,7 @@ public class CustomerNewDTO extends PersonNewDTO implements Serializable {
 
 	private String cellPhone;
 
+	@NotBlank(message = "El tipo de cliente no pueder vacío")
 	private String typeCustomer;
 
 	public CustomerNewDTO() {

@@ -15,6 +15,8 @@ import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.IPersonService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
+import javax.validation.Valid;
+
 @CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
 @RestController
 @RequestMapping("/facturacion")
@@ -24,7 +26,7 @@ public class PersonRestController {
 	private IPersonService personService;
 
 	@PostMapping("/senders/{id}/customers")
-	public ResponseEntity<CustomerResponseDTO> saveCustomer(@RequestBody CustomerNewDTO customerNewDTO,
+	public ResponseEntity<CustomerResponseDTO> saveCustomer(@RequestBody @Valid CustomerNewDTO customerNewDTO,
 			@PathVariable(name = "id") Long idSender) {
 
 		try {
@@ -55,7 +57,7 @@ public class PersonRestController {
 	}
 
 	@PostMapping("/senders/{id}/drivers")
-	public ResponseEntity<DriverResponseDTO> saveDriver(@RequestBody DriverNewDTO driverNewDTO,
+	public ResponseEntity<DriverResponseDTO> saveDriver(@RequestBody @Valid DriverNewDTO driverNewDTO,
 			@PathVariable(name = "id") Long idSender) {
 
 		try {

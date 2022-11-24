@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import com.facturacion.ideas.api.dto.ProductDTO;
 import com.facturacion.ideas.api.dto.ProductInformationDTO;
 
+import javax.validation.Valid;
+
 public interface IProductOperation {
 
 	@PostMapping("/subsidiarys/{id}/products")
-	ResponseEntity<ProductResponseDTO> save(@RequestBody ProductDTO productDTO,
+	ResponseEntity<ProductResponseDTO> save(@RequestBody @Valid  ProductDTO productDTO,
 											@PathVariable(name = "id") Long idSubsidiary);
 
 	@GetMapping("/products/{id}")

@@ -1,5 +1,7 @@
 package com.facturacion.ideas.api.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 public class SubsidiaryNewDTO implements Serializable {
@@ -8,6 +10,8 @@ public class SubsidiaryNewDTO implements Serializable {
 
 	private Long ide;
 
+	@NotBlank(message = "El código del establecimiento no puede ser vacío")
+	@Size(min = 3, max = 3, message = "El código del establecimiento debe tener 3 dígitos")
 	private String code;
 
 	private String socialReason;

@@ -25,7 +25,6 @@ public class ValueInvoiceNewDTO implements Serializable {
 	private double rbpnr;
 
 	private double iva;
-
 	private double propina;
 
 	private double total;

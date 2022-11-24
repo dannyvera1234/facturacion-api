@@ -1,5 +1,9 @@
 package com.facturacion.ideas.api.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 public abstract class DocumentNewDTO implements Serializable {
@@ -8,6 +12,8 @@ public abstract class DocumentNewDTO implements Serializable {
 
 	private Long ide;
 
+	@NotBlank(message = "El tipo de documento no pueder ser vacío")
+	@Size(min = 2, max = 2, message = "El código del tipo de documente debe tener 2 dígitos")
 	private String typeDocument;
 
 	private String numberSecuencial;
@@ -24,6 +30,8 @@ public abstract class DocumentNewDTO implements Serializable {
 
 	private Long idPerson;
 
+	@NotNull(message = "El punto de emisión no pueder ser vacío")
+	@Positive(message = "El punto de emisión es incorrecto")
 	private Long idEmissionPoint;
 
 	public DocumentNewDTO() {

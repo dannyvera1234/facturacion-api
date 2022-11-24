@@ -1,5 +1,6 @@
 package com.facturacion.ideas.api.dto;
 
+import javax.validation.constraints.*;
 import java.io.Serializable;
 
 public class CountNewDTO implements Serializable {
@@ -8,16 +9,22 @@ public class CountNewDTO implements Serializable {
 
 	private Long ide;
 
+	@NotBlank(message = "EL ruc no puede estar vacío")
+	@Size(min = 13, max = 13, message = "El ruc debe tener 13 dígitos")
 	private String ruc;
 
+	@Size(min = 6, max = 20, message = "La contraseña debe tener entre 6 y 20 caracteres")
 	private String password;
 
 	private boolean estado;
 
 	private String fechaRegistro;
 
+	@NotBlank(message = "El rol no puede estar vacío")
 	private String rol;
 
+	@NotNull(message = "El tipo de plan no pueder estar vacío")
+	@Positive(message = "El plan seleccionado es incorrecto")
 	private Long idAgreement;
 
 	private int amount;
