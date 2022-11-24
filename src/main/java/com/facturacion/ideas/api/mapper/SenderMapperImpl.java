@@ -44,6 +44,8 @@ public class SenderMapperImpl implements ISenderMapper {
 		sender.setTypeEmission( TypeEmissionEnum.getTypeEmissionEnum(senderNewDTO.getTypeEmission()));
 
 		sender.setPasswordCerticate(senderNewDTO.getPasswordCerticate());
+
+		sender.setNameCerticate(senderNewDTO.getNameCerticate());
 		
 		sender.setTypeSender( senderNewDTO.getTypeSender());
 

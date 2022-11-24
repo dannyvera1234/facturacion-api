@@ -133,11 +133,10 @@ public class DocumentServiceImpl implements IDocumentService {
 
             final String claveDescriptada = encryptionService.deEncrypt(sender.getPasswordCerticate());
 
-
             // Si el documento no puede ser firmado, se lo elimina
             pathFileSigned = signatureDocumentXML.setDataDocumentXML(facturaGenerada.getInfoTributaria().getRuc()
                     , pathNewInvoiceXML,
-                    claveDescriptada, "VERONICA_PATRICIA_QUIMIS_LEON_130922105723.p12", facturaGenerada.getInfoTributaria().getClaveAcceso());
+                    claveDescriptada, sender.getNameCerticate(), facturaGenerada.getInfoTributaria().getClaveAcceso());
 
 
             //consumeWebService(invoiceXML, numberSecuncial);

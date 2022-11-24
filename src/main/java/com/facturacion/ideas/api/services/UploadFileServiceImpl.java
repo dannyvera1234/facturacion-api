@@ -1,7 +1,6 @@
 package com.facturacion.ideas.api.services;
 
-import com.facturacion.ideas.api.sri.cliente.ClientSRI;
-import com.facturacion.ideas.api.util.PathDocuments;
+import com.facturacion.ideas.api.enums.TypeFileEnum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -20,11 +19,11 @@ public class UploadFileServiceImpl implements IUploadFileService {
     private static final Logger LOGGER = LogManager.getLogger(UploadFileServiceImpl.class);
 
     @Override
-    public String saveImage(MultipartFile file, String pathOutDirectory) {
+    public String saveFile(MultipartFile file, String pathOutDirectory, TypeFileEnum typeFileEnum) {
 
-        String fileNameOut = "logo_default.jpg";
+        String fileNameOut = null;
 
-        // Si selecciona una imagen
+        // Si selecciona un archivo
         if (!file.isEmpty()) {
 
             Path uploadPath = Paths.get(pathOutDirectory);
@@ -34,14 +33,16 @@ public class UploadFileServiceImpl implements IUploadFileService {
                 try {
                     Files.createDirectories(uploadPath);
                 } catch (IOException e) {
-                    LOGGER.error("No se pudo crear directorio: " + uploadPath + " para el logo", e);
-
-                    return fileNameOut;
+                    LOGGER.error("No se pudo crear directorio: " + uploadPath + " para guardar" + typeFileEnum.getType(), e);
+                    return null;
                 }
             }
 
-            // Nombre de la imagen
-            fileNameOut = "logo_" + file.getOriginalFilename();
+            if (typeFileEnum.getCode().equalsIgnoreCase(TypeFileEnum.IMG.getCode())) {
+                fileNameOut = "logo_"+ file.getOriginalFilename();
+            } else if (typeFileEnum.getCode().equalsIgnoreCase(TypeFileEnum.FILE.getCode())) {
+                fileNameOut = "certificado_"+file.getOriginalFilename();
+            } else fileNameOut = "";
 
             try (InputStream inputStream = file.getInputStream()) {
 
@@ -50,17 +51,17 @@ public class UploadFileServiceImpl implements IUploadFileService {
                 Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
 
-                LOGGER.error("Could not save image: " + uploadPath.toFile().getAbsolutePath() + "/" + fileNameOut, e);
-                // throw new IOException("Could not save image file: " + file, ioe);
-                fileNameOut = "logo_default.jpg";
+                LOGGER.error("Could not save " + typeFileEnum.getType() + uploadPath.toFile().getAbsolutePath() + "/" + fileNameOut, e);
+                fileNameOut = null;
             }
-
         }
+
         return fileNameOut;
     }
 
     @Override
     public void deleteImage(String nameFile) {
+
 
     }
 }

@@ -41,7 +41,9 @@ public class SenderRestController implements ISenderOperation {
     private ISenderService senderService;
 
     @Override
-    public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO, MultipartFile multipartFile) {
+    public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO,
+                                                  MultipartFile multipartFile,
+                                                  MultipartFile multipartFileCerticado) {
 
 
         try {
@@ -50,7 +52,7 @@ public class SenderRestController implements ISenderOperation {
 
             LOGGER.info(String.format("Emisor guardar %s  ; Id Cuenta: %s ", senderConvert, idCount));
 
-            SenderResponseDTO senderResponseDTO = senderService.save(idCount, senderConvert, multipartFile);
+            SenderResponseDTO senderResponseDTO = senderService.save(idCount, senderConvert, multipartFile, multipartFileCerticado);
 
             return new ResponseEntity<>(senderResponseDTO, HttpStatus.CREATED);
 

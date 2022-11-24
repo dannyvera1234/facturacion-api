@@ -81,6 +81,8 @@ public class Sender implements Serializable {
     @Column(name = "EMI_PAS_CER")
     private String passwordCerticate;
 
+    @Column(name = "EMI_NAM_CER")
+    private String nameCerticate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMI_FK_COD_CUE")
@@ -321,6 +323,14 @@ public class Sender implements Serializable {
 
     public void setPasswordCerticate(String passwordCerticate) {
         this.passwordCerticate = passwordCerticate;
+    }
+
+    public String getNameCerticate() {
+        return nameCerticate;
+    }
+
+    public void setNameCerticate(String nameCerticate) {
+        this.nameCerticate = nameCerticate;
     }
 
     @Override

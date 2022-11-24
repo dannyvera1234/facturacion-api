@@ -1,12 +1,10 @@
 package com.facturacion.ideas.api.services;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import com.facturacion.ideas.api.admin.AdminEmissionPoint;
-import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import com.facturacion.ideas.api.entities.*;
+import com.facturacion.ideas.api.enums.TypeFileEnum;
 import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.util.PathDocuments;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +14,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.facturacion.ideas.api.admin.AdminCodeDocument;
 import com.facturacion.ideas.api.admin.AdminSender;
 import com.facturacion.ideas.api.admin.AdminSubsidiary;
 import com.facturacion.ideas.api.dto.SenderNewDTO;
@@ -50,7 +47,8 @@ public class SenderServiceImpl implements ISenderService {
 
     @Override
     @Transactional
-    public SenderResponseDTO save(Long idCount, final SenderNewDTO senderNewDTO, MultipartFile file) {
+    public SenderResponseDTO save(Long idCount, final SenderNewDTO senderNewDTO,
+                                  MultipartFile fileImg, MultipartFile fileCertificate) {
 
         try {
 
@@ -89,8 +87,14 @@ public class SenderServiceImpl implements ISenderService {
                         sender.setCount(count);
 
                         // Asignar logo
-                        String nameFile = uploadFileService.saveImage(file, PathDocuments.PATH_BASE.concat(sender.getRuc()));
+                        String nameFile = uploadFileService.saveFile(fileImg, PathDocuments.PATH_BASE.concat(sender.getRuc()), TypeFileEnum.IMG);
                         sender.setLogo(nameFile);
+
+
+                        // Asignar certificado
+                        String nameFileCerti = uploadFileService.saveFile(fileCertificate, PathDocuments.PATH_BASE.concat(sender.getRuc()), TypeFileEnum.FILE);
+                        sender.setNameCerticate(nameFileCerti);
+
                         return senderMapper.mapperToDTO(senderRepository.save(sender));
                     }
                     throw new BadRequestException("Formato del establecimiento  " + newSubsidiary + " o punto emision " + " son  incorrectos");

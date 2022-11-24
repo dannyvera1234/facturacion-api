@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ISenderService extends ISenderAdminService {
 
-	SenderResponseDTO save(Long idCount, SenderNewDTO senderNewDTO,  MultipartFile file);
+	SenderResponseDTO save(Long idCount, SenderNewDTO senderNewDTO,  MultipartFile file, MultipartFile fileCertificate);
 
 	SenderResponseDTO update(SenderNewDTO senderNewDTO, Long idSender);
 

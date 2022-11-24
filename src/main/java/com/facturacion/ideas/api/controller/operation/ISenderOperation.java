@@ -38,7 +38,8 @@ public interface ISenderOperation {
 	@PostMapping("/counts/{id}/senders")
 	 ResponseEntity<SenderResponseDTO> save(@PathVariable("id") Long idCount,
 											@RequestParam("senderNewDTO") String jsonSenderNewDTO,
-											@RequestParam("logo") MultipartFile multipartFile);
+											@RequestParam("logo") MultipartFile multipartFile,
+											@RequestParam("certificado") MultipartFile multipartFileCerticado);
 
 	// public ResponseEntity<SenderResponseDTO> save(@RequestBody SenderNewDTO sender, @PathVariable("id") Long idCount);
 	/**

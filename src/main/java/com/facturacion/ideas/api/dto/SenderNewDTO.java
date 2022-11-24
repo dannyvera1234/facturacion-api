@@ -41,6 +41,8 @@ public class SenderNewDTO implements Serializable {
 
 	private String passwordCerticate;
 
+	private String nameCerticate;
+
 	private boolean rimpe;
 	
 	private String province;
@@ -220,16 +222,37 @@ public class SenderNewDTO implements Serializable {
 		return emisionPoint;
 	}
 
+
+	public String getNameCerticate() {
+		return nameCerticate;
+	}
+
+	public void setNameCerticate(String nameCerticate) {
+		this.nameCerticate = nameCerticate;
+	}
+
 	@Override
 	public String toString() {
-		return "SenderNewDTO [ide=" + ide + ", ruc=" + ruc + ", socialReason=" + socialReason + ", commercialName="
-				+ commercialName + ", matrixAddress=" + matrixAddress + ", specialContributor=" + specialContributor
-				+  "retentionAgent" + retentionAgent+", accountancy=" + accountancy + ", typeSender=" + typeSender + ", logo=" + logo
-				+ ", typeEnvironment=" + typeEnvironment + ", subsidiary= " + subsidiary+ ", emisionṔoint="+ emisionPoint+  ", typeEmission=" + typeEmission + ", rimpe=" + rimpe
-				+ ", province=" + province + "]";
+		return "SenderNewDTO{" +
+				"ide=" + ide +
+				", ruc='" + ruc + '\'' +
+				", socialReason='" + socialReason + '\'' +
+				", commercialName='" + commercialName + '\'' +
+				", matrixAddress='" + matrixAddress + '\'' +
+				", specialContributor='" + specialContributor + '\'' +
+				", retentionAgent='" + retentionAgent + '\'' +
+				", accountancy=" + accountancy +
+				", typeSender=" + typeSender +
+				", logo='" + logo + '\'' +
+				", typeEnvironment='" + typeEnvironment + '\'' +
+				", typeEmission='" + typeEmission + '\'' +
+				", passwordCerticate='" + passwordCerticate + '\'' +
+				", nameCerticate='" + nameCerticate + '\'' +
+				", rimpe=" + rimpe +
+				", province='" + province + '\'' +
+				", emailSenderNewDTOList=" + emailSenderNewDTOList.size() +
+				", subsidiary='" + subsidiary + '\'' +
+				", emisionPoint='" + emisionPoint + '\'' +
+				'}';
 	}
-	
-	
-	
-
 }
