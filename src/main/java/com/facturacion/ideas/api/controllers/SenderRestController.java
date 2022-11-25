@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import com.facturacion.ideas.api.exeption.EncryptedException;
+import com.facturacion.ideas.api.validation.SenderCustomerEditor;
 import com.google.gson.Gson;
 import com.google.gson.stream.MalformedJsonException;
 import org.apache.logging.log4j.LogManager;
@@ -47,7 +48,17 @@ public class SenderRestController implements ISenderOperation {
     @Autowired
     private ISenderService senderService;
 
+    @Autowired
+    private SenderCustomerEditor senderEditor;
 
+    @InitBinder
+    public  void initBinder(WebDataBinder webDataBinder) {
+
+       String nombre =   webDataBinder.getObjectName();
+        System.out.println("HOla nundo: " + nombre);
+        webDataBinder.registerCustomEditor(SenderNewDTO.class, "senderNewDTO", senderEditor);
+
+    }
     @Override
     public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO,
                                                   MultipartFile multipartFile,

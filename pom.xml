@@ -117,7 +117,7 @@
     <build>
         <plugins>
 
-            <plugin>
+            <!--<plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>
                 <version>2.6</version>
@@ -130,10 +130,10 @@
                 </executions>
                 <configuration>
                     <wsdlUrls>
-                     <!--   <wsdlUrl>
+                        <wsdlUrl>
 
                             https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl
-                        </wsdlUrl>-->
+                        </wsdlUrl>
                         <wsdlUrl>
                             https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl
                         </wsdlUrl>
@@ -144,7 +144,7 @@
                     </sourceDestDir>
                     <destDir>${project.build.sourceDirectory}</destDir>
                 </configuration>
-            </plugin>
+            </plugin>-->
             <plugin>
 
                 <groupId>org.springframework.boot</groupId>
