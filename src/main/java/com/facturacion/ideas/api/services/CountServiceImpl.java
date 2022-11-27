@@ -1,11 +1,19 @@
 package com.facturacion.ideas.api.services;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.facturacion.ideas.api.enums.RolEnum;
+import com.facturacion.ideas.api.security.dto.RolNewDTO;
+import com.facturacion.ideas.api.security.entity.Rol;
+import com.facturacion.ideas.api.security.enums.RolNombreEnum;
+import com.facturacion.ideas.api.security.service.IRolService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +63,12 @@ public class CountServiceImpl implements ICountService {
     @Autowired
     private IDetailsAgreementMapper detailsAgreementMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private IRolService rolService;
+
     @Override
     public CountResponseDTO saveCount(CountNewDTO countNewDTO) {
         try {
@@ -64,12 +78,30 @@ public class CountServiceImpl implements ICountService {
                 throw new DuplicatedResourceException(
                         "ruc: " + countNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 
+            countNewDTO.setPassword(passwordEncoder.encode(countNewDTO.getPassword()));
             // Buscar el plan
             Agreement agreement = agreementRepository.findById(countNewDTO.getIdAgreement())
                     .orElseThrow(() -> new NotFoundException("Plan id: " + countNewDTO.getIdAgreement()
                             + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-            Count countSaved = countRepository.save(countMapper.mapperToEntity(countNewDTO));
+            Count count = countMapper.mapperToEntity(countNewDTO);
+            
+            // Agregar los roles
+            Set<Rol> roles = new HashSet<>(1);
+
+            roles.add(rolService.findByRolNombreEnum(RolNombreEnum.ROLE_EMP.name()).get());
+
+            if (countNewDTO.getRoles().equalsIgnoreCase(RolNombreEnum.ROLE_ADMIN.name())) {
+                roles.add(rolService.findByRolNombreEnum(RolNombreEnum.ROLE_ADMIN.name()).get());
+                roles.add(rolService.findByRolNombreEnum(RolNombreEnum.ROLE_USER.name()).get());
+            }
+
+            if (countNewDTO.getRoles().equalsIgnoreCase(RolNombreEnum.ROLE_USER.name())) {
+                roles.add(rolService.findByRolNombreEnum(RolNombreEnum.ROLE_USER.name()).get());
+            }
+
+            count.setRoles(roles);
+            Count countSaved = countRepository.save(count);
 
             // Asignar Plan a cuenta
             DetailsAggrement detailsAggrement = AdminDetailsAggrement.create(agreement.getTypeAgreement(),
@@ -93,7 +125,7 @@ public class CountServiceImpl implements ICountService {
     @Override
     @Transactional(readOnly = true)
     public List<CountResponseDTO> fetchByWithAgreement() {
-        try{
+        try {
 
             List<Count> counts = countRepository.fetchByWithAgreement();
 
@@ -170,8 +202,8 @@ public class CountServiceImpl implements ICountService {
 
         try {
 
-            if (!countRepository.existsById(id)){
-                throw  new NotFoundException("Cuenta número ide  " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+            if (!countRepository.existsById(id)) {
+                throw new NotFoundException("Cuenta número ide  " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
             }
 
@@ -292,11 +324,11 @@ public class CountServiceImpl implements ICountService {
     public List<DetailsAgreementDTO> listAgreementDetailsAllByRuc(String ruc) {
         try {
 
-            if (countRepository.existsByRuc(ruc)){
+            if (countRepository.existsByRuc(ruc)) {
                 List<DetailsAggrement> listDetails = detailsAgreementRepository.listAllDetailAgreementsByRuc(ruc);
                 return detailsAgreementMapper.mapperToDTO(listDetails);
             }
-            throw  new NotFoundException("Emisor Ruc " + ruc + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+            throw new NotFoundException("Emisor Ruc " + ruc + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
         } catch (DataAccessException e) {
             LOGGER.error("Error listar planes ", e);

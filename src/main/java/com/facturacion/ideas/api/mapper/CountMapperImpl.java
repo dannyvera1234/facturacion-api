@@ -1,10 +1,11 @@
 package com.facturacion.ideas.api.mapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.facturacion.ideas.api.security.dto.RolNewDTO;
+import com.facturacion.ideas.api.security.entity.Rol;
+import com.facturacion.ideas.api.security.enums.RolNombreEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,96 +21,149 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 @Component
 public class CountMapperImpl implements ICountMapper {
 
-	@Autowired
-	private IDetailsAgreementMapper detailsAgreementMapper;
+    @Autowired
+    private IDetailsAgreementMapper detailsAgreementMapper;
 
-	@Override
-	public Count mapperToEntity(CountNewDTO countNewDTO) {
+    @Override
+    public Count mapperToEntity(CountNewDTO countNewDTO) {
 
-		Count count = new Count();
-		count.setRuc(countNewDTO.getRuc());
-		count.setPassword(countNewDTO.getPassword());
-		count.setEstado(countNewDTO.isEstado());
-		count.setRol(RolEnum.getRolEnum(countNewDTO.getRol()));
+        Count count = new Count();
+        count.setRuc(countNewDTO.getRuc());
+        count.setPassword(countNewDTO.getPassword());
+        count.setEstado(countNewDTO.isEstado());
 
-		return count;
-	}
 
-	@Override
-	public CountResponseDTO mapperToDTO(Count count) {
+       /* String rol = countNewDTO.getRoles();
 
-		CountResponseDTO countResponseDTO = new CountResponseDTO();
+        Set<RolNewDTO> roles = new HashSet<>();
 
-		countResponseDTO.setIde(count.getIde());
-		countResponseDTO.setRuc(count.getRuc());
-		
-		List<DetailsAgreementDTO> detailsAgreementDTOs = detailsAgreementMapper
-				.mapperToDTO(count.getDetailsAggrement());
+        // Todos los usuarios tendran un rol almenos de empleado
+        roles.add(new RolNewDTO(RolNombreEnum.ROLE_EMP.name()));
 
-		if (detailsAgreementDTOs.size() > 0) {
 
-			// Ordenar plan contrarado para obtener el ultimo plan contratado
-			Collections.sort(detailsAgreementDTOs);
+        // Roles para el admin, tendra los 3 roles
+        if (rol.equalsIgnoreCase(RolNombreEnum.ROLE_ADMIN.name())) {
+            roles.add(new RolNewDTO(RolNombreEnum.ROLE_ADMIN.name()));
+            roles.add(new RolNewDTO(RolNombreEnum.ROLE_USER.name()));
+        }
 
-			// Obtengo el ultimo plan contratado
 
-			DetailsAgreementDTO detailsAgreementDTO = detailsAgreementDTOs.get(0);
-			countResponseDTO.setAggrement(detailsAgreementDTO.getAgreement());
-			countResponseDTO.setAmount(detailsAgreementDTO.getAmount());
-		}
+        // Roles para el user, tendra  solo 2 roles
+        if (rol.equalsIgnoreCase(RolNombreEnum.ROLE_USER.name())) {
+            roles.add(new RolNewDTO(RolNombreEnum.ROLE_USER.name()));
+        }
 
-		countResponseDTO.setRol(count.getRol().name());
-		countResponseDTO.setFechaRegistro(FunctionUtil.convertDateToString(count.getFechaRegistro()));
-		countResponseDTO.setEstado(count.isEstado());
-		return countResponseDTO;
-	}
+        count.setRoles(mapperToEntity(roles));
+        
+        */
 
-	@Override
-	public List<CountResponseDTO> mapperToDTO(List<Count> counts) {
+        return count;
+    }
 
-		List<CountResponseDTO> countResponseDTOs = new ArrayList<>();
+    @Override
+    public CountResponseDTO mapperToDTO(Count count) {
 
-		if (counts.size() > 0) {
+        CountResponseDTO countResponseDTO = new CountResponseDTO();
 
-			countResponseDTOs = counts.stream().map(item -> mapperToDTO(item)).collect(Collectors.toList());
+        countResponseDTO.setIde(count.getIde());
+        countResponseDTO.setRuc(count.getRuc());
 
-		}
+        List<DetailsAgreementDTO> detailsAgreementDTOs = detailsAgreementMapper
+                .mapperToDTO(count.getDetailsAggrement());
 
-		return countResponseDTOs;
-	}
+        if (detailsAgreementDTOs.size() > 0) {
 
-	@Override
-	public Login mapperToEntity(LoginDTO loginDTO) {
+            // Ordenar plan contrarado para obtener el ultimo plan contratado
+            Collections.sort(detailsAgreementDTOs);
 
-		Login login = new Login();
-		return login;
-	}
+            // Obtengo el ultimo plan contratado
 
-	@Override
-	public LoginDTO mapperToEntity(Login login) {
+            DetailsAgreementDTO detailsAgreementDTO = detailsAgreementDTOs.get(0);
+            countResponseDTO.setAggrement(detailsAgreementDTO.getAgreement());
+            countResponseDTO.setAmount(detailsAgreementDTO.getAmount());
+        }
 
-		LoginDTO loginDTO = new LoginDTO();
+        /*countResponseDTO.setRol(
+                count.getRoles().stream().map(item -> item.getRolNombreEnum().name())
+                                .reduce("", (otro, elemento) -> elemento+","));
+        */
+        countResponseDTO.setFechaRegistro(FunctionUtil.convertDateToString(count.getFechaRegistro()));
+        countResponseDTO.setEstado(count.isEstado());
+        return countResponseDTO;
+    }
 
-		loginDTO.setIde(login.getIde());
+    @Override
+    public List<CountResponseDTO> mapperToDTO(List<Count> counts) {
 
-		loginDTO.setDateLogIn(FunctionUtil.convertDateToString(login.getDateLogIn()));
+        List<CountResponseDTO> countResponseDTOs = new ArrayList<>();
 
-		loginDTO.setDateLogOut(FunctionUtil.convertDateToString(login.getDateLogOut()));
+        if (counts.size() > 0) {
 
-		return loginDTO;
-	}
+            countResponseDTOs = counts.stream().map(item -> mapperToDTO(item)).collect(Collectors.toList());
 
-	@Override
-	public List<LoginDTO> mapperToEntity(List<Login> logins) {
+        }
 
-		List<LoginDTO> loginDTOs = new ArrayList<>();
+        return countResponseDTOs;
+    }
 
-		if (logins.size() > 0) {
+    @Override
+    public Login mapperToEntity(LoginDTO loginDTO) {
 
-			loginDTOs = logins.stream().map(item -> mapperToEntity(item)).collect(Collectors.toList());
-		}
+        Login login = new Login();
+        return login;
+    }
 
-		return loginDTOs;
-	}
+    @Override
+    public LoginDTO mapperToEntity(Login login) {
+
+        LoginDTO loginDTO = new LoginDTO();
+
+        loginDTO.setIde(login.getIde());
+
+        loginDTO.setDateLogIn(FunctionUtil.convertDateToString(login.getDateLogIn()));
+
+        loginDTO.setDateLogOut(FunctionUtil.convertDateToString(login.getDateLogOut()));
+
+        return loginDTO;
+    }
+
+    @Override
+    public List<LoginDTO> mapperToEntity(List<Login> logins) {
+
+        List<LoginDTO> loginDTOs = new ArrayList<>();
+
+        if (logins.size() > 0) {
+
+            loginDTOs = logins.stream().map(item -> mapperToEntity(item)).collect(Collectors.toList());
+        }
+
+        return loginDTOs;
+    }
+
+    @Override
+    public Rol mapperToEntity(RolNewDTO rolNewDTO) {
+
+        RolNombreEnum rolNombreEnum = RolNombreEnum.getRolNombreEnum(rolNewDTO.getRolNombreEnum());
+        Rol rol = null;
+        if (rolNombreEnum != null) {
+            rol = new Rol();
+            rol.setRolNombreEnum(rolNombreEnum);
+        }
+
+        return rol;
+    }
+
+    @Override
+    public Set<Rol> mapperToEntity(Set<RolNewDTO> rolNewDTO) {
+
+        Set<Rol> roles = new HashSet<>(1);
+        rolNewDTO.forEach(item -> {
+
+            Rol rol = mapperToEntity(item);
+            if (rol != null) roles.add(rol);
+
+        });
+        return roles;
+    }
 
 }

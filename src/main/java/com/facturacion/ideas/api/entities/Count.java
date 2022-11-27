@@ -32,9 +32,9 @@ public class Count implements Serializable {
 	@Column(name = "CUE_FEC_REG")
 	private Date fechaRegistro;
 
-	@Column(name = "CUE_ROL")
+/*	@Column(name = "CUE_ROL")
 	@Enumerated(EnumType.STRING)
-	private RolEnum rol;
+	private RolEnum rol;*/
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "count")
 	private List<Login> logins;
@@ -47,21 +47,21 @@ public class Count implements Serializable {
 	private List<Sender> sender;
 
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@NotNull
 	@JoinTable(name="cuentas_roles",
 			joinColumns = @JoinColumn(name="CUE_COD", referencedColumnName = "CUE_COD"),
 			inverseJoinColumns = @JoinColumn(name="ROL_COD", referencedColumnName = "ROL_COD"))
 	private Set<Rol> roles;
 
-	public Count(Long ide, String ruc, String password, boolean estado, Date fechaRegistro, RolEnum rol) {
+	public Count(Long ide, String ruc, String password, boolean estado, Date fechaRegistro) {
 		super();
 		this.ide = ide;
 		this.ruc = ruc;
 		this.password = password;
 		this.estado = estado;
 		this.fechaRegistro = fechaRegistro;
-		this.rol = rol;
+		//this.rol = rol;
 		initData();
 	}
 
@@ -124,13 +124,14 @@ public class Count implements Serializable {
 		this.fechaRegistro = fechaRegistro;
 	}
 
+	/*
 	public RolEnum getRol() {
 		return rol;
 	}
 
 	public void setRol(RolEnum rol) {
 		this.rol = rol;
-	}
+	}*/
 
 	public List<Login> getLogins() {
 		return logins;
@@ -161,10 +162,25 @@ public class Count implements Serializable {
 		return roles;
 	}
 
+	public void setRoles(Set<Rol> roles) {
+		this.roles = roles;
+	}
+
+	/*
 	@Override
 	public String toString() {
 		return "Count [ide=" + ide + ", ruc=" + ruc + ", password=" + password + ", estado=" + estado
 				+ ", fechaRegistro=" + fechaRegistro + ", rol=" + rol + "]";
-	}
+	}*/
 
+	@Override
+	public String toString() {
+		return "Count{" +
+				"ide=" + ide +
+				", ruc='" + ruc + '\'' +
+				", password='" + password + '\'' +
+				", estado=" + estado +
+				", fechaRegistro=" + fechaRegistro +
+				'}';
+	}
 }

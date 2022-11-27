@@ -89,7 +89,7 @@ public class SenderMapperImpl implements ISenderMapper {
 		senderResponseDTO.setSpecialContributor(sender.getSpecialContributor());
 		senderResponseDTO.setRetentionAgent( sender.getRetentionAgent());
 
-		senderResponseDTO.setRol( sender.getCount().getRol().name());
+		//senderResponseDTO.setRol( sender.getCount().getRol().name());
 		return senderResponseDTO;
 	}
 

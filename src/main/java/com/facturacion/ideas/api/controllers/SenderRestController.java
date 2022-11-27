@@ -49,7 +49,7 @@ public class SenderRestController implements ISenderOperation {
     private ISenderService senderService;
 
     @Autowired
-    private SenderCustomerEditor senderEditor;
+   private SenderCustomerEditor senderEditor;
 
     @InitBinder
     public  void initBinder(WebDataBinder webDataBinder) {
@@ -58,12 +58,13 @@ public class SenderRestController implements ISenderOperation {
         System.out.println("HOla nundo: " + nombre);
         webDataBinder.registerCustomEditor(SenderNewDTO.class, "senderNewDTO", senderEditor);
 
+
     }
     @Override
     public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO,
                                                   MultipartFile multipartFile,
                                                   MultipartFile multipartFileCerticado) {
-
+        LOGGER.info(jsonSenderNewDTO);
 
         try {
 

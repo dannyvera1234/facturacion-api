@@ -1,12 +1,20 @@
 package com.facturacion.ideas.api;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class ConfigurationUtil {
+public class ConfigurationUtil implements WebMvcConfigurer {
+
+
+	//@Autowired
+	//private HandlerInterceptor senderInterceptor;
 	
 	/*Modulo para el roblema de serizalizacion y deserializacion
 	 * de objetos cuanto estan relacionados
@@ -28,4 +36,5 @@ public class ConfigurationUtil {
 	 *  por defecto, se puede personalizar: mirar este tutorial
 	 * https://www.baeldung.com/spring-boot-customize-jackson-objectmapper
 	 */
+
 }

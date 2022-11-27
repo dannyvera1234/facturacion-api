@@ -5,114 +5,118 @@ import java.io.Serializable;
 
 public class CountNewDTO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private Long ide;
+    private Long ide;
 
-	@NotBlank(message = "EL ruc no puede estar vacío")
-	@Size(min = 13, max = 13, message = "El ruc debe tener 13 dígitos")
-	private String ruc;
+    @NotBlank(message = "EL ruc no puede estar vacío")
+    @Size(min = 13, max = 13, message = "El ruc debe tener 13 dígitos")
+    private String ruc;
 
-	@Size(min = 6, max = 20, message = "La contraseña debe tener entre 6 y 20 caracteres")
-	private String password;
+    @Size(min = 6, max = 20, message = "La contraseña debe tener entre 6 y 20 caracteres")
+    private String password;
 
-	private boolean estado;
+    private boolean estado;
 
-	private String fechaRegistro;
+    private String fechaRegistro;
 
-	@NotBlank(message = "El rol no puede estar vacío")
-	private String rol;
 
-	@NotNull(message = "El tipo de plan no pueder estar vacío")
-	@Positive(message = "El plan seleccionado es incorrecto")
-	private Long idAgreement;
+    @NotNull(message = "El tipo de plan no pueder estar vacío")
+    @Positive(message = "El plan seleccionado es incorrecto")
+    private Long idAgreement;
 
-	private int amount;
+    private int amount;
 
-	public CountNewDTO() {
-	}
+    @NotBlank(message = "El rol no puede estar vacío")
+    private String roles;
 
-	public CountNewDTO(Long ide, String ruc, String password, boolean estado, String fechaRegistro, String rol,
-			Long idAgreement, int amount) {
-		super();
-		this.ide = ide;
-		this.ruc = ruc;
-		this.password = password;
-		this.estado = estado;
-		this.fechaRegistro = fechaRegistro;
-		this.rol = rol;
-		this.idAgreement = idAgreement;
-		this.amount = amount;
-	}
 
-	public Long getIde() {
-		return ide;
-	}
+    public CountNewDTO() {
+    }
 
-	public void setIde(Long ide) {
-		this.ide = ide;
-	}
+    public CountNewDTO(Long ide, String ruc, String password, boolean estado, String fechaRegistro, String roles,
+                       Long idAgreement, int amount) {
+        super();
+        this.ide = ide;
+        this.ruc = ruc;
+        this.password = password;
+        this.estado = estado;
+        this.fechaRegistro = fechaRegistro;
+        this.roles = roles;
+        this.idAgreement = idAgreement;
+        this.amount = amount;
+    }
 
-	public String getRuc() {
-		return ruc;
-	}
+    public Long getIde() {
+        return ide;
+    }
 
-	public void setRuc(String ruc) {
-		this.ruc = ruc;
-	}
+    public void setIde(Long ide) {
+        this.ide = ide;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getRuc() {
+        return ruc;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setRuc(String ruc) {
+        this.ruc = ruc;
+    }
 
-	public boolean isEstado() {
-		return estado;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setEstado(boolean estado) {
-		this.estado = estado;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getFechaRegistro() {
-		return fechaRegistro;
-	}
+    public boolean isEstado() {
+        return estado;
+    }
 
-	public void setFechaRegistro(String fechaRegistro) {
-		this.fechaRegistro = fechaRegistro;
-	}
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
 
-	public String getRol() {
-		return rol;
-	}
+    public String getFechaRegistro() {
+        return fechaRegistro;
+    }
 
-	public void setRol(String rol) {
-		this.rol = rol;
-	}
+    public void setFechaRegistro(String fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
 
-	public void setIdAgreement(Long idAgreement) {
-		this.idAgreement = idAgreement;
-	}
 
-	public Long getIdAgreement() {
-		return idAgreement;
-	}
 
-	public void setAmount(int amount) {
-		this.amount = amount;
-	}
+    public void setIdAgreement(Long idAgreement) {
+        this.idAgreement = idAgreement;
+    }
 
-	public int getAmount() {
-		return amount;
-	}
+    public Long getIdAgreement() {
+        return idAgreement;
+    }
 
-	@Override
-	public String toString() {
-		return "CountDTO [ide=" + ide + ", ruc=" + ruc + ", password=" + password + ", estado=" + estado
-				+ ", fechaRegistro=" + fechaRegistro + ", rol=" + rol + "]";
-	}
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "CountDTO [ide=" + ide + ", ruc=" + ruc + ", password=" + password + ", estado=" + estado
+                + ", fechaRegistro=" + fechaRegistro + ", rol=" + roles + "]";
+    }
 
 }
