@@ -1,6 +1,8 @@
 package com.facturacion.ideas.api.exeption;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,10 +21,12 @@ public class ApiExceptionHandler {
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
 
-    // org.springframework.security.access.AccessDeniedException.class se debe
+   // org.springframework.security.access.AccessDeniedException.class
+    //se debe
     // agrega spring Security
     // para que reconosca
-    @ExceptionHandler({UnauthorizedException.class,})
+    @ExceptionHandler({UnauthorizedException.class,
+            AuthenticationException.class})
     @ResponseBody
     public void unauthorizedRequest() {
         // Empty. Nothing to do
@@ -67,7 +71,7 @@ public class ApiExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ExceptionHandler({ForbiddenException.class})
+    @ExceptionHandler({ForbiddenException.class,  AccessDeniedException.class,})
     @ResponseBody
     public ErrorMessage forbidden(Exception exception) {
         return new ErrorMessage(exception, HttpStatus.FORBIDDEN.value());

@@ -27,7 +27,7 @@ public class UserMain implements UserDetails {
     private String password;
 
     // Para manejar la autorizacion de los usuarios
-    private Collection<? extends GrantedAuthority>  authorities;
+    private Collection<? extends GrantedAuthority> authorities;
 
     public UserMain() {
     }
@@ -39,16 +39,23 @@ public class UserMain implements UserDetails {
         this.authorities = authorities;
     }
 
-    public static UserMain build(Count count){
+    /**
+     * Crear un {@link UserMain}
+     * @param count
+     * @return
+     */
+    public static UserMain build(Count count) {
 
         // Obtener los roles del usuario y convertir a autories
-        List<GrantedAuthority> authoritiies= count.getRoles()
-                                                    .stream()
+        List<GrantedAuthority> authoritiies = count.getRoles()
+                .stream()
                 .map(rol -> new SimpleGrantedAuthority(rol.getRolNombreEnum().name()))
                 .collect(Collectors.toList());
-        
+
+        // Construye
         return new UserMain(count.getRuc(), count.isEstado(), count.getPassword(), authoritiies);
     }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
@@ -81,15 +88,7 @@ public class UserMain implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
-    }
-
-    public boolean isEstado() {
         return estado;
-    }
-
-    public void setEstado(boolean estado) {
-        this.estado = estado;
     }
 
     public Date getFechaRegistro() {

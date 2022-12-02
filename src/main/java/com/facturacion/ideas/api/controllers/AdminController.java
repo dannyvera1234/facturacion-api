@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,6 +35,8 @@ public class AdminController {
     @Autowired
     private IAgreementService agreementService;
 
+    // @PreAuthorize("hasRole('ROLE_VIEWER') or hasRole('ROLE_EDITOR')")
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PostMapping("/counts")
     public ResponseEntity<CountResponseDTO> saveCount( @RequestBody @Valid CountNewDTO countNewDTO) {
 
@@ -49,6 +52,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PostMapping("/counts/{id}/agreements/{codigo}")
     ResponseEntity<DetailsAgreementDTO> saveDetailsAggrement(@PathVariable("id") Long idCount,
                                                              @PathVariable(required = false, name = "codigo") Long codigoPlan) {
@@ -67,6 +71,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @GetMapping("/counts")
     public ResponseEntity<Map<String, Object>> findAllCountWithAgreement() {
 
@@ -85,6 +90,7 @@ public class AdminController {
 
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PutMapping("/counts/{id}/status")
     public ResponseEntity<CountResponseDTO> updateStatusCount(@PathVariable Long id) {
 
@@ -101,6 +107,7 @@ public class AdminController {
 
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @DeleteMapping("/counts/{id}")
     public ResponseEntity<String> deleteById(@PathVariable Long id) {
 
@@ -118,6 +125,7 @@ public class AdminController {
 
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @GetMapping("/senders")
     public ResponseEntity<Map<String, Object>> listSenderAll() {
 
@@ -136,6 +144,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PostMapping("/agreements")
     public ResponseEntity<AgreementDTO> saveAgreement(@RequestBody AgreementDTO agreementDTO) {
 
@@ -154,6 +163,7 @@ public class AdminController {
     }
 
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @GetMapping("/agreements")
     public ResponseEntity<Map<String, Object>> listAgreementAll() {
 
@@ -174,6 +184,7 @@ public class AdminController {
 
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @GetMapping("/agreements/{id}")
     public ResponseEntity<AgreementDTO> findAgreemetById(Long id) {
 
@@ -190,6 +201,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @DeleteMapping("/agreements/{codigo}")
     public ResponseEntity<String> deleteAgreenebtById(@PathVariable(required = false) Long codigo) {
 
@@ -205,6 +217,7 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PutMapping("/agreements/{id}")
     public ResponseEntity<AgreementDTO> update(@RequestBody AgreementDTO agreementDTO, @PathVariable(required = false) Long id) {
 

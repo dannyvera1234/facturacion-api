@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
+/**
+ * Clase que en la lanzada cuando ocurre un error en el proceso de autorizacion
+ * o eutenticacion, se especifica en la configuración de security
+ */
 @Component
 public class JwtEntryPoint  implements AuthenticationEntryPoint {
 

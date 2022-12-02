@@ -3,6 +3,7 @@ package com.facturacion.ideas.api.controller.operation;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,8 +36,9 @@ public interface IEmissionPointOperation {
 	 * @param emissionPointNewDTO : El objeto {@link EmissionPoint} a insertar
 	 * @return
 	 */
+	@PreAuthorize(value = "hasRole('ROLE_USER')")
 	@PostMapping("subsidiarys/{id}/emissions")
-	public ResponseEntity<EmissionPointResponseDTO> save(@PathVariable(name = "id") Long idSubsidiary,
+	 ResponseEntity<EmissionPointResponseDTO> save(@PathVariable(name = "id") Long idSubsidiary,
 			@RequestBody EmissionPointNewDTO emissionPointNewDTO);
 
 	/**
@@ -46,10 +48,10 @@ public interface IEmissionPointOperation {
 	 * @return
 	 */
 	@GetMapping("subsidiarys/{id}/emissions")
-	public ResponseEntity<List<EmissionPointResponseDTO>> findAll(@PathVariable(name = "id") Long codigo);
+	 ResponseEntity<List<EmissionPointResponseDTO>> findAll(@PathVariable(name = "id") Long codigo);
 
 	@GetMapping("subsidiarys/{id}/emissions/{code-point}")
-	public ResponseEntity<EmissionPointResponseDTO> findByCodeAndSubsidiary(@PathVariable(name = "id") Long codigo,
+	 ResponseEntity<EmissionPointResponseDTO> findByCodeAndSubsidiary(@PathVariable(name = "id") Long codigo,
 			@PathVariable(name = "code-point") String codePoint);
 
 	/**
@@ -59,7 +61,7 @@ public interface IEmissionPointOperation {
 	 * @return
 	 */
 	@GetMapping("/emissions/{id}")
-	public ResponseEntity<EmissionPointResponseDTO> findById(@PathVariable Long id);
+	 ResponseEntity<EmissionPointResponseDTO> findById(@PathVariable Long id);
 
 	/**
 	 * Eliminar un {@link EmissionPoint} de un {@link Subsidiary}
@@ -67,8 +69,10 @@ public interface IEmissionPointOperation {
 	 * @param id     : Id del {@link EmissionPoint} a eliminar
 	 * @return
 	 */
+
+	@PreAuthorize(value = "hasRole('ROLE_USER')")
 	@DeleteMapping("/emissions/{id}")
-	public ResponseEntity<String> deleteById(@PathVariable Long id);
+	 ResponseEntity<String> deleteById(@PathVariable Long id);
 
 	/***
 	 * Actualizar un {@link EmissionPoint}
@@ -77,8 +81,9 @@ public interface IEmissionPointOperation {
 	 * @param id            : Id del {@link EmissionPoint} a actualizar
 	 * @return
 	 */
+	@PreAuthorize(value = "hasRole('ROLE_USER')")
 	@PutMapping("/emissions/{id}")
-	public ResponseEntity<EmissionPointResponseDTO> update(@RequestBody EmissionPointNewDTO emissionPointNewDTO,
+	 ResponseEntity<EmissionPointResponseDTO> update(@RequestBody EmissionPointNewDTO emissionPointNewDTO,
 			@PathVariable Long id);
 
 }

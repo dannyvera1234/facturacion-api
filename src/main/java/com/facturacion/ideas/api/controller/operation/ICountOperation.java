@@ -27,54 +27,53 @@ import com.facturacion.ideas.api.util.FunctionUtil;
 /**
  * Interface que define los contratos que debe realizar el
  * {@link CountRestController}
- * 
- * @author Ronny Chamba
  *
+ * @author Ronny Chamba
  */
 @RequestMapping("/default")
 public interface ICountOperation {
 
 
+    /**
+     * Busca una {@link Count} a traves de su id
+     *
+     * @param id : Id de Count
+     * @return Respuesta
+     * {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
+     */
+    @GetMapping("/{id}")
+    ResponseEntity<CountResponseDTO> findById(@PathVariable(required = false) Long id);
 
-	/**
-	 * Busca una {@link Count} a traves de su id
-	 * 
-	 * @param id : Id de Count
-	 * @return Respuesta
-	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@GetMapping("/{id}")
-	public ResponseEntity<CountResponseDTO> findById(@PathVariable(required = false) Long id);
-
-	@GetMapping("/search")
-	public ResponseEntity<CountResponseDTO> findByRuc(@RequestParam (required = false, defaultValue = "")  String ruc);
-
-	
-	/**
-	 * Actualiza una {@link Count}
-	 * 
-	 * @param count : Una {@link Count} con los nuevos datos
-	 * @param id    : Id de la Count a actualizar
-	 * @return Respuesta
-	 *         {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 *         con los nuevos datos actualizados
-	 */
-	@PutMapping("/{id}")
-	public ResponseEntity<CountResponseDTO> update(@RequestBody CountNewDTO count, @PathVariable Long id);
+    @GetMapping("/search")
+    ResponseEntity<CountResponseDTO> findByRuc(@RequestParam(required = false, defaultValue = "") String ruc);
 
 
-	/**
-	 * Inserta un nuevo registro de {@link Login} en la Base de datos
-	 * @param idCount : Id de la Cuenta 
-	 * @return  {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
-	 */
-	@PostMapping("/{id}/logins")
-	public ResponseEntity<LoginDTO> saveLogin(@PathVariable("id") Long idCount);
-	
-	
-	@GetMapping("/{id}/logins")
-	public ResponseEntity<List<LoginDTO>> findAllLogin(@PathVariable("id") Long idCount);
+    /**
+     * Actualiza una {@link Count}
+     *
+     * @param count : Una {@link Count} con los nuevos datos
+     * @param id    : Id de la Count a actualizar
+     * @return Respuesta
+     * {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
+     * con los nuevos datos actualizados
+     */
+    @PutMapping("/{id}")
+    ResponseEntity<CountResponseDTO> update(@RequestBody CountNewDTO count, @PathVariable Long id);
 
-	@GetMapping("/{ruc}/agrement-details")
-	ResponseEntity<Map<String, Object>> listAgreementDetailsAllByRuc(@PathVariable String ruc);
+
+    /**
+     * Inserta un nuevo registro de {@link Login} en la Base de datos
+     *
+     * @param idCount : Id de la Cuenta
+     * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
+     */
+    @PostMapping("/{id}/logins")
+    ResponseEntity<LoginDTO> saveLogin(@PathVariable("id") Long idCount);
+
+
+    @GetMapping("/{id}/logins")
+    ResponseEntity<List<LoginDTO>> findAllLogin(@PathVariable("id") Long idCount);
+
+    @GetMapping("/{ruc}/agrement-details")
+    ResponseEntity<Map<String, Object>> listAgreementDetailsAllByRuc(@PathVariable String ruc);
 }

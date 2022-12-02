@@ -8,11 +8,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
-public class UserDetailsServiceImpl  implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private   IUserService userService;
+    private IUserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String ruc) throws UsernameNotFoundException {
@@ -20,9 +22,14 @@ public class UserDetailsServiceImpl  implements UserDetailsService {
          * Si no lo encuentra, automaticamente lanzara una excepcion UsernameNotFoundException
          */
 
-        Count count  = userService.getCountByRuc(ruc).get();
+        Optional<Count> countOptional = userService.getCountByRuc(ruc);
+
+        if (countOptional.isEmpty()) {
+            throw new UsernameNotFoundException(String.format("Usuario  %s no encontrado", ruc));
+        }
         // Construye el usuario
-        return UserMain.build(count);
+
+        return UserMain.build(countOptional.get());
 
     }
 }

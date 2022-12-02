@@ -22,7 +22,8 @@ public class JwtProvider {
     private int expiration;
 
 
-    private  Long da = 30000000L;
+    private Long da = 30000000L;
+
     public String generateToken(Authentication authentication) {
 
         UserMain userMain = (UserMain) authentication.getPrincipal();
@@ -40,29 +41,25 @@ public class JwtProvider {
     }
 
     public boolean validateToken(String token) {
-
-
         try {
 
             Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException e) {
+            LOGGER.error("error token mal formado " + token, e);
 
-            LOGGER.error("error token mal formado", e);
         } catch (UnsupportedJwtException e) {
-            LOGGER.error("error token no soportada", e);
+            LOGGER.error("error token no soportada " + token, e);
 
         } catch (ExpiredJwtException e) {
-            LOGGER.error("error token expirado", e);
-
+            LOGGER.error("error token expirado " + token, e);
         } catch (IllegalArgumentException e) {
-            LOGGER.error("error token vacio", e);
-
-
+            LOGGER.error("error token vacio " + token, e);
         } catch (SignatureException e) {
 
-            LOGGER.error("error token firma", e);
+            LOGGER.error("error token firma " + token, e);
         }
-        return false;
+        return  false;
+
     }
 }

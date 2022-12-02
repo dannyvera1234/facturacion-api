@@ -6,6 +6,7 @@ import com.facturacion.ideas.api.dto.SubsidiaryAndEmissionPointDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.facturacion.ideas.api.controllers.SenderRestController;
@@ -31,6 +32,7 @@ public interface ISenderOperation {
 	 * @param idCount : Id de la Count
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
+	@PreAuthorize(value = "hasRole('ROLE_USER')")
 	@PostMapping(value = "/counts/{id}/senders", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	 ResponseEntity<SenderResponseDTO> save(@PathVariable("id") Long idCount,
 											@RequestParam("senderNewDTO")   String jsonSenderNewDTO,
@@ -69,6 +71,7 @@ public interface ISenderOperation {
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 *         con los nuevos datos actualizados
 	 */
+	@PreAuthorize(value = "hasRole('ROLE_USER')")
 	@PutMapping("/senders/{id}")
 	 ResponseEntity<SenderResponseDTO> update(@RequestBody SenderNewDTO senderNewDTO, @PathVariable Long id);
 
