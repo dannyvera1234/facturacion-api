@@ -75,4 +75,6 @@ public interface ISenderOperation {
 	@PutMapping("/senders/{id}")
 	 ResponseEntity<SenderResponseDTO> update(@RequestBody SenderNewDTO senderNewDTO, @PathVariable Long id);
 
+	@GetMapping("/senders/{ruc}/findId")
+	 ResponseEntity<Long> findIdByRuc(@PathVariable String ruc);
 }

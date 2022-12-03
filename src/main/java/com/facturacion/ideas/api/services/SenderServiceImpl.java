@@ -162,6 +162,13 @@ public class SenderServiceImpl implements ISenderService {
 
     @Override
     @Transactional(readOnly = true)
+    public Long findIdByRuc(String ruc) {
+        LOGGER.info("servicio: " + ruc);
+        return senderRepository.findIdByRuc(ruc).orElse(-1L);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<SenderResponseDTO> findAll() {
 
         try {

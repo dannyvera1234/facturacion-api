@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.facturacion.ideas.api.controller.operation.ISenderOperation;
 import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.dto.SenderResponseDTO;
@@ -27,10 +24,6 @@ import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.ISenderService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 
 /**
  * RestController que expone servicios web para la entidad {@link Sender}
@@ -49,17 +42,18 @@ public class SenderRestController implements ISenderOperation {
     private ISenderService senderService;
 
     @Autowired
-   private SenderCustomerEditor senderEditor;
+    private SenderCustomerEditor senderEditor;
 
     @InitBinder
-    public  void initBinder(WebDataBinder webDataBinder) {
+    public void initBinder(WebDataBinder webDataBinder) {
 
-       String nombre =   webDataBinder.getObjectName();
+        String nombre = webDataBinder.getObjectName();
         System.out.println("HOla nundo: " + nombre);
-        webDataBinder.registerCustomEditor(SenderNewDTO.class, "senderNewDTO", senderEditor);
+        //webDataBinder.registerCustomEditor(SenderNewDTO.class, "senderNewDTO", senderEditor);
 
 
     }
+
     @Override
     public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO,
                                                   MultipartFile multipartFile,
@@ -75,8 +69,7 @@ public class SenderRestController implements ISenderOperation {
 
             return new ResponseEntity<>(senderResponseDTO, HttpStatus.CREATED);
 
-        }
-        catch (NotDataAccessException e) {
+        } catch (NotDataAccessException e) {
             throw new NotDataAccessException(e.getMessage());
         } catch (EncryptedException e) {
             throw new EncryptedException(e.getMessage());
@@ -128,6 +121,21 @@ public class SenderRestController implements ISenderOperation {
 
             return ResponseEntity.ok(senderResponseDTO);
 
+        } catch (NotDataAccessException e) {
+
+            throw new NotDataAccessException(e.getMessage());
+        }
+
+    }
+
+
+   @Override
+    public ResponseEntity<Long> findIdByRuc( String ruc) {
+        try {
+            LOGGER.info("ruc recibido: " + ruc);
+
+            Long idSender = senderService.findIdByRuc(ruc);
+            return ResponseEntity.ok(idSender);
         } catch (NotDataAccessException e) {
 
             throw new NotDataAccessException(e.getMessage());

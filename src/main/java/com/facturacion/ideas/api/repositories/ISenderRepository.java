@@ -27,4 +27,6 @@ public interface ISenderRepository extends JpaRepository<Sender, Long> {
 	@Query("select  sd.socialReason from Sender  sd where sd.ruc =?1")
 	Optional<String> findNameSenderByRuc(String ruc);
 
+	@Query("select  sd.ide from Sender  sd where sd.ruc =?1")
+	Optional<Long> findIdByRuc(String ruc);
 }

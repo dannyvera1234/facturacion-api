@@ -21,6 +21,8 @@ public interface ISenderService extends ISenderAdminService {
 
 	Optional<String> findNameSenderByRuc(String ruc);
 
+	Long findIdByRuc(String ruc);
+
 
 
 
