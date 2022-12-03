@@ -2,6 +2,7 @@ package com.facturacion.ideas.api.security.service;
 
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.security.entity.UserMain;
+import com.facturacion.ideas.api.services.ISenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,6 +17,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    private ISenderService senderService;
+
     @Override
     public UserDetails loadUserByUsername(String ruc) throws UsernameNotFoundException {
         /**
@@ -28,8 +32,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("Usuario  %s no encontrado", ruc));
         }
         // Construye el usuario
-
-        return UserMain.build(countOptional.get());
+        String nombreEmisor = senderService.findNameSenderByRuc(ruc).orElse("Sin nombre");
+        return UserMain.build(countOptional.get(), nombreEmisor);
 
     }
 }

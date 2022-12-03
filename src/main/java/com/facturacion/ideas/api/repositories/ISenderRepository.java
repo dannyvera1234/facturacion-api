@@ -24,4 +24,7 @@ public interface ISenderRepository extends JpaRepository<Sender, Long> {
 
 	boolean existsByRuc(String ruc);
 
+	@Query("select  sd.socialReason from Sender  sd where sd.ruc =?1")
+	Optional<String> findNameSenderByRuc(String ruc);
+
 }

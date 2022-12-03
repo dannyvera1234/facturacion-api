@@ -1,6 +1,7 @@
 package com.facturacion.ideas.api.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.facturacion.ideas.api.admin.AdminEmissionPoint;
 import com.facturacion.ideas.api.entities.*;
@@ -150,6 +151,13 @@ public class SenderServiceImpl implements ISenderService {
             throw new NotDataAccessException("Error buscar emisor: " + e.getMessage());
         }
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<String> findNameSenderByRuc(String ruc) {
+
+        return senderRepository.findNameSenderByRuc(ruc);
     }
 
     @Override

@@ -14,6 +14,7 @@ public class LoginUserDTO implements Serializable {
     private String ruc;
 
     @NotBlank(message = "La contraseña no puede estar vacío")
+    @Size(min = 6, max = 20, message = "La contraseña debe tener entre 6 y 20 caracteres")
     private String password;
 
     public LoginUserDTO(String ruc, String password) {

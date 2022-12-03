@@ -26,17 +26,21 @@ public class UserMain implements UserDetails {
     private Date fechaRegistro;
     private String password;
 
+    private  String nombreEmisor;
+
     // Para manejar la autorizacion de los usuarios
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserMain() {
     }
 
-    public UserMain(String ruc, boolean estado, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserMain(String ruc, boolean estado, String password,
+                    Collection<? extends GrantedAuthority> authorities, String nombreEmisor) {
         this.ruc = ruc;
         this.estado = estado;
         this.password = password;
         this.authorities = authorities;
+        this.nombreEmisor = nombreEmisor;
     }
 
     /**
@@ -44,7 +48,7 @@ public class UserMain implements UserDetails {
      * @param count
      * @return
      */
-    public static UserMain build(Count count) {
+    public static UserMain build(Count count, String nameSender) {
 
         // Obtener los roles del usuario y convertir a autories
         List<GrantedAuthority> authoritiies = count.getRoles()
@@ -53,7 +57,8 @@ public class UserMain implements UserDetails {
                 .collect(Collectors.toList());
 
         // Construye
-        return new UserMain(count.getRuc(), count.isEstado(), count.getPassword(), authoritiies);
+
+        return new UserMain(count.getRuc(), count.isEstado(), count.getPassword(), authoritiies, nameSender);
     }
 
     @Override
@@ -97,5 +102,9 @@ public class UserMain implements UserDetails {
 
     public void setFechaRegistro(Date fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
+    }
+
+    public String getNombreEmisor() {
+        return nombreEmisor;
     }
 }

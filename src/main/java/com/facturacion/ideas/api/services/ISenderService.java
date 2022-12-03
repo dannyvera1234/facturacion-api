@@ -1,6 +1,7 @@
 package com.facturacion.ideas.api.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.dto.SenderResponseDTO;
@@ -17,6 +18,8 @@ public interface ISenderService extends ISenderAdminService {
 	SenderResponseDTO findByRuc(String ruc);
 
 	SenderResponseDTO findById(Long id);
+
+	Optional<String> findNameSenderByRuc(String ruc);
 
 
 

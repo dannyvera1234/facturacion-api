@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 
 @CrossOrigin(value = ConstanteUtil.CROOS_ORIGIN)
 @RestController
@@ -45,14 +46,22 @@ public class AuthController {
         // Crear el token
         String jwt = jwtProvider.generateToken(authentication);
 
-
-        // Obtener el usuario principal
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
         // Crear la respuesta
-        JwtDTO jwtDTO = new JwtDTO(jwt, userDetails.getUsername(), userDetails.getAuthorities());
+        JwtDTO jwtDTO = new JwtDTO(jwt);
 
         return ResponseEntity.ok(jwtDTO);
+
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtDTO> refreshToken(@RequestBody JwtDTO jwtDTO) throws ParseException {
+
+        String token = jwtProvider.refreshToken(jwtDTO);
+
+        // Crear la respuesta
+        JwtDTO jwtDTORes = new JwtDTO(token);
+
+        return ResponseEntity.ok(jwtDTORes);
 
     }
 
