@@ -33,15 +33,13 @@ public enum TypeCustomerEnum {
 
 	public static TypeCustomerEnum getTypeCustomerEnum(String codigo) {
 
-		TypeCustomerEnum tipoCliente = null;
-
 		if (codigo != null) {
 
 			return getListTypeCustomerEnum().stream().filter(item -> item.getCode().equals(codigo)).findFirst()
 					.orElse(null);
 		}
 
-		return tipoCliente;
+		return null;
 
 	}
 

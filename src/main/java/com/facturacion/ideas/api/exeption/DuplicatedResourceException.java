@@ -8,7 +8,8 @@ public class DuplicatedResourceException extends RuntimeException {
 
 	public DuplicatedResourceException(String detail) {
 
-		super(DESCRIPTION + ". " + detail);
+		//super(DESCRIPTION + ". " + detail);
+		super(detail);
 
 	}
 

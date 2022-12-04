@@ -2,6 +2,9 @@ package com.facturacion.ideas.api.services;
 
 import java.util.List;
 
+import com.facturacion.ideas.api.admin.AdminPerson;
+import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
+import com.facturacion.ideas.api.exeption.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,300 +34,329 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 @Service
 public class PersonServiceImpl implements IPersonService {
 
-	private static final Logger LOGGER = LogManager.getLogger(PersonServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(PersonServiceImpl.class);
 
-	@Autowired
-	private ICustomerRepository customerRepository;
+    @Autowired
+    private ICustomerRepository customerRepository;
 
-	@Autowired
-	private ISenderRepository senderRepository;
+    @Autowired
+    private ISenderRepository senderRepository;
 
-	@Autowired
-	private IDriverRepository driverRepository;
+    @Autowired
+    private IDriverRepository driverRepository;
 
-	@Autowired
-	private IPersonMapper personMapper;
+    @Autowired
+    private IPersonMapper personMapper;
 
-	@Autowired
-	private IPersonRepository personRepository;
+    @Autowired
+    private IPersonRepository personRepository;
 
-	@Autowired
-	private IDetailsPersonRepository detailsPersonRepository;
+    @Autowired
+    private IDetailsPersonRepository detailsPersonRepository;
 
-	@Override
-	@Transactional
-	public CustomerResponseDTO save(CustomerNewDTO personNewDTO, Long idSender) {
+    @Override
+    @Transactional
+    public CustomerResponseDTO save(CustomerNewDTO personNewDTO, Long idSender) {
 
-		Sender sender = null;
-		Customer customer = null;
-		DetailsPerson detailsPerson = null;
-		Customer customerSaved = null;
+        Sender sender = null;
+        Customer customer = null;
+        DetailsPerson detailsPerson = null;
+        Customer customerSaved = null;
 
-		try {
+        try {
 
-			// Recuperar emisor actual
-			sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
-					"Emisor con identitificacion : " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            // Recuperar emisor actual
+            sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
+                    "Emisor con identitificacion : " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
-			/*
-			 * 
-			 * Si id !=null, indica que Persona ya esta registrada en el sistema, la
-			 * recupero y seteo los valores que no se pueden modificar.
-			 */
-			if (personNewDTO.getIde() != null) {
+            /*
+             *
+             * Si id !=null, indica que Persona ya esta registrada en el sistema, la
+             * recupero y seteo los valores que no se pueden modificar.
+             */
+            if (personNewDTO.getIde() != null) {
 
-				// Recuperar la persona actual
-				customer = customerRepository.findById(personNewDTO.getIde()).get();
+                // Recuperar la persona actual
+                customer = customerRepository.findById(personNewDTO.getIde()).get();
 
-				// Verifica si la persona actual ya pertence al emisor actual
-				if (existsByPersonAndSender(customer.getIde(), idSender)) {
-					throw new DuplicatedResourceException("Cliente " + customer.getNumeroIdentificacion()
-							+ " ya pertenece al emisor : " + sender.getSocialReason());
-				}
+                // Verifica si la persona actual ya pertence al emisor actual
+                if (existsByPersonAndSender(customer.getIde(), idSender)) {
+                    throw new DuplicatedResourceException("Cliente " + customer.getNumeroIdentificacion()
+                            + " ya pertenece al emisor : " + sender.getSocialReason());
+                }
 
-				// setear valores que no se pueden modificar
-				personNewDTO.setIde(customer.getIde());
-				personNewDTO.setNumberIdentification(customer.getNumeroIdentificacion());
-				// Convertir DTO a entidad
-				customer = personMapper.mapperToEntity(personNewDTO);
+                // setear valores que no se pueden modificar
+                personNewDTO.setIde(customer.getIde());
+                personNewDTO.setNumberIdentification(customer.getNumeroIdentificacion());
+                // Convertir DTO a entidad
+                customer = personMapper.mapperToEntity(personNewDTO);
 
-				// Actualizada datos del customer
-				customerSaved = customerRepository.save(customer);
+                // Actualizada datos del customer
+                customerSaved = customerRepository.save(customer);
 
-				// Asociar persona a un emisor
-				detailsPerson = new DetailsPerson();
-				detailsPerson.setSender(sender);
-				detailsPerson.setPerson(customer);
+                // Asociar persona a un emisor
+                detailsPerson = new DetailsPerson();
+                detailsPerson.setSender(sender);
+                detailsPerson.setPerson(customer);
 
-				// Persistir el DetailsPerson
-				detailsPersonRepository.save(detailsPerson);
+                // Persistir el DetailsPerson
+                detailsPersonRepository.save(detailsPerson);
 
-				return personMapper.mapperToDTO(customerSaved);
-			}
+                return personMapper.mapperToDTO(customerSaved);
+            }
 
-			// Cedula que no esta registra en Persona, x si acaso valido
-			if (!personRepository.existsByNumberIdentification(personNewDTO.getNumberIdentification())) {
+            // Cedula que no esta registra en Persona, x si acaso valido
+            if (!personRepository.existsByNumberIdentification(personNewDTO.getNumberIdentification())) {
 
-				// Customer a persistir
-				customer = personMapper.mapperToEntity(personNewDTO);
+                // Customer a persistir
+                customer = personMapper.mapperToEntity(personNewDTO);
 
-				// Asociar persona a un emisor
-				detailsPerson = new DetailsPerson();
-				detailsPerson.setSender(sender);
-				detailsPerson.setPerson(customer);
+                // Asociar persona a un emisor
+                detailsPerson = new DetailsPerson();
+                detailsPerson.setSender(sender);
+                detailsPerson.setPerson(customer);
 
-				// Asociar persona con un emisor
-				customer.addDetailsPerson(detailsPerson);
+                // Asociar persona con un emisor
+                customer.addDetailsPerson(detailsPerson);
 
-				// Persistir persona
-				customerSaved = customerRepository.save(customer);
-				return personMapper.mapperToDTO(customerSaved);
+                // Persistir persona
+                customerSaved = customerRepository.save(customer);
+                return personMapper.mapperToDTO(customerSaved);
 
-			}
+            }
 
-			// La nueva cedula ya esta registrada
-			throw new DuplicatedResourceException("Cedula " + personNewDTO.getNumberIdentification()
-					+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+            // La nueva cedula ya esta registrada
+            throw new DuplicatedResourceException(TypeIdentificationEnum.getTipoCompradorEnum(personNewDTO.getTypeIdentification()) + " " + personNewDTO.getNumberIdentification()
+                    + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 
-		} catch (DataAccessException e) {
-			LOGGER.error("Error guardar cliente: ", e);
-			throw new NotDataAccessException("Error guardar cliente: " + e.getMessage());
-		}
+        } catch (DataAccessException e) {
+            LOGGER.error("Error guardar cliente: ", e);
+            throw new NotDataAccessException("Error guardar cliente: " + e.getMessage());
+        }
 
-	}
-
-	@Override
-	@Transactional
-	public DriverResponseDTO save(DriverNewDTO driverNewDTO, Long idSender) {
-
-		Sender sender = null;
-		Driver driver = null;
-		DetailsPerson detailsPerson = null;
-		Driver driverSaved = null;
-
-		try {
-
-			// Recuperar emisor actual
-			sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
-					"Emisor con identitificacion : " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
-
-			/*
-			 * 
-			 * Si id !=null, indica que Persona ya esta registrada en el sistema, la
-			 * recupero y seteo los valores que no se pueden modificar.
-			 */
-			if (driverNewDTO.getIde() != null) {
-
-				// Recuperar la persona actual
-				driver = driverRepository.findById(driverNewDTO.getIde()).get();
-
-				// Verifica si la persona actual ya pertence al emisor actual
-				if (existsByPersonAndSender(driver.getIde(), idSender)) {
-					throw new DuplicatedResourceException("Transportista " + driver.getNumeroIdentificacion()
-							+ " ya pertenece al emisor : " + sender.getSocialReason());
-				}
-
-				// setear valores que no se pueden modificar
-				driverNewDTO.setIde(driver.getIde());
-				driverNewDTO.setNumberIdentification(driver.getNumeroIdentificacion());
-				// Convertir DTO a entidad
-				driver = personMapper.mapperToEntity(driverNewDTO);
-
-				// Actualizada datos del druver
-				driverSaved = driverRepository.save(driver);
-
-				// Asociar persona a un emisor
-				detailsPerson = new DetailsPerson();
-				detailsPerson.setSender(sender);
-				detailsPerson.setPerson(driver);
-
-				// Persistir el DetailsPerson
-				detailsPersonRepository.save(detailsPerson);
-
-				return personMapper.mapperToDTO(driverSaved);
-			}
-
-			// Cedula que no esta registra en Persona, x si acaso valido
-			if (!personRepository.existsByNumberIdentification(driverNewDTO.getNumberIdentification())) {
-
-				// Customer a persistir
-				driver = personMapper.mapperToEntity(driverNewDTO);
-
-				// Asociar persona a un emisor
-				detailsPerson = new DetailsPerson();
-				detailsPerson.setSender(sender);
-				detailsPerson.setPerson(driver);
-
-				// Asociar persona con un emisor
-				driver.addDetailsPerson(detailsPerson);
-
-				// Persistir persona
-				driverSaved = driverRepository.save(driver);
-				return personMapper.mapperToDTO(driverSaved);
-
-			}
-
-			// La nueva cedula ya esta registrada
-			throw new DuplicatedResourceException("Cedula " + driverNewDTO.getNumberIdentification()
-					+ ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
-
-		} catch (DataAccessException e) {
-			LOGGER.error("Error guardar transportista: ", e);
-			throw new NotDataAccessException("Error guardar tranportista: " + e.getMessage());
-		}
-
-	}
-
-	/**
-	 * Verifica si una persona ya esta asociada con un emisor
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public boolean existsByPersonAndSender(Long idPerson, Long idSender) {
-		return detailsPersonRepository.existsByPersonAndSenderNative(idPerson, idSender).isPresent();
-	}
+    }
+
+    @Override
+    @Transactional
+    public CustomerResponseDTO update(CustomerNewDTO customerUpdateDTO) {
 
-	@Override
-	@Transactional
-	public void deleteById(Long idSender, Long idPerson) {
+        if (customerUpdateDTO.getIde() != null) {
 
-		try {
-			// Verificar si existe el emisor
-			if (!senderRepository.existsById(idSender)){
-				throw new  NotFoundException(
-						"Emisor id " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-			}
-			
-			// Retorna el numero de registros eliminados, si es 0, indica que la Persona
-			// no esta asociado con un Emisor en DetallePersona
-			if (detailsPersonRepository.deleteBySenderAndPerson(idSender, idPerson)==0) {
-				throw new  NotFoundException(
-						"Persona id " + idPerson + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-			};
-		} catch (DataAccessException e) {
+            try {
+
+                Customer customer = customerRepository.findById(customerUpdateDTO.getIde())
+                        .orElseThrow(() -> new NotFoundException(String.format("Cliente con id %s %s", customerUpdateDTO.getIde(), ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+                AdminPerson.preUpdate(customer, customerUpdateDTO);
+                return personMapper.mapperToDTO(customerRepository.save(customer));
+
+            } catch (DataAccessException e) {
+                LOGGER.error("Error al actualizar cliente " + customerUpdateDTO.getIde(), e);
+                throw new NotDataAccessException(String.format("No se pudo actualizar el cliente %s", customerUpdateDTO.getIde()));
+            }
+        }
+        throw new BadRequestException("El id del cliente " + customerUpdateDTO.getIde() + " no puede ser vacio");
+    }
+
+    @Override
+    @Transactional
+    public DriverResponseDTO save(DriverNewDTO driverNewDTO, Long idSender) {
+
+        Sender sender = null;
+        Driver driver = null;
+        DetailsPerson detailsPerson = null;
+        Driver driverSaved = null;
+
+        try {
+
+            // Recuperar emisor actual
+            sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
+                    "Emisor con identitificacion : " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+            /*
+             *
+             * Si id !=null, indica que Persona ya esta registrada en el sistema, la
+             * recupero y seteo los valores que no se pueden modificar.
+             */
+            if (driverNewDTO.getIde() != null) {
+
+                // Recuperar la persona actual
+                driver = driverRepository.findById(driverNewDTO.getIde()).get();
+
+                // Verifica si la persona actual ya pertence al emisor actual
+                if (existsByPersonAndSender(driver.getIde(), idSender)) {
+                    throw new DuplicatedResourceException("Transportista " + driver.getNumeroIdentificacion()
+                            + " ya pertenece al emisor : " + sender.getSocialReason());
+                }
+
+                // setear valores que no se pueden modificar
+                driverNewDTO.setIde(driver.getIde());
+                driverNewDTO.setNumberIdentification(driver.getNumeroIdentificacion());
+                // Convertir DTO a entidad
+                driver = personMapper.mapperToEntity(driverNewDTO);
+
+                // Actualizada datos del druver
+                driverSaved = driverRepository.save(driver);
+
+                // Asociar persona a un emisor
+                detailsPerson = new DetailsPerson();
+                detailsPerson.setSender(sender);
+                detailsPerson.setPerson(driver);
+
+                // Persistir el DetailsPerson
+                detailsPersonRepository.save(detailsPerson);
+
+                return personMapper.mapperToDTO(driverSaved);
+            }
+
+            // Cedula que no esta registra en Persona, x si acaso valido
+            if (!personRepository.existsByNumberIdentification(driverNewDTO.getNumberIdentification())) {
+
+                // Customer a persistir
+                driver = personMapper.mapperToEntity(driverNewDTO);
+
+                // Asociar persona a un emisor
+                detailsPerson = new DetailsPerson();
+                detailsPerson.setSender(sender);
+                detailsPerson.setPerson(driver);
+
+                // Asociar persona con un emisor
+                driver.addDetailsPerson(detailsPerson);
+
+                // Persistir persona
+                driverSaved = driverRepository.save(driver);
+                return personMapper.mapperToDTO(driverSaved);
+
+            }
+
+            // La nueva cedula ya esta registrada
+            throw new DuplicatedResourceException("Cedula " + driverNewDTO.getNumberIdentification()
+                    + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+
+        } catch (DataAccessException e) {
+            LOGGER.error("Error guardar transportista: ", e);
+            throw new NotDataAccessException("Error guardar tranportista: " + e.getMessage());
+        }
+
+    }
+
+    /**
+     * Verifica si una persona ya esta asociada con un emisor
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByPersonAndSender(Long idPerson, Long idSender) {
+        return detailsPersonRepository.existsByPersonAndSenderNative(idPerson, idSender).isPresent();
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long idSender, Long idPerson) {
 
-			LOGGER.error("Error eliminar persona", e);
-			throw new NotDataAccessException("Error al eliminar persona: " + e.getMessage());
-		}
+        try {
+            // Verificar si existe el emisor
+            if (!senderRepository.existsById(idSender)) {
+                throw new NotFoundException(
+                        "Emisor id " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+            }
 
-	}
+            // Retorna el numero de registros eliminados, si es 0, indica que la Persona
+            // no esta asociado con un Emisor en DetallePersona
+            if (detailsPersonRepository.deleteBySenderAndPerson(idSender, idPerson) == 0) {
+                throw new NotFoundException(
+                        "Persona id " + idPerson + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+            }
+            ;
+        } catch (DataAccessException e) {
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<DriverResponseDTO> searchDriverByCedulaOrRazonSocial(Long idSender, String filtro) {
-		filtro = "%" + filtro + "%";
+            LOGGER.error("Error eliminar persona", e);
+            throw new NotDataAccessException("Error al eliminar persona: " + e.getMessage());
+        }
 
-		try {
-			List<Driver> persons  = driverRepository.searchByCedulaOrRazonSocail(idSender, filtro);
-			return  personMapper.mapperToDTODriver(persons);
-		}catch (DataAccessException e){
-			LOGGER.error("Error al filtrar los Transportistas",e);
-			throw  new NotFoundException("Error al filtrar los Transportistas " + e.getMessage());
-		}
-	}
+    }
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(Long idSender, String filtro) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<DriverResponseDTO> searchDriverByCedulaOrRazonSocial(Long idSender, String filtro) {
+        filtro = "%" + filtro + "%";
 
-		filtro = "%" + filtro + "%";
-		try {
+        try {
+            List<Driver> persons = driverRepository.searchByCedulaOrRazonSocail(idSender, filtro);
+            return personMapper.mapperToDTODriver(persons);
+        } catch (DataAccessException e) {
+            LOGGER.error("Error al filtrar los Transportistas", e);
+            throw new NotFoundException("Error al filtrar los Transportistas " + e.getMessage());
+        }
+    }
 
-			List<Customer> persons  = customerRepository.searchByCedulaOrRazonSocail(idSender, filtro);
-			return  personMapper.mapperToDTOCustomer(persons);
-		}catch (DataAccessException e){
-			LOGGER.error("Error al filtrar los Clientes ",e);
-			throw  new NotFoundException("Error al filtrar los Clientes " + e.getMessage());
-		}
-	}
+    @Override
+    @Transactional(readOnly = true)
+    public List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(Long idSender, String filtro) {
 
+        filtro = "%" + filtro + "%";
+        try {
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<CustomerResponseDTO> findAllCustomerBySender(Long idSender) {
+            List<Customer> persons = customerRepository.searchByCedulaOrRazonSocail(idSender, filtro);
+            return personMapper.mapperToDTOCustomer(persons);
+        } catch (DataAccessException e) {
+            LOGGER.error("Error al filtrar los Clientes ", e);
+            throw new NotFoundException("Error al filtrar los Clientes " + e.getMessage());
+        }
+    }
 
-		try {
+    @Override
+    @Transactional(readOnly = true)
+    public CustomerResponseDTO findById(Long idCustomer) {
 
-			// Verificar si existe el emisor
-			if (!senderRepository.existsById(idSender)) {
+        return personMapper.mapperToDTO(customerRepository.findById(idCustomer).orElseThrow(
+                () -> new NotFoundException("Cliente identificacíon " + idCustomer + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+    }
 
-				throw new NotFoundException("Emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-			}
+    @Override
+    @Transactional(readOnly = true)
+    public List<CustomerResponseDTO> findAllCustomerBySender(Long idSender) {
 
-			List<Customer> customers = customerRepository.findAllBySender(idSender);
+        try {
 
-			return personMapper.mapperToDTOCustomer(customers);
+            // Verificar si existe el emisor
+            if (!senderRepository.existsById(idSender)) {
 
-		} catch (DataAccessException e) {
+                throw new NotFoundException("Emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+            }
 
-			LOGGER.error("Error listar clientes", e);
-			throw new NotDataAccessException("Error listar clientes: " + e.getMessage());
+            List<Customer> customers = customerRepository.findAllBySender(idSender);
 
-		}
-	}
+            return personMapper.mapperToDTOCustomer(customers);
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<DriverResponseDTO> findAllDriverBySender(Long idSender) {
+        } catch (DataAccessException e) {
 
-		try {
+            LOGGER.error("Error listar clientes", e);
+            throw new NotDataAccessException("Error listar clientes: " + e.getMessage());
 
-			// Verificar si existe el emisor
-			if (!senderRepository.existsById(idSender)) {
+        }
+    }
 
-				throw new NotFoundException("Emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
-			}
+    @Override
+    @Transactional(readOnly = true)
+    public List<DriverResponseDTO> findAllDriverBySender(Long idSender) {
 
-			List<Driver> drivers = driverRepository.findAllBySender(idSender);
+        try {
 
-			return personMapper.mapperToDTODriver(drivers);
+            // Verificar si existe el emisor
+            if (!senderRepository.existsById(idSender)) {
 
-		} catch (DataAccessException e) {
+                throw new NotFoundException("Emisor: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+            }
 
-			LOGGER.error("Error listar transportistas", e);
-			throw new NotDataAccessException("Error listar transportistas: " + e.getMessage());
+            List<Driver> drivers = driverRepository.findAllBySender(idSender);
 
-		}
-	}
+            return personMapper.mapperToDTODriver(drivers);
+
+        } catch (DataAccessException e) {
+
+            LOGGER.error("Error listar transportistas", e);
+            throw new NotDataAccessException("Error listar transportistas: " + e.getMessage());
+
+        }
+    }
 
 }

@@ -11,6 +11,8 @@ public interface IPersonService {
 
 	CustomerResponseDTO save(CustomerNewDTO customerNewDTO, Long idSender);
 
+	CustomerResponseDTO update(CustomerNewDTO customerUpdateDTO);
+
 	DriverResponseDTO save(DriverNewDTO driverNewDTO, Long idSender);
 
 	List<CustomerResponseDTO> findAllCustomerBySender(Long idSender);
@@ -24,4 +26,6 @@ public interface IPersonService {
 	List<DriverResponseDTO> searchDriverByCedulaOrRazonSocial(Long idSender, String filtro);
 
 	List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(Long idSender, String filtro);
+
+	CustomerResponseDTO findById(Long idCustomer);
 }

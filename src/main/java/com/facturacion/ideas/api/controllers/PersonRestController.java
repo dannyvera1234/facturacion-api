@@ -2,6 +2,8 @@ package com.facturacion.ideas.api.controllers;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import javax.validation.Valid;
 @RequestMapping("/facturacion")
 public class PersonRestController {
 
+	private static final Logger LOGGER = LogManager.getLogger(PersonRestController.class);
 	@Autowired
 	private IPersonService personService;
 
@@ -41,6 +44,24 @@ public class PersonRestController {
 
 	}
 
+	@PutMapping("/customers")
+	public ResponseEntity<CustomerResponseDTO> updateCustomer(@RequestBody @Valid CustomerNewDTO customerNewDTO) {
+
+		try {
+			LOGGER.info("Customer update: "+ customerNewDTO);
+
+			CustomerResponseDTO customerResponseDTO = personService.update(customerNewDTO);
+
+			return new ResponseEntity<>(customerResponseDTO, HttpStatus.CREATED);
+		} catch (NotDataAccessException e) {
+			throw new NotDataAccessException(e.getMessage());
+		}
+
+	}
+
+
+
+
 	@GetMapping("/senders/{id}/customers")
 	public ResponseEntity<List<CustomerResponseDTO>> findAllCustomers(@PathVariable(name = "id") Long idSender) {
 
@@ -49,6 +70,30 @@ public class PersonRestController {
 			List<CustomerResponseDTO> customerResponseDTOs = personService.findAllCustomerBySender(idSender);
 
 			return ResponseEntity.ok(customerResponseDTOs);
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
+
+	}
+
+	/**
+	 * El id del emisor no lo tomo en cuenta
+	 * @param idSender
+	 * @param idCustomer
+	 * @return
+	 */
+	@GetMapping("/senders/{id}/customers/{idcustomer}")
+	public ResponseEntity<CustomerResponseDTO> findCustomerById(@PathVariable(name = "id") Long idSender,
+																	  @PathVariable(name = "idcustomer") Long idCustomer) {
+
+		try {
+
+			LOGGER.info("idCustomer: " + idCustomer);
+
+			CustomerResponseDTO customerResponseDTO  = personService.findById(idCustomer);
+
+			return ResponseEntity.ok(customerResponseDTO);
 		} catch (NotDataAccessException e) {
 
 			throw new NotDataAccessException(e.getMessage());
