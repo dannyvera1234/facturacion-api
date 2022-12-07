@@ -55,6 +55,8 @@ public class ConstanteUtil {
 
     public  static  final int PAUSA_WS =3000;
 
+    public  static  String TOKEN="";
+    public  static  String TOKEN_USER="";
 
 
 }

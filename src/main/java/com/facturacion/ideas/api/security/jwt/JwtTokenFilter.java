@@ -1,6 +1,7 @@
 package com.facturacion.ideas.api.security.jwt;
 
 import com.facturacion.ideas.api.security.service.UserDetailsServiceImpl;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
             if (token != null && jwtProvider.validateToken(token)) {
 
+                ConstanteUtil.TOKEN = token;
+
                 // Obtener el usuario a partir del token
                 String ruc = jwtProvider.getRucFromToken(token);
+
+                ConstanteUtil.TOKEN_USER = ruc;
 
                 // Obtener las autorizaciones
                 UserDetails userDetails = userDetailsService.loadUserByUsername(ruc);

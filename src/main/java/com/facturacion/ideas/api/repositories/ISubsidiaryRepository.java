@@ -21,17 +21,19 @@ public interface ISubsidiaryRepository extends JpaRepository<Subsidiary, Long> {
 	 * ) List<Subsidiary> findByCodeAndSenderPrivate(String code, Long ideSender);
 	 */
 
-	
+
 	/**
 	 * Busca los establecimiento  y punto emision de un emisor en particular
+	 *
 	 * @return
 	 */
-	
+
 	@Query("select distinct s from Subsidiary s left join fetch s.emissionPoints e where s.sender.ide= :idSender")
 	List<Subsidiary> fetchBySenderWithEmissionPoint(@Param("idSender") Long idSender);
-	
+
 	/**
 	 * Obtiene un establecimiento de un emisor en particular
+	 *
 	 * @param ide
 	 * @param ideSubs
 	 * @return
@@ -43,4 +45,10 @@ public interface ISubsidiaryRepository extends JpaRepository<Subsidiary, Long> {
 
 	Boolean existsByCodeAndSenderIde(String code, Long ide);
 
+
+	Optional<Subsidiary> findBySenderIde(Long idSender);
+
+
+	@Query("select su.ide  from Subsidiary su where  su.sender.ide=?1")
+	Optional<Long> findIdBySender(Long idSender);
 }

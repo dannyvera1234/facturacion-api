@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.admin.AdminProduct;
+import com.facturacion.ideas.api.dto.ProductEditDTO;
 import com.facturacion.ideas.api.dto.ProductResponseDTO;
 import com.facturacion.ideas.api.enums.TypeTaxEnum;
+import com.facturacion.ideas.api.repositories.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,6 @@ import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IProductMapper;
-import com.facturacion.ideas.api.repositories.IProductInformationRepository;
-import com.facturacion.ideas.api.repositories.IProductRepository;
-import com.facturacion.ideas.api.repositories.ISubsidiaryRepository;
-import com.facturacion.ideas.api.repositories.ITaxValueRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 @Service
@@ -50,18 +48,39 @@ public class ProductServiceImpl implements IProductService {
     @Autowired
     private IProductInformationRepository productInformationRepository;
 
+    @Autowired
+    private ISenderRepository senderRepository;
+
     @Override
     @Transactional
-    public ProductResponseDTO save(ProductDTO productDTO, final Long idSubsidiary) {
+    public ProductResponseDTO save(ProductDTO productDTO, boolean typeAction) {
 
-        if (!subsidiaryRepository.existsById(idSubsidiary)) {
+        Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+        );
 
-            throw new NotFoundException("Establecimiento " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+        Long idSubsidiary = subsidiaryRepository.findIdBySender(idSender).orElseThrow(
+                () -> new NotFoundException("No existe un estblecimiento registrado actual")
+        );
+
+        /**
+         * true: nuevo producto
+         * false: actualziar producto
+         */
+        if (typeAction){
+
+            if (existsByCodePrivateAndSubsidiaryIde(productDTO.getCodePrivate(), idSubsidiary)) {
+                throw new DuplicatedResourceException("Producto " + productDTO.getCodePrivate() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+            }
         }
-        if (existsByCodePrivateAndSubsidiaryIde(productDTO.getCodePrivate(), idSubsidiary)) {
-            throw new DuplicatedResourceException("Producto " + productDTO.getCodePrivate() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
-        }
 
+        // Actualizar
+        if (!typeAction){
+
+            if (!productRepository.existsById(productDTO.getIde())){
+                throw new DuplicatedResourceException("Producto " + productDTO.getIde() + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+            }
+        }
         AdminProduct.numeroMaximoInfoAdicionalProduct(productDTO.getProductInformationDTOs());
 
         try {
@@ -87,8 +106,8 @@ public class ProductServiceImpl implements IProductService {
             AdminProduct.asignarSiNoImpuesto(TypeTaxEnum.IRBPNR, product);
             if (codeImpuesto != null)
                 taxValues.add(finTaxProduct(TypeTaxEnum.IRBPNR, codeImpuesto, product));
-
             product.setSubsidiary(new Subsidiary(idSubsidiary));
+
             // Asignar impuestos
             product.setTaxProducts(taxValues);
 
@@ -96,22 +115,67 @@ public class ProductServiceImpl implements IProductService {
 
         } catch (DataAccessException e) {
 
-            LOGGER.info("Error guardar producto", e);
-            throw new NotDataAccessException("Error guardar producto: " + e.getMessage());
+            LOGGER.info("Error " + (typeAction?"guardar":"actualizar") +   "producto", e);
+            throw new NotDataAccessException("Error" + (typeAction?"guardar":"actualizar") + " producto: " + e.getMessage());
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ProductResponseDTO findById(Long ide) {
+    public ProductResponseDTO findById(Long idProduct) {
 
         try {
-            return productMapper.mapperToDTO(productRepository.findById(ide).orElseThrow(
-                    () -> new NotFoundException("Producto " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+
+            if (senderRepository.existsByRuc(ConstanteUtil.TOKEN_USER)) {
+
+                Product product = productRepository.findById(idProduct)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        String.format("Producto %s %s", idProduct, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+
+                return productMapper.mapperToDTO(product);
+
+
+            }
+            throw new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+
         } catch (DataAccessException e) {
 
-            LOGGER.error("Error buscar por id producto: " + ide, e);
+            LOGGER.error("Error buscar por id producto: " + idProduct, e);
             throw new NotDataAccessException("Error al buscar el producto por ide");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductEditDTO fetchTaxValueAndInfoDetailsById(Long idProduct) {
+
+        try {
+
+            LOGGER.info("TOken: " + ConstanteUtil.TOKEN);
+            LOGGER.info("TOken USER: " + ConstanteUtil.TOKEN_USER);
+
+            if (senderRepository.existsByRuc(ConstanteUtil.TOKEN_USER)) {
+
+                Product product = productRepository.fetchTaxValueAndInfoDetailsById(idProduct)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        String.format("Producto %s %s", idProduct, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+
+
+                LOGGER.debug(product);
+                LOGGER.debug(product.getProductInformations().size());
+                LOGGER.debug(product.getTaxProducts().size());
+
+                return productMapper.mapperToEditDTO(product);
+            }
+
+            throw new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+        } catch (DataAccessException e) {
+
+            LOGGER.error("Error buscar por id producto: " + idProduct, e);
+            throw new NotDataAccessException("Error al buscar el producto para editar");
         }
     }
 
@@ -155,16 +219,40 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    @Transactional
-    public String deleteById(Long ide) {
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> findAllBySender() {
+
+        Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                ()-> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+        );
 
         try {
 
-            if (productRepository.existsById(ide)) {
-                productRepository.deleteById(ide);
+            List<Product> products = productRepository.findBySubsidiarySenderIde(idSender);
+
+            return products.stream().map(item -> productMapper.mapperToDTO(item))
+                    .collect(Collectors.toList());
+
+        } catch (DataAccessException e) {
+
+            LOGGER.error("Error listar productos", e);
+            throw new NotDataAccessException("Ocurrio un error al listar productos ");
+
+        }
+    }
+
+    @Override
+    @Transactional
+    public String deleteById(Long idProduct) {
+
+        try {
+
+            if (senderRepository.existsByRuc(ConstanteUtil.TOKEN_USER)) {
+                productRepository.deleteById(idProduct);
                 return "Producto eliminado correctamente";
             }
-            throw new NotFoundException("Producto " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
+
+            throw new NotFoundException("Emisor " + ConstanteUtil.TOKEN_USER + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
         } catch (DataAccessException e) {
 
             LOGGER.error("Error eliminar producto", e);
@@ -175,16 +263,25 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional
-    public ProductResponseDTO update(ProductDTO productDTO, Long ide) {
+    public ProductResponseDTO update(ProductDTO productDTO, Long idProduct) {
 
         try {
 
-            Product product = productRepository.findById(ide).orElseThrow(() ->
-                    new NotFoundException("Producto " + ide + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            LOGGER.info("Token: " + ConstanteUtil.TOKEN);
+            LOGGER.info("Token user: " + ConstanteUtil.TOKEN_USER);
 
-            productMapper.mapperPreUpdate(product, productDTO);
+            if (senderRepository.existsByRuc(ConstanteUtil.TOKEN_USER)) {
 
-            return productMapper.mapperToDTO(productRepository.save(product));
+                Product product = productRepository.findById(idProduct).orElseThrow(() ->
+                        new NotFoundException("Producto " + idProduct + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
+                productMapper.mapperPreUpdate(product, productDTO);
+
+                return productMapper.mapperToDTO(productRepository.save(product));
+            }
+
+            throw new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+
 
         } catch (DataAccessException e) {
 
@@ -272,14 +369,21 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> searchByCodeAndName(String filtro, Long idSubsidiary) {
+    public List<ProductResponseDTO> searchByCodeAndName(String filtro) {
 
         try {
             filtro = "%" + filtro + "%";
 
+            Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                    () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+            );
+
+            Long idSubsidiary = subsidiaryRepository.findIdBySender(idSender).orElseThrow(
+                    () -> new NotFoundException("No existe un estblecimiento registrado actual")
+            );
             List<Product> products = productRepository.findBySubsidiaryAndName(idSubsidiary, filtro);
 
-            return  productMapper.mapperToDTO(products);
+            return productMapper.mapperToDTO(products);
 
         } catch (DataAccessException e) {
             LOGGER.error("Error al filtrar productos", e);
@@ -294,12 +398,11 @@ public class ProductServiceImpl implements IProductService {
         try {
 
 
-            if (productRepository.existsById(idProducto)) {
-
-                Integer countRowDelete = productInformationRepository.deleteProductInformation(idProducto, ide);
-                return "Informacion Adiciona  eliminada con exito";
+            if (productInformationRepository.existsById(ide)) {
+                 productInformationRepository.deleteById(ide);
+                return "Informacion Adicional  eliminada con exito";
             }
-            throw new NotFoundException("Producto: " + idProducto
+            throw new NotFoundException("Detalle producto: " + ide
                     + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
 
 

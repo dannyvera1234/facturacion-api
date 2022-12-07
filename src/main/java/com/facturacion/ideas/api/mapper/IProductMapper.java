@@ -3,6 +3,7 @@ package com.facturacion.ideas.api.mapper;
 import java.util.List;
 
 import com.facturacion.ideas.api.dto.ProductDTO;
+import com.facturacion.ideas.api.dto.ProductEditDTO;
 import com.facturacion.ideas.api.dto.ProductInformationDTO;
 import com.facturacion.ideas.api.dto.ProductResponseDTO;
 import com.facturacion.ideas.api.entities.Product;
@@ -15,6 +16,8 @@ public interface IProductMapper {
 	//ProductDTO mapperToDTO(Product product);
 
 	ProductResponseDTO mapperToDTO(Product product);
+
+	ProductEditDTO mapperToEditDTO(Product product);
 
 	List<ProductResponseDTO> mapperToDTO(List<Product> products);
 

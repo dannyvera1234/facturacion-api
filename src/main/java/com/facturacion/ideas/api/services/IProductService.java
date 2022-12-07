@@ -3,6 +3,7 @@ package com.facturacion.ideas.api.services;
 import java.util.List;
 
 import com.facturacion.ideas.api.dto.ProductDTO;
+import com.facturacion.ideas.api.dto.ProductEditDTO;
 import com.facturacion.ideas.api.dto.ProductInformationDTO;
 import com.facturacion.ideas.api.dto.ProductResponseDTO;
 import com.facturacion.ideas.api.entities.Product;
@@ -12,17 +13,21 @@ import com.facturacion.ideas.api.enums.TypeTaxEnum;
 
 public interface IProductService {
 
-	ProductResponseDTO save(ProductDTO productDTO, Long idSubsidiary);
+	ProductResponseDTO save(ProductDTO productDTO, boolean typeAction);
 
-	ProductResponseDTO findById(Long ide);
+	ProductResponseDTO findById( Long idProduct);
+
+	ProductEditDTO fetchTaxValueAndInfoDetailsById(Long idProduct);
 
 	ProductResponseDTO findByCodePrivate(String codePrivate);
 
 	List<ProductResponseDTO> findAll(Long idSubsidiary);
 
-	String deleteById(Long ide);
+	List<ProductResponseDTO> findAllBySender();
 
-	ProductResponseDTO update(ProductDTO productDTO, Long ide);
+	String deleteById(Long idProduct);
+
+	ProductResponseDTO update(ProductDTO productDTO, Long idProduct);
 
 	// ProductInformation
 
@@ -38,5 +43,5 @@ public interface IProductService {
 
 	TaxProduct finTaxProduct(TypeTaxEnum typeTax, String ideTax, Product product);
 
-	List<ProductResponseDTO> searchByCodeAndName(String filtro, Long idSubsidiary);
+	List<ProductResponseDTO> searchByCodeAndName(String filtro);
 }
