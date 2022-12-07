@@ -3,8 +3,13 @@ package com.facturacion.ideas.api.services;
 import java.text.ParseException;
 import java.util.List;
 
+import com.facturacion.ideas.api.dto.CountNewDTO;
+import com.facturacion.ideas.api.entities.*;
+import com.facturacion.ideas.api.enums.RolEnum;
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
+import com.facturacion.ideas.api.repositories.*;
+import com.facturacion.ideas.api.security.enums.RolNombreEnum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.facturacion.ideas.api.admin.AdminEmissionPoint;
 import com.facturacion.ideas.api.dto.EmissionPointNewDTO;
 import com.facturacion.ideas.api.dto.EmissionPointResponseDTO;
-import com.facturacion.ideas.api.entities.CodeDocument;
-import com.facturacion.ideas.api.entities.Count;
-import com.facturacion.ideas.api.entities.EmissionPoint;
-import com.facturacion.ideas.api.entities.Subsidiary;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.mapper.IEmissionPointMapper;
-import com.facturacion.ideas.api.repositories.ICodeDocumentRepository;
-import com.facturacion.ideas.api.repositories.IEmissionPointRepository;
-import com.facturacion.ideas.api.repositories.IEmployeeRepository;
-import com.facturacion.ideas.api.repositories.ISubsidiaryRepository;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 @Service
@@ -39,64 +36,63 @@ public class EmissionPointServiceImpl implements IEmissionPointService {
     private ISubsidiaryRepository subsidiaryRepository;
 
     @Autowired
-    private ICodeDocumentRepository codeDocumentRepository;
-
-    @Autowired
     private IEmissionPointMapper emissionPointMapper;
 
     @Autowired
     private IEmployeeRepository employeeRepository;
 
+    @Autowired
+    private ISenderRepository senderRepository;
+
     @Override
     @Transactional
-    public EmissionPointResponseDTO save(EmissionPointNewDTO emissionPointNewDTO, Long idSubsidiary) {
+    public EmissionPointResponseDTO save(EmissionPointNewDTO emissionPointNewDTO) {
 
         try {
 
-            if (emissionPointNewDTO.getCodePoint() == null) {
-                throw new BadRequestException("El codigo de punto emision no puede ser vacio");
-            }
+            Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                    () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+            );
+
+
+            Subsidiary subsidiary = subsidiaryRepository.findBySenderIde(idSender).orElseThrow(
+                    () -> new NotFoundException("No existe un establecimiento registrado actual")
+            );
 
             if (emissionPointNewDTO.getCodePoint().matches("[0-9]{3}")) {
 
-                Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(() -> new NotFoundException(
-                        "Establecimiento ide: " + idSubsidiary + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
                 // Validar si el nuevo punto de emision ya esta registrado en el establecimiento
-
                 if (!emissionPointRepository.existsByCodePointAndSubsidiaryIde(emissionPointNewDTO.getCodePoint(),
                         subsidiary.getIde())) {
-                    String codeSubsidiary = subsidiary.getCode();
 
                     // Crear el EmissionPoint
                     EmissionPoint emissionPoint = AdminEmissionPoint.create(emissionPointNewDTO.getCodePoint());
                     emissionPoint.setStatus(emissionPointNewDTO.isStatus());
-                    emissionPoint.setKeyPoint(codeSubsidiary + "-" + emissionPoint.getCodePoint());
-
+                    emissionPoint.setKeyPoint(emissionPointNewDTO.getKeyPoint());
                     emissionPoint.setSubsidiary(subsidiary);
+
 
                     // Aqui consultar el empleado y si existe agregarlo al punto emision
                     Long idEmpleado = emissionPointNewDTO.getIdEmployee();
 
                     if (idEmpleado != null) {
-                        // Asignar empelado al punto emision
-                        emissionPoint.setEmployee(employeeRepository.findById(idEmpleado)
-                                .orElseThrow(() -> new NotFoundException("Empleado id: " + idEmpleado + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+                        Employee employee = employeeRepository.findById(idEmpleado).orElseThrow(() ->
+                                new NotFoundException(String.format("Empleado %s %s", idEmpleado, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+                        );
+                        emissionPoint.setEmployee(employee);
                     }
 
                     EmissionPoint emissionPointSaved = emissionPointRepository.save(emissionPoint);
                     return emissionPointMapper.mapperToDTO(emissionPointSaved);
                 }
-                throw new DuplicatedResourceException("Punto emisión " + emissionPointNewDTO.getCodePoint() + " ya esta registradoe en el establecimiento " + subsidiary.getCode());
-
+                throw new DuplicatedResourceException("Punto emisión " + emissionPointNewDTO.getCodePoint() + " ya esta registrado en el establecimiento " + subsidiary.getCode());
 
             }
 
             throw new BadRequestException("El formato de punto emision " + emissionPointNewDTO.getCodePoint() + " es incorrecto, deber ser ejemplo: 009");
 
-
         } catch (DataAccessException e) {
-
             LOGGER.error("Error guardar punto emision: ", e);
             throw new NotDataAccessException("Error guardar ounto emision: " + e.getMessage());
 
@@ -138,6 +134,31 @@ public class EmissionPointServiceImpl implements IEmissionPointService {
             throw new NotDataAccessException("Error lisstar puntoss emmiion establecimientto: " + e.getMessage());
         }
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmissionPointResponseDTO> listAll() {
+
+        try {
+
+            Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                    () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+            );
+
+            Long idSubsidiary = subsidiaryRepository.findIdBySender(idSender).orElseThrow(
+                    () -> new NotFoundException("No existe un establecimiento registrado actual")
+            );
+
+            List<EmissionPoint> emissionPoints = emissionPointRepository.findALlBySubsidiaryIde(idSubsidiary);
+
+            return emissionPointMapper.mapperToDTO(emissionPoints);
+
+        } catch (DataAccessException e) {
+
+            LOGGER.error("Error listar punttos emission esttableccimiento", e);
+            throw new NotDataAccessException("Error lisstar puntoss emmiion establecimientto: " + e.getMessage());
+        }
     }
 
     @Override
@@ -186,14 +207,35 @@ public class EmissionPointServiceImpl implements IEmissionPointService {
 
         try {
 
+
+            Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                    () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+            );
+
             EmissionPoint emissionPoint = emissionPointRepository.findById(id).orElseThrow(
 
                     () -> new NotFoundException(
-                            "Id  punto emision: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+                            "Punto emision: " + id + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
 
             // Del punto emsion solo actualizamos el estado
 
             emissionPoint.setStatus(emissionPointNewDTO.isStatus());
+
+            if (emissionPointNewDTO.getKeyPoint() != null) {
+                emissionPoint.setKeyPoint(emissionPointNewDTO.getKeyPoint());
+            }
+
+            if (emissionPointNewDTO.getIdEmployee() == null) {
+                emissionPoint.setEmployee(null);
+
+            } else {
+
+                Employee employee = employeeRepository.findById(emissionPointNewDTO.getIdEmployee())
+                        .orElseThrow(() -> new NotFoundException(String.format("Empleado %s %s",
+                                emissionPointNewDTO.getIdEmployee(), ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+
+                emissionPoint.setEmployee(employee);
+            }
 
             EmissionPoint emissionPointUpdated = emissionPointRepository.save(emissionPoint);
 

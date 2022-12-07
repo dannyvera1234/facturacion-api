@@ -18,6 +18,8 @@ import com.facturacion.ideas.api.dto.EmissionPointResponseDTO;
 import com.facturacion.ideas.api.entities.EmissionPoint;
 import com.facturacion.ideas.api.entities.Subsidiary;
 
+import javax.validation.Valid;
+
 /**
  * Interface que define los contratos que debe realizar el
  * {@link SubsidiaryRestController}
@@ -32,15 +34,13 @@ public interface IEmissionPointOperation {
 	 * Inserta un nuevo {@link EmissionPoint} para un {@link Subsidiary} en
 	 * particular
 	 * 
-	 * @param idSubsidiary        : Id de {@link Subsidiary}
 	 * @param emissionPointNewDTO : El objeto {@link EmissionPoint} a insertar
 	 * @return
 	 */
 	@PreAuthorize(value = "hasRole('ROLE_USER')")
-	@PostMapping("subsidiarys/{id}/emissions")
-	 ResponseEntity<EmissionPointResponseDTO> save(@PathVariable(name = "id") Long idSubsidiary,
-			@RequestBody EmissionPointNewDTO emissionPointNewDTO);
-
+	@PostMapping("/emissions")
+	 ResponseEntity<EmissionPointResponseDTO> save(
+			 @Valid @RequestBody EmissionPointNewDTO emissionPointNewDTO);
 	/**
 	 * Recupera todos los {@link EmissionPoint}
 	 * 
@@ -49,6 +49,10 @@ public interface IEmissionPointOperation {
 	 */
 	@GetMapping("subsidiarys/{id}/emissions")
 	 ResponseEntity<List<EmissionPointResponseDTO>> findAll(@PathVariable(name = "id") Long codigo);
+
+	@GetMapping("/emissions")
+	ResponseEntity<List<EmissionPointResponseDTO>> findAllPoint();
+
 
 	@GetMapping("subsidiarys/{id}/emissions/{code-point}")
 	 ResponseEntity<EmissionPointResponseDTO> findByCodeAndSubsidiary(@PathVariable(name = "id") Long codigo,

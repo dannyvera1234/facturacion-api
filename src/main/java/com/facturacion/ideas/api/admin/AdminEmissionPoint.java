@@ -68,7 +68,7 @@ public class AdminEmissionPoint {
         EmissionPoint emissionPoint = new EmissionPoint();
         emissionPoint.setCodePoint(codePoint);
         emissionPoint.setDateRegister(new Date());;
-        emissionPoint.setStatus(false);
+       // emissionPoint.setStatus(false);
         return emissionPoint;
     }
 

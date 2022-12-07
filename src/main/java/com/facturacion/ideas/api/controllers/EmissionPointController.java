@@ -36,16 +36,12 @@ public class EmissionPointController implements IEmissionPointOperation {
 	private IEmissionPointService emissionPointService;
 
 	@Override
-	public ResponseEntity<EmissionPointResponseDTO> save(Long idSubsidiary, EmissionPointNewDTO emissionPointNewDTO) {
-
-		LOGGER.info("Id Establecimiento para el PuntoEmision: " + idSubsidiary);
+	public ResponseEntity<EmissionPointResponseDTO> save(EmissionPointNewDTO emissionPointNewDTO) {
 
 		LOGGER.info("Punto emision guardar: " + emissionPointNewDTO);
 	
 		try {
-
-			EmissionPointResponseDTO emissionPointResponseDTO = emissionPointService.save(emissionPointNewDTO,
-					idSubsidiary);
+			EmissionPointResponseDTO emissionPointResponseDTO = emissionPointService.save(emissionPointNewDTO);
 
 			return ResponseEntity.ok(emissionPointResponseDTO);
 		} catch (NotDataAccessException e) {
@@ -62,6 +58,21 @@ public class EmissionPointController implements IEmissionPointOperation {
 			List<EmissionPointResponseDTO> emissionPointResponseDTO = emissionPointService.listAll(codigo);
 
 			return ResponseEntity.ok(emissionPointResponseDTO);
+		} catch (NotDataAccessException e) {
+
+			throw new NotDataAccessException(e.getMessage());
+		}
+	}
+
+	@Override
+	public ResponseEntity<List<EmissionPointResponseDTO>> findAllPoint() {
+
+		try {
+
+			List<EmissionPointResponseDTO> emissionPointResponseDTO = emissionPointService.listAll();
+
+			return ResponseEntity.ok(emissionPointResponseDTO);
+
 		} catch (NotDataAccessException e) {
 
 			throw new NotDataAccessException(e.getMessage());
@@ -99,12 +110,13 @@ public class EmissionPointController implements IEmissionPointOperation {
 	@Override
 	public ResponseEntity<EmissionPointResponseDTO> update(EmissionPointNewDTO emissionPointNewDTO, Long id) {
 
-		LOGGER.info("Id codePoint actualizar : " + id);
+		LOGGER.info("Punto emision actualizar : "+ id);
 		try {
 
 			EmissionPointResponseDTO emissionPointResponseDTO = emissionPointService.update(emissionPointNewDTO, id);
 
 			return ResponseEntity.ok(emissionPointResponseDTO);
+			
 		} catch (NotDataAccessException e) {
 
 			throw new NotDataAccessException(e.getMessage());
