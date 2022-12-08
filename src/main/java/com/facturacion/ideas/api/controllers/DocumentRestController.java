@@ -1,31 +1,19 @@
 package com.facturacion.ideas.api.controllers;
 
-import com.facturacion.ideas.api.dto.ResponseWebServiceDTO;
+import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.entities.Product;
-import com.facturacion.ideas.api.enums.WSTypeEnum;
 import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.services.IEncryptionService;
-import com.facturacion.ideas.api.sri.cliente.ClientSRI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.facturacion.ideas.api.dto.InvoiceNewDTO;
-import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
 import com.facturacion.ideas.api.services.IDocumentService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.validation.Valid;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
@@ -38,15 +26,11 @@ public class DocumentRestController {
     @Autowired
     private IDocumentService documentService;
 
-
-    @Autowired
-    private ClientSRI clienteSRI;
-
     @Autowired
     private IEncryptionService encryptionService;
 
     @PostMapping("/invoices")
-    public ResponseEntity<ResponseWebServiceDTO> saveInvoice(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
+    public ResponseEntity<ResponseWebServiceDTO> calculosValores(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
 
         LOGGER.info("Factura a guardar: " + invoiceNewDTO);
         try {
@@ -65,6 +49,20 @@ public class DocumentRestController {
             throw new ConsumeWebServiceException(e.getMessage());
         } catch (EncryptedException e) {
             throw new EncryptedException(e.getMessage());
+        }
+    }
+
+    @PostMapping("/calcular")
+    public ResponseEntity<ValueInvoiceNewDTO> calculosValores(@RequestBody List<DeatailsInvoiceProductDTO> detailsDocument) {
+
+        LOGGER.info("Valores Factura recibidos: " + detailsDocument);
+        try {
+
+            ValueInvoiceNewDTO ValueInvoiceNewDTO = documentService.calcularValoresDocumento(detailsDocument);
+            return new ResponseEntity<>(ValueInvoiceNewDTO, HttpStatus.CREATED);
+
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
         }
     }
 

@@ -5,6 +5,7 @@ import com.facturacion.ideas.api.documents.factura.*;
 import com.facturacion.ideas.api.dto.DeatailsInvoiceProductDTO;
 import com.facturacion.ideas.api.dto.InvoiceNewDTO;
 import com.facturacion.ideas.api.dto.PaymenNewtDTO;
+import com.facturacion.ideas.api.dto.ValueInvoiceNewDTO;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.QuestionEnum;
 import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
@@ -22,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -696,6 +698,24 @@ public class AdminInvoice {
         impuestoItem.setBaseImponible(item.getPrecioTotalSinImpuesto());
 
         return impuestoItem;
+    }
+
+    public  static void formatValues(ValueInvoiceNewDTO valuesDocuments){
+
+        DecimalFormat d = new DecimalFormat("####.##");
+        valuesDocuments.setSubtIvaCero(Double.parseDouble(d.format(valuesDocuments.getSubtIvaCero())));
+        valuesDocuments.setSubtIvaActual(Double.parseDouble(d.format(valuesDocuments.getSubtIvaActual())));
+        valuesDocuments.setSubtNoObjIva(Double.parseDouble(d.format(valuesDocuments.getSubtNoObjIva())));
+        valuesDocuments.setSubtExceptoIva(Double.parseDouble(d.format(valuesDocuments.getSubtExceptoIva())));
+        valuesDocuments.setIce(Double.parseDouble(d.format(valuesDocuments.getIce())));
+        valuesDocuments.setRbpnr(Double.parseDouble(d.format(valuesDocuments.getRbpnr())));
+        valuesDocuments.setSubtotal(Double.parseDouble(d.format(valuesDocuments.getSubtotal())));
+        valuesDocuments.setDescuento(Double.parseDouble(d.format(valuesDocuments.getDescuento())));
+        valuesDocuments.setPropina(Double.parseDouble(d.format(valuesDocuments.getPropina())));
+        valuesDocuments.setIva(Double.parseDouble(d.format(valuesDocuments.getIva())));
+        valuesDocuments.setTotal(Double.parseDouble(d.format(valuesDocuments.getTotal())));
+
+
     }
 
 }

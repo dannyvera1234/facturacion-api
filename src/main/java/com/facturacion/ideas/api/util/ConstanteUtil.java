@@ -45,7 +45,7 @@ public class ConstanteUtil {
     public static final Double IVA_ACTUAL_PORCENTAJE = 12.0;
 
     // Iva actual en decimal
-    public static final Double IVA_ACTUAL_DECIMAL = 1.12;
+    public static final Double IVA_ACTUAL_DECIMAL = 0.12;
 
     // valor agegado expresado en Dolar
     public static final Double VALOR_IVA_IRBPNR = 0.02;

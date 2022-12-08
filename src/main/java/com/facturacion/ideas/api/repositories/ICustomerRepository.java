@@ -1,8 +1,8 @@
 package com.facturacion.ideas.api.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
-import com.facturacion.ideas.api.entities.Driver;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +22,9 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long>{
 
 	@Query("select cu from  Customer  cu  join   fetch  cu.detailsPersons dtp where dtp.sender.ide= :param1 and (cu.numberIdentification like %:param2% or cu.socialReason like %:param2%   )")
 	List<Customer> searchByCedulaOrRazonSocail(@Param("param1") Long idSender, @Param("param2") String filtro );
+
+	@Query("select  cu.ide from Customer  cu where  cu.numberIdentification =?1")
+	Optional<Long> findIdByNumeroIdentificacion(String numeroIdentificacion);
+
+	Optional<Customer> findByNumberIdentification(String numberIdentification);
 }

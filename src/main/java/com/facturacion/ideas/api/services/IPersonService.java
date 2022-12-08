@@ -9,23 +9,23 @@ import com.facturacion.ideas.api.dto.DriverResponseDTO;
 
 public interface IPersonService {
 
-	CustomerResponseDTO save(CustomerNewDTO customerNewDTO, Long idSender);
+	CustomerResponseDTO save(CustomerNewDTO customerNewDTO);
 
-	CustomerResponseDTO update(CustomerNewDTO customerUpdateDTO);
+	CustomerResponseDTO update(CustomerNewDTO customerUpdateDTO, Long idCustomer);
 
 	DriverResponseDTO save(DriverNewDTO driverNewDTO, Long idSender);
 
-	List<CustomerResponseDTO> findAllCustomerBySender(Long idSender);
+	List<CustomerResponseDTO> findAllCustomerBySender();
 
 	List<DriverResponseDTO> findAllDriverBySender(Long idSender);
 
 	boolean existsByPersonAndSender(Long idPerson, Long IdSender);
 
-	void deleteById(Long idSender, Long idPerson);
+	void deleteById(Long idPerson);
 
 	List<DriverResponseDTO> searchDriverByCedulaOrRazonSocial(Long idSender, String filtro);
 
-	List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(Long idSender, String filtro);
+	List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(String filtro);
 
 	CustomerResponseDTO findById(Long idCustomer);
 }

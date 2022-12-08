@@ -33,6 +33,13 @@ public class DetailsPerson implements Serializable {
 	@JoinColumn(name = "DEP_FK_COD_PER")
 	private Person person;
 
+	public DetailsPerson(Long idSender, Long idPerson) {
+		super();
+
+		sender = new Sender(idSender);
+		person = new Person(idPerson);
+	}
+
 	public DetailsPerson() {
 		super();
 	}

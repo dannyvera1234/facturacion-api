@@ -1,15 +1,15 @@
 package com.facturacion.ideas.api.services;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.admin.AdminInvoice;
 import com.facturacion.ideas.api.documents.factura.Factura;
-import com.facturacion.ideas.api.dto.ResponseWebServiceDTO;
+import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.entities.*;
-import com.facturacion.ideas.api.enums.StatusDocumentsEnum;
-import com.facturacion.ideas.api.enums.TypeDocumentEnum;
-import com.facturacion.ideas.api.enums.WSTypeEnum;
+import com.facturacion.ideas.api.enums.*;
 import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.repositories.*;
 import com.facturacion.ideas.api.sri.cliente.ClientSRI;
@@ -25,8 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.facturacion.ideas.api.admin.AdminDocument;
-import com.facturacion.ideas.api.dto.InvoiceNewDTO;
-import com.facturacion.ideas.api.dto.InvoiceResposeDTO;
 import com.facturacion.ideas.api.mapper.IDocumentMapper;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
@@ -174,6 +172,120 @@ public class DocumentServiceImpl implements IDocumentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public ValueInvoiceNewDTO calcularValoresDocumento(List<DeatailsInvoiceProductDTO> detailsDocument) {
+
+
+        try {
+
+            ValueInvoiceNewDTO valuesDocuments = new ValueInvoiceNewDTO();
+
+            BigDecimal subtotalCero = BigDecimal.ZERO;
+            BigDecimal subtotalDoce = BigDecimal.ZERO;
+            BigDecimal subtotalNoObjeto = BigDecimal.ZERO;
+            BigDecimal subtotalExcepto = BigDecimal.ZERO;
+            BigDecimal descuento = BigDecimal.ZERO;
+            BigDecimal ice = BigDecimal.ZERO;
+            BigDecimal irbprn = BigDecimal.ZERO;
+            BigDecimal propina = BigDecimal.ZERO;
+            BigDecimal subTotal = BigDecimal.ZERO;
+            BigDecimal iva = BigDecimal.ZERO;
+            BigDecimal total = BigDecimal.ZERO;
+
+
+            for (DeatailsInvoiceProductDTO item : detailsDocument) {
+
+                // Trae todo los datos del producto y sus relaciones
+                Product product = productRepository.fetchTaxValueAndInfoDetailsById(item.getIdProducto()).orElseThrow(
+                        () -> new NotFoundException(String.format("Producto %s %s", item.getIdProducto(), ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+                );
+
+                List<TaxProduct> impuestos = product.getTaxProducts();
+
+                for (TaxProduct taxProduct : impuestos) {
+
+                    TaxValue value = taxProduct.getTaxValue();
+                    Tax tax = value.getTax();
+
+                    // EL ide retorna el codigo del impuesto
+                    String codImpuesto = String.valueOf(tax.getIde());
+
+                    if (codImpuesto.equalsIgnoreCase(TypeTaxEnum.IVA.getCode())) {
+                        switch (value.getCode()) {
+                            case "0":
+                                subtotalCero = subtotalCero.add(BigDecimal.valueOf(item.getSubtotal()));
+                                break;
+
+                            case "7":
+                                subtotalExcepto = subtotalExcepto.add(BigDecimal.valueOf(item.getSubtotal()));
+                                break;
+                            case "6":
+                                subtotalNoObjeto = subtotalNoObjeto.add(BigDecimal.valueOf(item.getSubtotal()));
+                                break;
+
+                            case "2":
+                                subtotalDoce = subtotalDoce.add(BigDecimal.valueOf(item.getSubtotal()));
+                                break;
+                        }
+
+                    }
+
+                    if (product.getIrbpnr().equalsIgnoreCase("SI") && codImpuesto.equalsIgnoreCase(TypeTaxEnum.IRBPNR.getCode())) {
+                        irbprn = irbprn.add(BigDecimal.valueOf(0.02));
+                    }
+
+                    if (product.getIce().equalsIgnoreCase("SI") &&
+                            codImpuesto.equalsIgnoreCase(TypeTaxEnum.ICE.getCode())) {
+
+                        LOGGER.info("aQUI ES ICE " +  codImpuesto  + " " +  item.getValorIce()) ;
+
+                        ice = ice.add(BigDecimal.valueOf(item.getValorIce()));
+
+                    }
+                }
+
+            }
+
+            subTotal = subTotal.add(subtotalCero).add(subtotalNoObjeto).add(subtotalExcepto).add(subtotalDoce);
+
+            BigDecimal preIva = subtotalDoce.add(ice);
+
+            iva = preIva.multiply(BigDecimal.valueOf(ConstanteUtil.IVA_ACTUAL_DECIMAL));
+
+            total = subTotal.add(ice).add(irbprn).add(iva).add(propina);
+
+            valuesDocuments.setSubtIvaCero(subtotalCero.doubleValue());
+            valuesDocuments.setSubtExceptoIva(subtotalExcepto.doubleValue());
+            valuesDocuments.setSubtNoObjIva(subtotalNoObjeto.doubleValue());
+            valuesDocuments.setSubtIvaActual(subtotalDoce.doubleValue());
+
+            valuesDocuments.setDescuento(descuento.doubleValue());
+            valuesDocuments.setSubtotal(subTotal.doubleValue());
+            valuesDocuments.setIce(ice.doubleValue());
+            valuesDocuments.setRbpnr(irbprn.doubleValue());
+            valuesDocuments.setIva(iva.doubleValue());
+            valuesDocuments.setPropina(propina.doubleValue());
+            valuesDocuments.setTotal(total.doubleValue());
+
+
+            AdminInvoice.formatValues(valuesDocuments);
+            LOGGER.debug("Valores calculados : " + valuesDocuments);
+
+            return valuesDocuments;
+
+        } catch (DataAccessException ex) {
+
+            LOGGER.error("Error al realizar calculos", ex);
+            throw new NotDataAccessException("Ocurrio un error al realizar los calculos para el documento");
+        } catch (Exception ex) {
+            LOGGER.error("Error inesperado al realizar calculos", ex);
+            throw new NotDataAccessException("Ocurrio un error inesperado al realizar los calculos para el documento " + ex.getMessage());
+
+        }
+
+    }
+
+    @Override
     public List<InvoiceResposeDTO> findBySender(Long idSender) {
         // TODO Auto-generated method stub
         return null;
@@ -238,7 +350,7 @@ public class DocumentServiceImpl implements IDocumentService {
             // Consultar los productos a la BD
             List<Product> products = productRepository.fetchTaxValueTaxByIdeIn(idsProduts);
 
-            LOGGER.info("Longitud productos detalle: "+ products.size());
+            LOGGER.info("Longitud productos detalle: " + products.size());
 
             for (Product it : products) {
                 LOGGER.debug(String.format("Producto detalle:  %s - %s", it.getIde(), it.getName()));
@@ -301,7 +413,7 @@ public class DocumentServiceImpl implements IDocumentService {
                 LOGGER.debug(String.format("Comprobante fecha %s ", item.getFechaAutorizacion()));
             }
 
-            String estadoComprobate  =respuestaComprobante.getAutorizaciones().getAutorizacion().get(0).getEstado();
+            String estadoComprobate = respuestaComprobante.getAutorizaciones().getAutorizacion().get(0).getEstado();
             if (estadoComprobate.equalsIgnoreCase(StatusDocumentsEnum.AUTORIZADO.getName())) {
                 // Actualizar contador de documentos si todo el proceso fue realizado con exito
 
@@ -311,7 +423,8 @@ public class DocumentServiceImpl implements IDocumentService {
 
                 LOGGER.info(String.format("Secuencia actualizado: %s   estado: %s", numberSecuncial, estadoComprobate));
 
-            }else LOGGER.info(String.format("Secuencia NO actualizado: %s   estado: %s", numberSecuncial, estadoComprobate));
+            } else
+                LOGGER.info(String.format("Secuencia NO actualizado: %s   estado: %s", numberSecuncial, estadoComprobate));
             // Si el comprobante no fue RECIBIDO, se elimina tanto el comprobante generado como el que fue firmado
         } else {
             LOGGER.info("Web Service recepcion NO RECIBIDA");

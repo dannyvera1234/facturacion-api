@@ -23,7 +23,7 @@ public class ProductResponseDTO implements Serializable {
 
     //private String iva;
 
-    //private String ice;
+    private String ice;
 
     //private String irbpnr;
 
@@ -82,6 +82,15 @@ public class ProductResponseDTO implements Serializable {
         this.unitValue = unitValue;
     }
 
+    public String getIce() {
+        return ice;
+    }
+
+    public void setIce(String ice) {
+        this.ice = ice;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -105,4 +114,5 @@ public class ProductResponseDTO implements Serializable {
                 ", unitValue=" + unitValue +
                 '}';
     }
+
 }

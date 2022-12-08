@@ -18,7 +18,7 @@ public class EmissionPointNewDTO implements Serializable {
 
 	private String dateRegister;
 
-	@NotBlank(message = "La clave del punto emisión no puede ser vacío")
+	//@NotBlank(message = "La clave del punto emisión no puede ser vacío")
 	private String keyPoint;
 
 	private Long idEmployee;

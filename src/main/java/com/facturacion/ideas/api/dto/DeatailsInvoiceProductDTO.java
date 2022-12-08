@@ -102,6 +102,7 @@ public class DeatailsInvoiceProductDTO implements Serializable {
                 ", amount=" + amount +
                 ", subtotal=" + subtotal +
                 ", idProducto=" + idProducto +
+                ",valor Ice=" + valorIce+
                 '}';
     }
 }

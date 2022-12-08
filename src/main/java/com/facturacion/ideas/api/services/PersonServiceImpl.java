@@ -1,10 +1,9 @@
 package com.facturacion.ideas.api.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.facturacion.ideas.api.admin.AdminPerson;
-import com.facturacion.ideas.api.enums.TypeIdentificationEnum;
-import com.facturacion.ideas.api.exeption.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,25 +55,75 @@ public class PersonServiceImpl implements IPersonService {
 
     @Override
     @Transactional
-    public CustomerResponseDTO save(CustomerNewDTO personNewDTO, Long idSender) {
+    public CustomerResponseDTO save(CustomerNewDTO personNewDTO) {
 
-        Sender sender = null;
-        Customer customer = null;
-        DetailsPerson detailsPerson = null;
-        Customer customerSaved = null;
+        Customer customer;
+        DetailsPerson detailsPerson;
 
         try {
 
             // Recuperar emisor actual
-            sender = senderRepository.findById(idSender).orElseThrow(() -> new NotFoundException(
-                    "Emisor con identitificacion : " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                    () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+            );
+
+
+            // Verificar si el numeroIdentificacion ya esta registrada
+            Optional<Customer> optionalCustomer = customerRepository.findByNumberIdentification(personNewDTO.getNumberIdentification());
+
+
+            // SI existe el cliente en la BD,
+            // pero ahora verifico si ya esta asociado con el emisor actual
+            if (optionalCustomer.isPresent()) {
+
+                if (detailsPersonRepository.existsByPersonIdeAndAndSenderIde(optionalCustomer.get().getIde(), idSender)) {
+                    throw new DuplicatedResourceException(String.format("Cliente %s %s", personNewDTO.getNumberIdentification(), ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+                } else {
+                    // Ingreso una nueva relacion, del mismo cliente pero con otro emisor
+                    detailsPerson = new DetailsPerson(idSender, optionalCustomer.get().getIde());
+                    detailsPersonRepository.save(detailsPerson);
+                    return personMapper.mapperToDTO(optionalCustomer.get());
+
+                    /*// Asociar el cliente encontrado con un nuevo emisor
+                    personNewDTO.setIde(optionalCustomer.get());
+                    customer = personMapper.mapperToEntity(personNewDTO);
+                    //
+                    customer.addDetailsPerson(new DetailsPerson(idSender, personNewDTO.getIde()));
+                    customerSaved = customerRepository.save(customer);
+
+                    return personMapper.mapperToDTO(customerSaved);*/
+
+                }
+            }
+
+            // Si el cliente no esta registrado en la bd
+            // Customer a persistir
+            customer = personMapper.mapperToEntity(personNewDTO);
+
+            Customer customerSaved= customerRepository.save(customer);
+
+            detailsPerson = new DetailsPerson(idSender, customerSaved.getIde());
+            detailsPersonRepository.save(detailsPerson);
+
+            return personMapper.mapperToDTO(customerSaved);
+
+
+
+
+
+
+
+
+
 
             /*
              *
              * Si id !=null, indica que Persona ya esta registrada en el sistema, la
              * recupero y seteo los valores que no se pueden modificar.
              */
-            if (personNewDTO.getIde() != null) {
+
+
+            /*if (personNewDTO.getIde() != null) {
 
                 // Recuperar la persona actual
                 customer = customerRepository.findById(personNewDTO.getIde()).get();
@@ -103,8 +152,10 @@ public class PersonServiceImpl implements IPersonService {
                 detailsPersonRepository.save(detailsPerson);
 
                 return personMapper.mapperToDTO(customerSaved);
-            }
+            }*/
 
+
+            /*
             // Cedula que no esta registra en Persona, x si acaso valido
             if (!personRepository.existsByNumberIdentification(personNewDTO.getNumberIdentification())) {
 
@@ -129,6 +180,8 @@ public class PersonServiceImpl implements IPersonService {
             throw new DuplicatedResourceException(TypeIdentificationEnum.getTipoCompradorEnum(personNewDTO.getTypeIdentification()) + " " + personNewDTO.getNumberIdentification()
                     + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 
+
+             */
         } catch (DataAccessException e) {
             LOGGER.error("Error guardar cliente: ", e);
             throw new NotDataAccessException("Error guardar cliente: " + e.getMessage());
@@ -138,23 +191,25 @@ public class PersonServiceImpl implements IPersonService {
 
     @Override
     @Transactional
-    public CustomerResponseDTO update(CustomerNewDTO customerUpdateDTO) {
+    public CustomerResponseDTO update(CustomerNewDTO customerUpdateDTO, Long idCustomer) {
 
-        if (customerUpdateDTO.getIde() != null) {
 
-            try {
+        try {
 
-                Customer customer = customerRepository.findById(customerUpdateDTO.getIde())
-                        .orElseThrow(() -> new NotFoundException(String.format("Cliente con id %s %s", customerUpdateDTO.getIde(), ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
-                AdminPerson.preUpdate(customer, customerUpdateDTO);
-                return personMapper.mapperToDTO(customerRepository.save(customer));
+            Customer customer = customerRepository.findById(idCustomer)
+                    .orElseThrow(() -> new NotFoundException(String.format("Cliente %s %s", idCustomer, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+            AdminPerson.preUpdate(customer, customerUpdateDTO);
 
-            } catch (DataAccessException e) {
-                LOGGER.error("Error al actualizar cliente " + customerUpdateDTO.getIde(), e);
-                throw new NotDataAccessException(String.format("No se pudo actualizar el cliente %s", customerUpdateDTO.getIde()));
-            }
+
+
+            return personMapper.mapperToDTO(customerRepository.save(customer));
+
+        } catch (DataAccessException e) {
+            LOGGER.error("Error al actualizar cliente " + customerUpdateDTO.getIde(), e);
+            throw new NotDataAccessException(String.format("No se pudo actualizar el cliente %s", customerUpdateDTO.getIde()));
         }
-        throw new BadRequestException("El id del cliente " + customerUpdateDTO.getIde() + " no puede ser vacio");
+
+
     }
 
     @Override
@@ -250,7 +305,12 @@ public class PersonServiceImpl implements IPersonService {
 
     @Override
     @Transactional
-    public void deleteById(Long idSender, Long idPerson) {
+    public void deleteById( Long idPerson) {
+
+        // Recuperar emisor actual
+        Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+        );
 
         try {
             // Verificar si existe el emisor
@@ -265,7 +325,6 @@ public class PersonServiceImpl implements IPersonService {
                 throw new NotFoundException(
                         "Persona id " + idPerson + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION);
             }
-            ;
         } catch (DataAccessException e) {
 
             LOGGER.error("Error eliminar persona", e);
@@ -290,10 +349,14 @@ public class PersonServiceImpl implements IPersonService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(Long idSender, String filtro) {
+    public List<CustomerResponseDTO> searchCustomerByCedulaOrRazonSocial(String filtro) {
 
         filtro = "%" + filtro + "%";
         try {
+            // Recuperar emisor actual
+            Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                    () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+            );
 
             List<Customer> persons = customerRepository.searchByCedulaOrRazonSocail(idSender, filtro);
             return personMapper.mapperToDTOCustomer(persons);
@@ -313,9 +376,15 @@ public class PersonServiceImpl implements IPersonService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CustomerResponseDTO> findAllCustomerBySender(Long idSender) {
+    public List<CustomerResponseDTO> findAllCustomerBySender() {
 
         try {
+
+
+            // Recuperar emisor actual
+            Long idSender = senderRepository.findIdByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                    () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+            );
 
             // Verificar si existe el emisor
             if (!senderRepository.existsById(idSender)) {

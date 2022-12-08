@@ -24,190 +24,183 @@ import javax.validation.Valid;
 @RequestMapping("/facturacion")
 public class PersonRestController {
 
-	private static final Logger LOGGER = LogManager.getLogger(PersonRestController.class);
-	@Autowired
-	private IPersonService personService;
+    private static final Logger LOGGER = LogManager.getLogger(PersonRestController.class);
+    @Autowired
+    private IPersonService personService;
 
-	@PostMapping("/senders/{id}/customers")
-	public ResponseEntity<CustomerResponseDTO> saveCustomer(@RequestBody @Valid CustomerNewDTO customerNewDTO,
-			@PathVariable(name = "id") Long idSender) {
+    @PostMapping("/customers")
+    public ResponseEntity<CustomerResponseDTO> saveCustomer(@RequestBody @Valid CustomerNewDTO customerNewDTO) {
 
-		try {
+        try {
 
-			CustomerResponseDTO customerResponseDTO = personService.save(customerNewDTO, idSender);
+            CustomerResponseDTO customerResponseDTO = personService.save(customerNewDTO);
 
-			return new ResponseEntity<>(customerResponseDTO, HttpStatus.CREATED);
-		} catch (NotDataAccessException e) {
+            return new ResponseEntity<>(customerResponseDTO, HttpStatus.CREATED);
+        } catch (NotDataAccessException e) {
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-	}
+    }
 
-	@PutMapping("/customers")
-	public ResponseEntity<CustomerResponseDTO> updateCustomer(@RequestBody @Valid CustomerNewDTO customerNewDTO) {
+    @PutMapping("/customers/{id}")
+    public ResponseEntity<CustomerResponseDTO> updateCustomer(@RequestBody @Valid CustomerNewDTO customerNewDTO,
+                                                              @PathVariable  Long id) {
+        LOGGER.info("Customer update: " + customerNewDTO);
+        try {
 
-		try {
-			LOGGER.info("Customer update: "+ customerNewDTO);
+            CustomerResponseDTO customerResponseDTO = personService.update(customerNewDTO, id);
 
-			CustomerResponseDTO customerResponseDTO = personService.update(customerNewDTO);
+            return new ResponseEntity<>(customerResponseDTO, HttpStatus.CREATED);
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-			return new ResponseEntity<>(customerResponseDTO, HttpStatus.CREATED);
-		} catch (NotDataAccessException e) {
-			throw new NotDataAccessException(e.getMessage());
-		}
-
-	}
-
+    }
 
 
+    @GetMapping("/customers")
+    public ResponseEntity<List<CustomerResponseDTO>> findAllCustomers() {
 
-	@GetMapping("/senders/{id}/customers")
-	public ResponseEntity<List<CustomerResponseDTO>> findAllCustomers(@PathVariable(name = "id") Long idSender) {
+        try {
 
-		try {
+            List<CustomerResponseDTO> customerResponseDTOs = personService.findAllCustomerBySender();
 
-			List<CustomerResponseDTO> customerResponseDTOs = personService.findAllCustomerBySender(idSender);
+            return ResponseEntity.ok(customerResponseDTOs);
+        } catch (NotDataAccessException e) {
 
-			return ResponseEntity.ok(customerResponseDTOs);
-		} catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+    }
 
-	}
+    /**
+     * El id del emisor no lo tomo en cuenta
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/customers/{id}")
+    public ResponseEntity<CustomerResponseDTO> findCustomerById(@PathVariable Long id) {
 
-	/**
-	 * El id del emisor no lo tomo en cuenta
-	 * @param idSender
-	 * @param idCustomer
-	 * @return
-	 */
-	@GetMapping("/senders/{id}/customers/{idcustomer}")
-	public ResponseEntity<CustomerResponseDTO> findCustomerById(@PathVariable(name = "id") Long idSender,
-																	  @PathVariable(name = "idcustomer") Long idCustomer) {
+        try {
 
-		try {
+            LOGGER.info("Cliente buscar : " + id);
+            CustomerResponseDTO customerResponseDTO = personService.findById(id);
 
-			LOGGER.info("idCustomer: " + idCustomer);
+            return ResponseEntity.ok(customerResponseDTO);
+        } catch (NotDataAccessException e) {
 
-			CustomerResponseDTO customerResponseDTO  = personService.findById(idCustomer);
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-			return ResponseEntity.ok(customerResponseDTO);
-		} catch (NotDataAccessException e) {
+    }
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+    @PostMapping("/senders/{id}/drivers")
+    public ResponseEntity<DriverResponseDTO> saveDriver(@RequestBody @Valid DriverNewDTO driverNewDTO,
+                                                        @PathVariable(name = "id") Long idSender) {
 
-	}
+        try {
 
-	@PostMapping("/senders/{id}/drivers")
-	public ResponseEntity<DriverResponseDTO> saveDriver(@RequestBody @Valid DriverNewDTO driverNewDTO,
-			@PathVariable(name = "id") Long idSender) {
+            DriverResponseDTO driverResponseDTO = personService.save(driverNewDTO, idSender);
 
-		try {
+            return new ResponseEntity<>(driverResponseDTO, HttpStatus.CREATED);
+        } catch (NotDataAccessException e) {
 
-			DriverResponseDTO driverResponseDTO = personService.save(driverNewDTO, idSender);
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-			return  new ResponseEntity<>(driverResponseDTO, HttpStatus.CREATED);
-		} catch (NotDataAccessException e) {
+    }
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+    @GetMapping("/senders/{id}/drivers")
+    public ResponseEntity<List<DriverResponseDTO>> findAllDrivers(@PathVariable(name = "id") Long idSender) {
 
-	}
+        try {
 
-	@GetMapping("/senders/{id}/drivers")
-	public ResponseEntity<List<DriverResponseDTO>> findAllDrivers(@PathVariable(name = "id") Long idSender) {
+            List<DriverResponseDTO> customerResponseDTOs = personService.findAllDriverBySender(idSender);
 
-		try {
+            return ResponseEntity.ok(customerResponseDTOs);
+        } catch (NotDataAccessException e) {
 
-			List<DriverResponseDTO> customerResponseDTOs = personService.findAllDriverBySender(idSender);
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-			return ResponseEntity.ok(customerResponseDTOs);
-		} catch (NotDataAccessException e) {
-
-			throw new NotDataAccessException(e.getMessage());
-		}
-
-	}
+    }
 
 
-	/**
-	 * En si, solo se elimina el registro de la relaacion emisor/personas en
-	 * DetailsPerson, pero la persona sigue registrada en el sistema, solo que ahora
-	 * ya no esta realacion con un emisor
-	 * @param idSender : El id del Emisor
-	 * @param idCustomer : Id del Cliente
-	 * @return
-	 */
-	@DeleteMapping("/senders/{id}/customers/{id-customer}")
-	public ResponseEntity<String> deleteCustomersById(
-					@PathVariable(name = "id") Long idSender,
-					@PathVariable(name = "id-customer") Long idCustomer){
+    /**
+     * En si, solo se elimina el registro de la relaacion emisor/personas en
+     * DetailsPerson, pero la persona sigue registrada en el sistema, solo que ahora
+     * ya no esta realacion con un emisor
+     *
+     * @param id : El id del Customer
+     * @return
+     */
+    @DeleteMapping("/customers/{id}")
+    public ResponseEntity<String> deleteCustomersById(
+            @PathVariable Long id) {
 
-		try {
-			personService.deleteById(idSender, idCustomer);
+        try {
+            personService.deleteById(id);
 
-			return ResponseEntity.noContent().build();
-			
-		} catch (NotDataAccessException e) {
+            return ResponseEntity.noContent().build();
 
-			throw new NotDataAccessException(e.getMessage());
-		}
+        } catch (NotDataAccessException e) {
 
-	}
-	
-	/**
-	 * En si, solo se elimina el registro de la relaacion emisor/persona en
-	 * DetailsPerson, pero la persona sigue registrada en el sistema, solo que ahora
-	 * ya no esta realacion con un emisor
-	 * @param idSender : id del Emisor
-	 * @param idDriver : id del Transportistas
-	 * @return
-	 */
-	@DeleteMapping("/senders/{id}/drivers/{id-driver}")
-	public ResponseEntity<String> deleteDriversById(
-					@PathVariable(name = "id") Long idSender,
-					@PathVariable(name = "id-driver") Long idDriver){
+            throw new NotDataAccessException(e.getMessage());
+        }
 
-		try {
-			personService.deleteById(idSender, idDriver);
+    }
 
-			return ResponseEntity.noContent().build();
-			
-		} catch (NotDataAccessException e) {
+    /**
+     * En si, solo se elimina el registro de la relaacion emisor/persona en
+     * DetailsPerson, pero la persona sigue registrada en el sistema, solo que ahora
+     * ya no esta realacion con un emisor
+     *
+     * @param id : id del Transportistas
+     * @return
+     */
+    @DeleteMapping("/drivers/{id}")
+    public ResponseEntity<String> deleteDriversById(
+            @PathVariable Long id) {
 
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
-	@GetMapping("/senders/{id}/customers/search")
-	public ResponseEntity<List<CustomerResponseDTO>> searchCustomerByCedulaOrRazonSocial (
-			@PathVariable(name = "id") Long idSender,
-			@RequestParam(name = "filtro" ,required = false, defaultValue = "") String filtro
-	){
-		try {
-			List<CustomerResponseDTO> persons = personService.searchCustomerByCedulaOrRazonSocial(idSender, filtro);
-			return ResponseEntity.ok(persons);
+        try {
+            personService.deleteById(id);
+            return ResponseEntity.noContent().build();
 
-		} catch (NotDataAccessException e) {
+        } catch (NotDataAccessException e) {
 
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
-	@GetMapping("/senders/{id}/drivers/search")
-	public ResponseEntity<List<DriverResponseDTO>> searchDriverByCedulaOrRazonSocial (
-			@PathVariable(name = "id") Long idSender,
-			@RequestParam(name = "filtro" ,required = false, defaultValue = "") String filtro
-	){
-		try {
-			List<DriverResponseDTO> persons = personService.searchDriverByCedulaOrRazonSocial(idSender, filtro);
-			return ResponseEntity.ok(persons);
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
-		} catch (NotDataAccessException e) {
+    @GetMapping("/customers/search")
+    public ResponseEntity<List<CustomerResponseDTO>> searchCustomerByCedulaOrRazonSocial(
+            @RequestParam(name = "filtro", required = false, defaultValue = "") String filtro
+    ) {
+        try {
+            List<CustomerResponseDTO> persons = personService.searchCustomerByCedulaOrRazonSocial(filtro);
+            return ResponseEntity.ok(persons);
 
-			throw new NotDataAccessException(e.getMessage());
-		}
-	}
+        } catch (NotDataAccessException e) {
+
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/senders/{id}/drivers/search")
+    public ResponseEntity<List<DriverResponseDTO>> searchDriverByCedulaOrRazonSocial(
+            @PathVariable(name = "id") Long idSender,
+            @RequestParam(name = "filtro", required = false, defaultValue = "") String filtro
+    ) {
+        try {
+            List<DriverResponseDTO> persons = personService.searchDriverByCedulaOrRazonSocial(idSender, filtro);
+            return ResponseEntity.ok(persons);
+
+        } catch (NotDataAccessException e) {
+
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
 
 }

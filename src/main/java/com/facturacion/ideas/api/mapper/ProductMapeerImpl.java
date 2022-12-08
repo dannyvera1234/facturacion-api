@@ -60,7 +60,7 @@ public class ProductMapeerImpl implements IProductMapper {
         productResponseDTO.setUnitValue(product.getUnitValue());
         productResponseDTO.setTypeProductEnum(TypeProductEnum.getTypeProductEnum(product.getTypeProductEnum()).name());
         //productResponseDTO.setIva(product.getIva());
-        //productResponseDTO.setIce(product.getIce());
+        productResponseDTO.setIce(product.getIce());
         //productResponseDTO.setIrbpnr(product.getIrbpnr());
         // productResponseDTO.setSender(product.getSender().getSocialReason());
 

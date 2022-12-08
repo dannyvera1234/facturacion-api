@@ -108,6 +108,11 @@ public class Sender implements Serializable {
         super();
         initData();
     }
+    public Sender(Long ide) {
+        super();
+        this.ide = ide;
+        initData();
+    }
 
     public Sender(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
                   String specialContributor, String retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,

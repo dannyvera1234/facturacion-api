@@ -23,5 +23,6 @@ public interface IDetailsPersonRepository extends JpaRepository<DetailsPerson, L
 	@Modifying
 	@Query("DELETE FROM DetailsPerson dt WHERE dt.sender.ide= :idSender AND dt.person.ide = :idPerson")
 	int deleteBySenderAndPerson(@Param("idSender")Long idSender,@Param("idPerson")Long idPerson);
-	
+
+	Boolean existsByPersonIdeAndAndSenderIde(Long idPerson, Long idSender);
 }
