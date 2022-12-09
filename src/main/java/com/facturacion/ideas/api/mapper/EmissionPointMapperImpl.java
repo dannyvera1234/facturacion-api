@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.facturacion.ideas.api.entities.Subsidiary;
 import org.springframework.stereotype.Component;
 
 import com.facturacion.ideas.api.dto.EmissionPointNewDTO;
@@ -37,6 +38,7 @@ public class EmissionPointMapperImpl implements IEmissionPointMapper {
 		emissionPointResponseDTO.setDateRegister(FunctionUtil.convertDateToString(emissionPoint.getDateRegister()));
 		emissionPointResponseDTO.setKeyPoint(emissionPoint.getKeyPoint());
 		emissionPointResponseDTO.setStatus(emissionPoint.isStatus());
+		emissionPointResponseDTO.setSubsidiary(emissionPoint.getSubsidiary().getCode());
 
 		Employee employee = emissionPoint.getEmployee();
 

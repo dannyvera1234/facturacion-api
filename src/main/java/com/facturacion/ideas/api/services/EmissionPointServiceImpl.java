@@ -146,11 +146,15 @@ public class EmissionPointServiceImpl implements IEmissionPointService {
                     () -> new NotFoundException(String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
             );
 
-            Long idSubsidiary = subsidiaryRepository.findIdBySender(idSender).orElseThrow(
+            /*Long idSubsidiary = subsidiaryRepository.findIdBySender(idSender).orElseThrow(
+                    () -> new NotFoundException("No existe un establecimiento registrado actual")
+            );*/
+
+            Subsidiary subsidiary = subsidiaryRepository.fetchSubsidiaryAndEmissionPoints(idSender).orElseThrow(
                     () -> new NotFoundException("No existe un establecimiento registrado actual")
             );
 
-            List<EmissionPoint> emissionPoints = emissionPointRepository.findALlBySubsidiaryIde(idSubsidiary);
+            List<EmissionPoint> emissionPoints = subsidiary.getEmissionPoints();
 
             return emissionPointMapper.mapperToDTO(emissionPoints);
 

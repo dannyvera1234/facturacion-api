@@ -140,6 +140,8 @@ public class DocumentServiceImpl implements IDocumentService {
             //consumeWebService(invoiceXML, numberSecuncial);
             return consumeWebService(invoiceXML, numberSecuncial);
 
+            //return  new ResponseWebServiceDTO();
+
         } catch (GenerateXMLExeption e) { // Exception al generar el xml e guardarlo  y crear el directorio de firmados
             LOGGER.error(e.getMessage(), e);
             throw new GenerateXMLExeption(e.getMessage());

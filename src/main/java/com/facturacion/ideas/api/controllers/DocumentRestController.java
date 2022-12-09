@@ -30,12 +30,14 @@ public class DocumentRestController {
     private IEncryptionService encryptionService;
 
     @PostMapping("/invoices")
-    public ResponseEntity<ResponseWebServiceDTO> calculosValores(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
+    public ResponseEntity<ResponseWebServiceDTO> generarFactura(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
 
         LOGGER.info("Factura a guardar: " + invoiceNewDTO);
         try {
 
             ResponseWebServiceDTO responseWebServiceDTO = documentService.saveInvoice(invoiceNewDTO);
+
+            //ResponseWebServiceDTO responseWebServiceDTO =  new ResponseWebServiceDTO();
 
             return new ResponseEntity<>(responseWebServiceDTO, HttpStatus.CREATED);
 
@@ -53,7 +55,7 @@ public class DocumentRestController {
     }
 
     @PostMapping("/calcular")
-    public ResponseEntity<ValueInvoiceNewDTO> calculosValores(@RequestBody List<DeatailsInvoiceProductDTO> detailsDocument) {
+    public ResponseEntity<ValueInvoiceNewDTO> generarFactura(@RequestBody List<DeatailsInvoiceProductDTO> detailsDocument) {
 
         LOGGER.info("Valores Factura recibidos: " + detailsDocument);
         try {

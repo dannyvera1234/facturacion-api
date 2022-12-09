@@ -64,10 +64,13 @@ public class InvoiceNewDTO extends DocumentNewDTO {
         this.paymenNewtDTOS.add(paymenNewtDTO);
     }
 
-
     @Override
     public String toString() {
-        return "InvoiceNewDTO [remissionGuideNumber=" + remissionGuideNumber + ", toString()=" + super.toString() + "]";
+        return "InvoiceNewDTO{" +
+                "remissionGuideNumber='" + remissionGuideNumber + '\'' +
+                ", deatailsInvoiceProductDTOs=" + deatailsInvoiceProductDTOs +
+                ", valueInvoiceNewDTO=" + valueInvoiceNewDTO +
+                ", paymenNewtDTOS=" + paymenNewtDTOS +
+                "} " + super.toString();
     }
-
 }

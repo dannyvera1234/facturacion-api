@@ -18,6 +18,8 @@ public class EmissionPointResponseDTO implements Serializable {
 
 	private String fullNameEmployee;
 
+	private  String subsidiary;
+
 	public EmissionPointResponseDTO() {
 		super();
 	}
@@ -80,6 +82,16 @@ public class EmissionPointResponseDTO implements Serializable {
 	public void setFullNameEmployee(String fullNameEmployee) {
 		this.fullNameEmployee = fullNameEmployee;
 	}
+
+
+	public String getSubsidiary() {
+		return subsidiary;
+	}
+
+	public void setSubsidiary(String subsidiary) {
+		this.subsidiary = subsidiary;
+	}
+
 
 	@Override
 	public String toString() {

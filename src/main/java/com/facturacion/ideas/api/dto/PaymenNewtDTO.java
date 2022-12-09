@@ -55,4 +55,14 @@ public class PaymenNewtDTO implements Serializable {
     public void setUnidadTiempo(String unidadTiempo) {
         this.unidadTiempo = unidadTiempo;
     }
+
+    @Override
+    public String toString() {
+        return "PaymenNewtDTO{" +
+                "code='" + code + '\'' +
+                ", total=" + total +
+                ", plazo='" + plazo + '\'' +
+                ", unidadTiempo='" + unidadTiempo + '\'' +
+                '}';
+    }
 }
