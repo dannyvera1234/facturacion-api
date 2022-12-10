@@ -59,13 +59,13 @@ public class SenderRestController implements ISenderOperation {
                                                   MultipartFile certificado) {
         LOGGER.info(String.format("Emisor guardar: %s", senderNewDTO));
 
-        LOGGER.debug("Estado certificado: " +  certificado.isEmpty());
-        LOGGER.debug("Estado logo: " +  (logo == null? "Logo No seleccionado": "Logo seleccionado"));
+        LOGGER.debug("Estado certificado: " + certificado.isEmpty());
+        LOGGER.debug("Estado logo: " + (logo == null ? "Logo No seleccionado" : "Logo seleccionado"));
 
         try {
             SenderNewDTO senderConvert = new Gson().fromJson(senderNewDTO, SenderNewDTO.class);
 
-            SenderResponseDTO senderResponseDTO = senderService.save(senderConvert,logo, certificado);
+            SenderResponseDTO senderResponseDTO = senderService.save(senderConvert, logo, certificado);
 
             //SenderResponseDTO senderResponseDTO = new SenderResponseDTO();
             return new ResponseEntity<>(senderResponseDTO, HttpStatus.CREATED);
@@ -109,21 +109,26 @@ public class SenderRestController implements ISenderOperation {
     }
 
     @Override
-    public ResponseEntity<SenderResponseDTO> update(SenderNewDTO senderNewDTO, Long id) {
+    public ResponseEntity<SenderResponseDTO> update(
+            String senderNewDTO,
+            MultipartFile logo,
+            MultipartFile certificado
+    ) {
+        LOGGER.info(String.format("Emisor actuaizar: %s", senderNewDTO));
+        LOGGER.debug("Estado certificado:" + (logo == null ? "ceritificado No seleccionado" : "Certificado seleccionado"));
+        LOGGER.debug("Estado logo:" + (logo == null ? "Logo No seleccionado" : "Logo seleccionado"));
+        try{
+            SenderNewDTO senderConvert = new Gson().fromJson(senderNewDTO, SenderNewDTO.class);
 
-        LOGGER.info("Id Emisor: " + id);
+            SenderResponseDTO senderResponseDTO = senderService.update(senderConvert, logo, certificado);
 
-        try {
-
-
-            SenderResponseDTO senderResponseDTO = senderService.update(senderNewDTO, id);
-
-            return ResponseEntity.ok(senderResponseDTO);
-
+            //SenderResponseDTO senderResponseDTO = new SenderResponseDTO();
+            return new ResponseEntity<>(senderResponseDTO, HttpStatus.CREATED);
 
         } catch (NotDataAccessException e) {
             throw new NotDataAccessException(e.getMessage());
-
+        } catch (EncryptedException e) {
+            throw new EncryptedException(e.getMessage());
         }
     }
 
@@ -143,8 +148,8 @@ public class SenderRestController implements ISenderOperation {
     }
 
 
-   @Override
-    public ResponseEntity<Long> findIdByRuc( String ruc) {
+    @Override
+    public ResponseEntity<Long> findIdByRuc(String ruc) {
         try {
             LOGGER.info("ruc recibido: " + ruc);
 

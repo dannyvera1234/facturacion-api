@@ -14,7 +14,8 @@ public interface ISenderService extends ISenderAdminService {
 	SenderResponseDTO save(SenderNewDTO senderNewDTO, MultipartFile logo,
 						   MultipartFile certicado);
 
-	SenderResponseDTO update(SenderNewDTO senderNewDTO, Long idSender);
+	SenderResponseDTO update(SenderNewDTO senderNewDTO, MultipartFile logo,
+							 MultipartFile certicado);
 
 	SenderResponseDTO findByRuc(String ruc);
 

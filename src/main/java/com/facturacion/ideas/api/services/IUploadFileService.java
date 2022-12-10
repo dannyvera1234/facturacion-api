@@ -8,6 +8,6 @@ public interface IUploadFileService {
 
     String saveFile(MultipartFile file, String pathOutDirectory, TypeFileEnum typeFileEnum);
 
-    void deleteImage(String nameFile);
+    boolean deleteFile(String nameFile);
 
 }

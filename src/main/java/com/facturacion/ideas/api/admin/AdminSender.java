@@ -2,8 +2,11 @@ package com.facturacion.ideas.api.admin;
 
 import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.entities.Count;
+import com.facturacion.ideas.api.entities.EmailSender;
 import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.enums.*;
+
+import java.util.List;
 
 public class AdminSender {
 
@@ -34,9 +37,11 @@ public class AdminSender {
         senderCurrent.setSocialReason(senderNewDTO.getSocialReason() == null ? senderCurrent.getSocialReason()
                 : senderNewDTO.getSocialReason());
 
-        senderCurrent.setCommercialName(senderNewDTO.getCommercialName() == null ? senderCurrent.getCommercialName() :
+        senderCurrent.setCommercialName(senderNewDTO.getCommercialName());
+        senderCurrent.setRetentionAgent(senderNewDTO.getRetentionAgent());
+        senderCurrent.setSpecialContributor(senderNewDTO.getSpecialContributor());
+        senderCurrent.setRimpe(senderNewDTO.isRimpe());
 
-                senderNewDTO.getCommercialName());
         //senderCurrent.setLogo(senderNewDTO.getLogo() == null ? senderCurrent.getLogo() : senderNewDTO.getLogo());
         senderCurrent.setProvince(
 
@@ -52,10 +57,6 @@ public class AdminSender {
         senderCurrent.setMatrixAddress(senderNewDTO.getMatrixAddress() == null ? senderCurrent.getMatrixAddress()
                 : senderNewDTO.getMatrixAddress());
 
-        senderCurrent.setSpecialContributor(
-
-                senderNewDTO.getSpecialContributor() == null ? senderCurrent.getSpecialContributor()
-                        : senderNewDTO.getSpecialContributor());
 
         senderCurrent.setTypeEmission(
 
@@ -69,6 +70,17 @@ public class AdminSender {
         senderCurrent.setAccountancy(
                 senderNewDTO.getAccountancy() == null ? senderCurrent.getAccountancy() :
                         (senderNewDTO.getAccountancy().equalsIgnoreCase("SI") ? QuestionEnum.SI : QuestionEnum.NO));
+
+        // Siempre habra un unico email por ahora
+        List<EmailSender> emailSenders = senderCurrent.getEmailSenders();
+        try {
+            emailSenders.get(0).setEmail(senderNewDTO.getEmail());
+            senderCurrent.setEmailSenders(emailSenders);
+        }catch (Exception e){
+
+        }
+
+
 
     }
 }

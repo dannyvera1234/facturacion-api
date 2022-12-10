@@ -71,13 +71,17 @@ public interface ISenderOperation {
 	 * Actualiza una {@link Sender}
 	 * 
 	 * @param senderNewDTO : Un Sender con los nuevos datos
-	 * @param id     : Id de la Count a la que pertenece
+	 * @param logo     : Logo
+	 *@param certificado     : certificado
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 *         con los nuevos datos actualizados
 	 */
 	@PreAuthorize(value = "hasRole('ROLE_USER')")
-	@PutMapping("/senders/{id}")
-	 ResponseEntity<SenderResponseDTO> update(@RequestBody SenderNewDTO senderNewDTO, @PathVariable Long id);
+	@PutMapping("/senders")
+	 ResponseEntity<SenderResponseDTO> update(
+			@RequestParam("senderNewDTO") String senderNewDTO,
+			@RequestParam (value = "logo", required = false) MultipartFile logo,
+			@RequestParam(value = "certificado", required = false) MultipartFile certificado);
 
 	@GetMapping("/senders/{ruc}/findId")
 	 ResponseEntity<Long> findIdByRuc(@PathVariable String ruc);

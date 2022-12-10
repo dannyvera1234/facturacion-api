@@ -93,10 +93,11 @@ public class SenderMapperImpl implements ISenderMapper {
         senderEditDTO.setRuc(sender.getRuc());
         senderEditDTO.setSocialReason(sender.getSocialReason());
         senderEditDTO.setMatrixAddress(sender.getMatrixAddress());
-        senderEditDTO.setCommercialName(senderEditDTO.getCommercialName());
+        senderEditDTO.setCommercialName(sender.getCommercialName());
         senderEditDTO.setTypeSender(sender.getTypeSender().name());
         senderEditDTO.setAccountancy(sender.getAccountancy().name());
         senderEditDTO.setTypeEnvironment(sender.getTypeEnvironment());
+        senderEditDTO.setRetentionAgent(sender.getRetentionAgent());
         senderEditDTO.setRimpe(sender.isRimpe());
         senderEditDTO.setTypeEmission(sender.getTypeEmission());
         senderEditDTO.setProvince(

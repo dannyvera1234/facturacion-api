@@ -96,10 +96,10 @@ public class SenderServiceImpl implements ISenderService {
                         if (logo != null && !logo.isEmpty()) {
                             String nameFile = uploadFileService.saveFile(logo, PathDocuments.PATH_BASE.concat(sender.getRuc()), TypeFileEnum.IMG);
                             sender.setLogo(nameFile);
-                        }else sender.setLogo(null);
+                        } else sender.setLogo(null);
 
 
-                        if (certificado ==null) {
+                        if (certificado == null) {
                             throw new BadRequestException("El Certificado P12 no pueder estar vacio");
                         }
 
@@ -231,22 +231,63 @@ public class SenderServiceImpl implements ISenderService {
 
     @Override
     @Transactional
-    public SenderResponseDTO update(SenderNewDTO senderNewDTO, Long idSender) {
+    public SenderResponseDTO update(SenderNewDTO senderNewDTO, MultipartFile logo,
+                                    MultipartFile certicado) {
 
         try {
 
-            Sender sender = senderRepository.findById(idSender).orElseThrow(
-                    () -> new NotFoundException("id: " + idSender + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            Sender senderCurrent = senderRepository.findByRuc(ConstanteUtil.TOKEN_USER)
+                    .orElseThrow(() -> new NotFoundException(
+                            String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER,
+                                    ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)
+                    ));
 
-            AdminSender.update(sender, senderNewDTO);
+            AdminSender.update(senderCurrent, senderNewDTO);
 
-            Sender senderUpdated = senderRepository.save(sender);
+            //Actualizar Encryptar password certificado
+            senderCurrent.setPasswordCerticate(encryptionService.encrypt(senderNewDTO.getPasswordCerticate()));
 
+            // Editar archivos
+            if (logo != null) {
+
+                // Obtener el logo actual
+                String logoActual = senderCurrent.getLogo();
+
+                boolean isDeleted = true;
+
+                // Verificar si tiene un logo registrado, entonces lo eliminados antes de actualizar
+                if (logoActual != null && !logoActual.isEmpty()) {
+                    isDeleted = uploadFileService.deleteFile(PathDocuments.PATH_BASE.concat(senderCurrent.getRuc()).concat("/").concat(logoActual));
+                }
+                if (isDeleted) {
+                    String nameFile = uploadFileService.saveFile(logo, PathDocuments.PATH_BASE.concat(senderCurrent.getRuc()), TypeFileEnum.IMG);
+                    senderCurrent.setLogo(nameFile);
+                }
+            }
+
+            if (certicado != null) {
+
+                // Obtener el certificado actual
+                String certicadoActual = senderCurrent.getNameCerticate();
+                boolean isDeleted = true;
+
+                if (certicadoActual != null && !certicadoActual.isEmpty()) {
+                    isDeleted = uploadFileService.deleteFile(PathDocuments.PATH_BASE.concat(senderCurrent.getRuc()).concat("/").concat(certicadoActual));
+                }
+
+                if (isDeleted) {
+                    String nameFileCerti = uploadFileService.saveFile(certicado, PathDocuments.PATH_BASE.concat(senderCurrent.getRuc()), TypeFileEnum.FILE);
+                    senderCurrent.setNameCerticate(nameFileCerti);
+                }
+
+
+            }
+            Sender senderUpdated = senderRepository.save(senderCurrent);
             return senderMapper.mapperToDTO(senderUpdated);
 
         } catch (DataAccessException e) {
             LOGGER.info("Error actualizar emisor", e);
-            throw new NotDataAccessException("Error actualizar emisor: " + e.getMessage());
+            throw new NotDataAccessException("Ocurrio un error al  actualizar el emisor " + e.getMessage());
         }
 
     }

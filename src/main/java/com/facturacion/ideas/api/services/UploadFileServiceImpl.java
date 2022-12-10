@@ -39,9 +39,9 @@ public class UploadFileServiceImpl implements IUploadFileService {
             }
 
             if (typeFileEnum.getCode().equalsIgnoreCase(TypeFileEnum.IMG.getCode())) {
-                fileNameOut = "logo_"+ file.getOriginalFilename();
+                fileNameOut = "logo_" + file.getOriginalFilename();
             } else if (typeFileEnum.getCode().equalsIgnoreCase(TypeFileEnum.FILE.getCode())) {
-                fileNameOut = "certificado_"+file.getOriginalFilename();
+                fileNameOut = "certificado_" + file.getOriginalFilename();
             } else fileNameOut = "";
 
             try (InputStream inputStream = file.getInputStream()) {
@@ -60,8 +60,17 @@ public class UploadFileServiceImpl implements IUploadFileService {
     }
 
     @Override
-    public void deleteImage(String nameFile) {
+    public boolean deleteFile(String pathAndNameFile) {
 
 
+        try {
+            Path path = Paths.get(pathAndNameFile);
+            return Files.deleteIfExists(path);
+        } catch (Exception e) {
+            LOGGER.error("Error al eliminar el archivo: " + pathAndNameFile, e);
+            return false;
+        }
     }
+
+
 }
