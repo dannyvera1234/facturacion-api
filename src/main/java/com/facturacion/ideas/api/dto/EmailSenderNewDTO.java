@@ -5,6 +5,7 @@ public class EmailSenderNewDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private Long ide;
     private String email;
 
     private boolean principal;
@@ -15,6 +16,14 @@ public class EmailSenderNewDTO implements Serializable {
     public EmailSenderNewDTO(String email, boolean principal) {
         this.email = email;
         this.principal = principal;
+    }
+
+    public Long getIde() {
+        return ide;
+    }
+
+    public void setIde(Long ide) {
+        this.ide = ide;
     }
 
     public String getEmail() {

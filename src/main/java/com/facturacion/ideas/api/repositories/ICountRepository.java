@@ -18,8 +18,10 @@ public interface ICountRepository extends JpaRepository<Count, Long> {
 	
 	@Query("select distinct c from Count c left join fetch c.detailsAggrement dt left join fetch dt.greement ag")
 	List<Count> fetchByWithAgreement();
-	
-	
-	
-	
+
+	@Query("select  co.ide from Count  co where co.ruc =?1")
+	Optional<Long> findIdByRuc(String ruc);
+
+
+
 } 

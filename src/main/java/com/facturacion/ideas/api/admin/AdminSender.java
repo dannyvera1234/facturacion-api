@@ -3,9 +3,7 @@ package com.facturacion.ideas.api.admin;
 import com.facturacion.ideas.api.dto.SenderNewDTO;
 import com.facturacion.ideas.api.entities.Count;
 import com.facturacion.ideas.api.entities.Sender;
-import com.facturacion.ideas.api.enums.ProvinceEnum;
-import com.facturacion.ideas.api.enums.TypeEmissionEnum;
-import com.facturacion.ideas.api.enums.TypeEnvironmentEnum;
+import com.facturacion.ideas.api.enums.*;
 
 public class AdminSender {
 
@@ -39,7 +37,7 @@ public class AdminSender {
         senderCurrent.setCommercialName(senderNewDTO.getCommercialName() == null ? senderCurrent.getCommercialName() :
 
                 senderNewDTO.getCommercialName());
-        senderCurrent.setLogo(senderNewDTO.getLogo() == null ? senderCurrent.getLogo() : senderNewDTO.getLogo());
+        //senderCurrent.setLogo(senderNewDTO.getLogo() == null ? senderCurrent.getLogo() : senderNewDTO.getLogo());
         senderCurrent.setProvince(
 
                 senderNewDTO.getProvince() == null ? ProvinceEnum.getProvinceEnum(senderCurrent.getProvince())
@@ -66,10 +64,11 @@ public class AdminSender {
                         : TypeEmissionEnum.getTypeEmissionEnum(senderNewDTO.getTypeEmission()));
 
         senderCurrent.setTypeSender(
-                senderNewDTO.getTypeSender() == null ? senderCurrent.getTypeSender() : senderNewDTO.getTypeSender());
+                senderNewDTO.getTypeSender() == null ? senderCurrent.getTypeSender() : TypeSenderEnum.findByCode(senderNewDTO.getTypeSender()));
 
         senderCurrent.setAccountancy(
-                senderNewDTO.getAccountancy() == null ? senderCurrent.getAccountancy() : senderNewDTO.getAccountancy());
+                senderNewDTO.getAccountancy() == null ? senderCurrent.getAccountancy() :
+                        (senderNewDTO.getAccountancy().equalsIgnoreCase("SI") ? QuestionEnum.SI : QuestionEnum.NO));
 
     }
 }

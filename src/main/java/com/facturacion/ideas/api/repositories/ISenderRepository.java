@@ -29,4 +29,7 @@ public interface ISenderRepository extends JpaRepository<Sender, Long> {
 
 	@Query("select  sd.ide from Sender  sd where sd.ruc =?1")
 	Optional<Long> findIdByRuc(String ruc);
+
+	@Query("select se from Sender  se join fetch  se.subsidiarys where se.ruc=?1")
+	Optional<Sender> fetchSubsidiaryAndPuntosEmisionEmailByRuc(String ruc);
 }

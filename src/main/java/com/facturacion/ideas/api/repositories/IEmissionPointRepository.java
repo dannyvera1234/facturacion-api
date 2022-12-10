@@ -21,4 +21,8 @@ public interface IEmissionPointRepository extends JpaRepository<EmissionPoint, L
 	// , sub.ide, sub.code,sen.ide, sen.ruc, sen.typeEmission, sen.typeEnvironment
 	@Query("select pte  from EmissionPoint pte join  fetch pte.subsidiary sub join  fetch sub.sender sen where pte.ide= :idEmision")
 	Optional<EmissionPoint> fechtSubsidiaryToSender(@Param("idEmision") Long ideEmissionPoint);
+
+	Optional<EmissionPoint>  findEmissionPointBySubsidiaryIde(Long ide);
+
+	Optional<EmissionPoint>  findFirstBySubsidiaryIdeOrderByIdeAsc(Long ide);
 }

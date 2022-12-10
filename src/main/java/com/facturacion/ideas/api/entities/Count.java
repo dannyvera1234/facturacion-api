@@ -70,6 +70,12 @@ public class Count implements Serializable {
 		initData();
 	}
 
+	public Count(Long ide){
+		super();
+		this.ide= ide;
+		
+	}
+
 	private void initData() {
 		logins = new ArrayList<>();
 		detailsAggrement = new ArrayList<>();

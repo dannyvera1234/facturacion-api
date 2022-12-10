@@ -1,17 +1,11 @@
 package com.facturacion.ideas.api.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.facturacion.ideas.api.entities.EmailSender;
-import com.facturacion.ideas.api.enums.ProvinceEnum;
 import com.facturacion.ideas.api.enums.QuestionEnum;
-import com.facturacion.ideas.api.enums.TypeEmissionEnum;
-import com.facturacion.ideas.api.enums.TypeEnvironmentEnum;
 import com.facturacion.ideas.api.enums.TypeSenderEnum;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -39,12 +33,9 @@ public class SenderNewDTO implements Serializable {
 	
 	private String  retentionAgent;
 
-	private QuestionEnum accountancy;
+	private String accountancy;
 
-	private TypeSenderEnum typeSender;
-
-	@Max(value = 200, message = "El nombre de logo debe tener maximo 200 caracteres")
-	private String logo;
+	private String typeSender;
 
 	@NotBlank(message = "El tipo de ambiente no pueder ser vacío")
 	@Size(min = 1, max = 1, message = "EL tipo de ambiente debte tener solo 1 dígito")
@@ -57,16 +48,14 @@ public class SenderNewDTO implements Serializable {
 	//@Max(min = 3, value = 100, message = "La contraseña de la firma dígital puede tener hasta 100 caracteres")
 	private String passwordCerticate;
 
-	//@Max(value = 150, message = "El nombre de la firma dígital puede tener hasta 150 caracteres")
-	private String nameCerticate;
-
 	private boolean rimpe;
 
 	@Size( min = 2, max = 2, message = "El código de provincia debe tener 2 caracteres")
 	private String province;
 
-	private List<EmailSenderNewDTO> emailSenderNewDTOList = new ArrayList<>();
+	//private List<EmailSenderNewDTO> emailSenderNewDTOList = new ArrayList<>();
 
+	private String email;
 	@NotBlank(message = "El código del establecimiento es obligatorio")
 	@Size(min = 3, max = 3, message = "El codigo establecimiento debe tener 3 dígitos")
 	private String subsidiary;
@@ -80,7 +69,7 @@ public class SenderNewDTO implements Serializable {
 	}
 
 	public SenderNewDTO(Long ide, String ruc, String socialReason, String commercialName, String matrixAddress,
-						String specialContributor, String  retentionAgent, QuestionEnum accountancy, TypeSenderEnum typeSender, String logo,
+						String specialContributor, String  retentionAgent, String accountancy, String typeSender,
 						String typeEnvironment, String typeEmission, boolean rimpe, String province) {
 		super();
 		this.ide = ide;
@@ -92,7 +81,7 @@ public class SenderNewDTO implements Serializable {
 		this.retentionAgent = retentionAgent;
 		this.accountancy = accountancy;
 		this.typeSender = typeSender;
-		this.logo = logo;
+
 		this.typeEnvironment = typeEnvironment;
 		this.typeEmission = typeEmission;
 		this.rimpe = rimpe;
@@ -157,28 +146,20 @@ public class SenderNewDTO implements Serializable {
 		this.retentionAgent = retentionAgent;
 	}
 
-	public QuestionEnum getAccountancy() {
+	public String getAccountancy() {
 		return accountancy;
 	}
 
-	public void setAccountancy(QuestionEnum accountancy) {
+	public void setAccountancy(String accountancy) {
 		this.accountancy = accountancy;
 	}
 
-	public TypeSenderEnum getTypeSender() {
+	public String getTypeSender() {
 		return typeSender;
 	}
 
-	public void setTypeSender(TypeSenderEnum typeSender) {
+	public void setTypeSender(String typeSender) {
 		this.typeSender = typeSender;
-	}
-
-	public String getLogo() {
-		return logo;
-	}
-
-	public void setLogo(String logo) {
-		this.logo = logo;
 	}
 
 	public String getTypeEnvironment() {
@@ -213,12 +194,12 @@ public class SenderNewDTO implements Serializable {
 		this.province = province;
 	}
 
-	public List<EmailSenderNewDTO> getEmailSenderNewDTOList() {
-		return emailSenderNewDTOList;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setEmailSenderNewDTOList(List<EmailSenderNewDTO> emailSenderNewDTOList) {
-		this.emailSenderNewDTOList = emailSenderNewDTOList;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getPasswordCerticate() {
@@ -245,15 +226,6 @@ public class SenderNewDTO implements Serializable {
 		return emisionPoint;
 	}
 
-
-	public String getNameCerticate() {
-		return nameCerticate;
-	}
-
-	public void setNameCerticate(String nameCerticate) {
-		this.nameCerticate = nameCerticate;
-	}
-
 	@Override
 	public String toString() {
 		return "SenderNewDTO{" +
@@ -266,14 +238,13 @@ public class SenderNewDTO implements Serializable {
 				", retentionAgent='" + retentionAgent + '\'' +
 				", accountancy=" + accountancy +
 				", typeSender=" + typeSender +
-				", logo='" + logo + '\'' +
+				", email=" + email +
 				", typeEnvironment='" + typeEnvironment + '\'' +
 				", typeEmission='" + typeEmission + '\'' +
 				", passwordCerticate='" + passwordCerticate + '\'' +
-				", nameCerticate='" + nameCerticate + '\'' +
 				", rimpe=" + rimpe +
 				", province='" + province + '\'' +
-				", emailSenderNewDTOList=" + emailSenderNewDTOList.size() +
+				", emailSenderNewDTOList=" + email +
 				", subsidiary='" + subsidiary + '\'' +
 				", emisionPoint='" + emisionPoint + '\'' +
 				'}';

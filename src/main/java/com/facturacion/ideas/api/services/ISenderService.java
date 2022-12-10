@@ -11,13 +11,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ISenderService extends ISenderAdminService {
 
-	SenderResponseDTO save(Long idCount, SenderNewDTO senderNewDTO,  MultipartFile file, MultipartFile fileCertificate);
+	SenderResponseDTO save(SenderNewDTO senderNewDTO, MultipartFile logo,
+						   MultipartFile certicado);
 
 	SenderResponseDTO update(SenderNewDTO senderNewDTO, Long idSender);
 
 	SenderResponseDTO findByRuc(String ruc);
 
 	SenderResponseDTO findById(Long id);
+
+	SenderNewDTO findToEdit();
 
 	Optional<String> findNameSenderByRuc(String ruc);
 

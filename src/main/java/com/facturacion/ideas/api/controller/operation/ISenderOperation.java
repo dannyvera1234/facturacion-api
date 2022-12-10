@@ -16,6 +16,8 @@ import com.facturacion.ideas.api.entities.Sender;
 import com.facturacion.ideas.api.util.FunctionUtil;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+
 /**
  * Interface que define los contratos que debe realizar el
  * {@link SenderRestController}
@@ -28,16 +30,15 @@ public interface ISenderOperation {
 	/**
 	 * Inserta una nueva {@link Sender} en la Base de Datos
 	 * 
-	 * @param jsonSenderNewDTO  : Objeto a insertar
-	 * @param idCount : Id de la Count
+	 * @param senderNewDTO  : Objeto a insertar
 	 * @return {@link FunctionUtil#getResponseEntity(HttpStatus, Object, String)}
 	 */
 	@PreAuthorize(value = "hasRole('ROLE_USER')")
-	@PostMapping(value = "/counts/{id}/senders", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	 ResponseEntity<SenderResponseDTO> save(@PathVariable("id") Long idCount,
-											@RequestParam("senderNewDTO")   String jsonSenderNewDTO,
-											@RequestParam("logo") MultipartFile multipartFile,
-											@RequestParam("certificado") MultipartFile multipartFileCerticado);
+	@PostMapping(value = "/senders")
+	 ResponseEntity<SenderResponseDTO> save(
+			 @RequestParam("senderNewDTO") String senderNewDTO,
+				@RequestParam (value = "logo", required = false) MultipartFile logo,
+			 @RequestParam("certificado") MultipartFile certificado);
 
 	// public ResponseEntity<SenderResponseDTO> save(@RequestBody SenderNewDTO sender, @PathVariable("id") Long idCount);
 	/**
@@ -49,6 +50,9 @@ public interface ISenderOperation {
 	 */
 	@GetMapping("/senders/{id}")
 	 ResponseEntity<SenderResponseDTO> findById(@PathVariable(required = false) Long id);
+
+	@GetMapping("/senders/edit")
+	ResponseEntity<SenderNewDTO> findToEdit();
 
 	@GetMapping("/senders/search")
 	 ResponseEntity<SenderResponseDTO> findByRuc(@RequestParam(required = false, defaultValue = "") String ruc);

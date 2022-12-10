@@ -7,6 +7,7 @@ import com.facturacion.ideas.api.admin.AdminEmissionPoint;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.TypeFileEnum;
 import com.facturacion.ideas.api.exeption.*;
+import com.facturacion.ideas.api.repositories.IEmissionPointRepository;
 import com.facturacion.ideas.api.util.PathDocuments;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,18 +47,22 @@ public class SenderServiceImpl implements ISenderService {
     @Autowired
     private IEncryptionService encryptionService;
 
+
+    @Autowired
+    private IEmissionPointRepository emissionPointRepository;
+
     @Override
     @Transactional
-    public SenderResponseDTO save(Long idCount, final SenderNewDTO senderNewDTO,
-                                  MultipartFile fileImg, MultipartFile fileCertificate) {
+    public SenderResponseDTO save(final SenderNewDTO senderNewDTO,
+                                  MultipartFile logo, MultipartFile certificado) {
 
         try {
-
-            Count count = countRepository.findById(idCount).orElseThrow(() -> new NotFoundException(
-                    "Cuenta " + idCount + ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION));
+            Long idCount = countRepository.findIdByRuc(ConstanteUtil.TOKEN_USER)
+                    .orElseThrow(() -> new NotFoundException(
+                            String.format("Cuenta %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
 
             // Setar el ruc de la cuenta
-            senderNewDTO.setRuc(count.getRuc());
+            senderNewDTO.setRuc(ConstanteUtil.TOKEN_USER);
 
             // Verificar si ya existe un emisor con el Ruc
             if (!senderRepository.existsByRuc(senderNewDTO.getRuc())) {
@@ -85,15 +90,21 @@ public class SenderServiceImpl implements ISenderService {
                         sender.addSubsidiary(subsidiary);
 
                         // Agrega Cuenta
-                        sender.setCount(count);
+                        sender.setCount(new Count(idCount));
 
                         // Asignar logo
-                        String nameFile = uploadFileService.saveFile(fileImg, PathDocuments.PATH_BASE.concat(sender.getRuc()), TypeFileEnum.IMG);
-                        sender.setLogo(nameFile);
+                        if (logo != null && !logo.isEmpty()) {
+                            String nameFile = uploadFileService.saveFile(logo, PathDocuments.PATH_BASE.concat(sender.getRuc()), TypeFileEnum.IMG);
+                            sender.setLogo(nameFile);
+                        }else sender.setLogo(null);
 
+
+                        if (certificado ==null) {
+                            throw new BadRequestException("El Certificado P12 no pueder estar vacio");
+                        }
 
                         // Asignar certificado
-                        String nameFileCerti = uploadFileService.saveFile(fileCertificate, PathDocuments.PATH_BASE.concat(sender.getRuc()), TypeFileEnum.FILE);
+                        String nameFileCerti = uploadFileService.saveFile(certificado, PathDocuments.PATH_BASE.concat(sender.getRuc()), TypeFileEnum.FILE);
                         sender.setNameCerticate(nameFileCerti);
 
                         return senderMapper.mapperToDTO(senderRepository.save(sender));
@@ -104,7 +115,7 @@ public class SenderServiceImpl implements ISenderService {
             }
 
             throw new DuplicatedResourceException(
-                    "Ruc " + senderNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
+                    "Emisor " + senderNewDTO.getRuc() + ConstanteUtil.MESSAJE_DUPLICATED_RESOURCE_DEFAULT_EXCEPTION);
 
         } catch (EncryptedException e) {
 
@@ -151,6 +162,40 @@ public class SenderServiceImpl implements ISenderService {
             throw new NotDataAccessException("Error buscar emisor: " + e.getMessage());
         }
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SenderNewDTO findToEdit() {
+
+        try {
+            Sender sender = senderRepository.fetchSubsidiaryAndPuntosEmisionEmailByRuc(ConstanteUtil.TOKEN_USER).orElseThrow(
+                    () -> new NotFoundException(
+                            String.format("Emisor %s %s", ConstanteUtil.TOKEN_USER, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)
+                    ));
+
+
+            // Desencriptar la contrasegnia del certificado
+            final String claveDescriptada = encryptionService.deEncrypt(sender.getPasswordCerticate());
+            sender.setPasswordCerticate(claveDescriptada);
+
+            SenderNewDTO senderNewDTO = senderMapper.mapperToDTOEdit(sender);
+
+            Subsidiary subsidiary = sender.getSubsidiarys().get(0);
+
+            Optional<EmissionPoint> emissionPoint = emissionPointRepository.findFirstBySubsidiaryIdeOrderByIdeAsc(subsidiary.getIde());
+
+            senderNewDTO.setEmisionPoint(emissionPoint.get().getCodePoint());
+            senderNewDTO.setSubsidiary(subsidiary.getCode());
+
+            // Seteo el primer putno emision, este representa como si fuera el principal
+
+            return senderNewDTO;
+
+        } catch (DataAccessException e) {
+            LOGGER.info("Error buscar emisor para editar", e);
+            throw new NotDataAccessException("Ocurrio un error al buscar emisor para editar: " + e.getMessage());
+        }
     }
 
     @Override

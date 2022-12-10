@@ -55,18 +55,19 @@ public class SenderRestController implements ISenderOperation {
     }
 
     @Override
-    public ResponseEntity<SenderResponseDTO> save(Long idCount, String jsonSenderNewDTO,
-                                                  MultipartFile multipartFile,
-                                                  MultipartFile multipartFileCerticado) {
-        LOGGER.info(jsonSenderNewDTO);
+    public ResponseEntity<SenderResponseDTO> save(String senderNewDTO, MultipartFile logo,
+                                                  MultipartFile certificado) {
+        LOGGER.info(String.format("Emisor guardar: %s", senderNewDTO));
+
+        LOGGER.debug("Estado certificado: " +  certificado.isEmpty());
+        LOGGER.debug("Estado logo: " +  (logo == null? "Logo No seleccionado": "Logo seleccionado"));
 
         try {
+            SenderNewDTO senderConvert = new Gson().fromJson(senderNewDTO, SenderNewDTO.class);
 
-            SenderNewDTO senderConvert = new Gson().fromJson(jsonSenderNewDTO, SenderNewDTO.class);
-            LOGGER.info(String.format("Emisor guardar %s  ; Id Cuenta: %s ", senderConvert, idCount));
+            SenderResponseDTO senderResponseDTO = senderService.save(senderConvert,logo, certificado);
 
-            SenderResponseDTO senderResponseDTO = senderService.save(idCount, senderConvert, multipartFile, multipartFileCerticado);
-
+            //SenderResponseDTO senderResponseDTO = new SenderResponseDTO();
             return new ResponseEntity<>(senderResponseDTO, HttpStatus.CREATED);
 
         } catch (NotDataAccessException e) {
@@ -92,6 +93,19 @@ public class SenderRestController implements ISenderOperation {
             throw new NotDataAccessException(e.getMessage());
         }
 
+    }
+
+    @Override
+    public ResponseEntity<SenderNewDTO> findToEdit() {
+
+        try {
+            SenderNewDTO senderResponseDTO = senderService.findToEdit();
+            return ResponseEntity.ok(senderResponseDTO);
+
+        } catch (NotDataAccessException e) {
+
+            throw new NotDataAccessException(e.getMessage());
+        }
     }
 
     @Override
