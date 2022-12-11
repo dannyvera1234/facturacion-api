@@ -230,6 +230,23 @@ public class SenderServiceImpl implements ISenderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public SenderNewDTO findByIdCount(Long idCount) {
+
+     String rucSender = countRepository.findRucById(idCount)
+             .orElseThrow( () ->
+                     new NotFoundException(String.format("Cuenta %s %s",
+                             idCount, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)));
+
+     // En caso que solo haya creado la cuenta, pero aun no haya registrado sus datos de emisor
+     Sender sender = senderRepository.findByRuc(rucSender).orElseThrow(
+             () ->
+                     new NotFoundException(String.format("Cuenta %s no tiene un emisor registrado",
+                             rucSender)));
+        return senderMapper.mapperToDTOEdit(sender);
+    }
+
+    @Override
     @Transactional
     public SenderResponseDTO update(SenderNewDTO senderNewDTO, MultipartFile logo,
                                     MultipartFile certicado) {

@@ -4,6 +4,7 @@ import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.exeption.NotDataAccessException;
 import com.facturacion.ideas.api.services.IAgreementService;
 import com.facturacion.ideas.api.services.ICountService;
+import com.facturacion.ideas.api.services.IEmissionPointService;
 import com.facturacion.ideas.api.services.ISenderService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +35,9 @@ public class AdminController {
 
     @Autowired
     private IAgreementService agreementService;
+
+    @Autowired
+    private IEmissionPointService emissionPointService;
 
     // @PreAuthorize("hasRole('ROLE_VIEWER') or hasRole('ROLE_EDITOR')")
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
@@ -82,6 +86,41 @@ public class AdminController {
             dataResponse.put("data", countResponseDTOs);
             dataResponse.put("size", countResponseDTOs.size());
             return ResponseEntity.ok(dataResponse);
+
+        } catch (NotDataAccessException e) {
+
+            throw new NotDataAccessException(e.getMessage());
+        }
+
+    }
+
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    @GetMapping("/counts/{id}/points-emision")
+    public ResponseEntity<List<EmissionPointResponseDTO>> findAllEmisionPointByCount(@PathVariable Long id) {
+
+        try {
+            List<EmissionPointResponseDTO> emissionPointResponseDTO = emissionPointService.listAll();
+
+            return ResponseEntity.ok(emissionPointResponseDTO);
+
+        } catch (NotDataAccessException e) {
+
+            throw new NotDataAccessException(e.getMessage());
+        }
+
+    }
+
+
+
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    @GetMapping("/counts/{id}/senders")
+    public ResponseEntity<SenderNewDTO> findSenderByIdCount(
+            @PathVariable Long id) {
+        try {
+
+
+            SenderNewDTO senderResponse = senderService.findByIdCount(id);
+            return ResponseEntity.ok(senderResponse);
 
         } catch (NotDataAccessException e) {
 

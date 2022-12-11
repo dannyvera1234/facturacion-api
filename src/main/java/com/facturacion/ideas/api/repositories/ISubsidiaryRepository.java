@@ -53,6 +53,6 @@ public interface ISubsidiaryRepository extends JpaRepository<Subsidiary, Long> {
 	Optional<Long> findIdBySender(Long idSender);
 
 
-	@Query("select  su from Subsidiary  su join fetch su.emissionPoints")
+	@Query("select  su from Subsidiary  su join fetch su.emissionPoints where su.sender.ide=?1")
 	Optional<Subsidiary>fetchSubsidiaryAndEmissionPoints(Long idSender);
 }

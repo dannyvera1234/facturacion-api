@@ -1,15 +1,13 @@
 package com.facturacion.ideas.api.services;
 
-import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 
-import com.facturacion.ideas.api.dto.CountNewDTO;
 import com.facturacion.ideas.api.entities.*;
-import com.facturacion.ideas.api.enums.RolEnum;
+
 import com.facturacion.ideas.api.exeption.BadRequestException;
 import com.facturacion.ideas.api.exeption.DuplicatedResourceException;
 import com.facturacion.ideas.api.repositories.*;
-import com.facturacion.ideas.api.security.enums.RolNombreEnum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,6 +126,29 @@ public class EmissionPointServiceImpl implements IEmissionPointService {
             List<EmissionPoint> emissionPoints = emissionPointRepository.findALlBySubsidiaryIde(idSubsidiary);
             return emissionPointMapper.mapperToDTO(emissionPoints);
 
+        } catch (DataAccessException e) {
+
+            LOGGER.error("Error listar punttos emission esttableccimiento", e);
+            throw new NotDataAccessException("Error lisstar puntoss emmiion establecimientto: " + e.getMessage());
+        }
+
+    }
+
+    @Override
+     @Transactional(readOnly = true)
+    public List<EmissionPointResponseDTO> listAllByCount(Long idCount) {
+
+        try {
+
+            Long idSender = senderRepository.findIdByCountIde(idCount).orElseThrow(
+                    () -> new NotFoundException(String.format("Cuenta %s %s", idCount, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION))
+            );
+
+            Subsidiary subsidiary = subsidiaryRepository.fetchSubsidiaryAndEmissionPoints(idSender).orElseThrow(
+                    () -> new NotFoundException("No existe un establecimiento registrado actual")
+            );
+            List<EmissionPoint> emissionPoints = subsidiary.getEmissionPoints();
+            return emissionPointMapper.mapperToDTO(emissionPoints);
         } catch (DataAccessException e) {
 
             LOGGER.error("Error listar punttos emission esttableccimiento", e);

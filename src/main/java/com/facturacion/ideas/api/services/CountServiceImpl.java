@@ -127,7 +127,7 @@ public class CountServiceImpl implements ICountService {
     public List<CountResponseDTO> fetchByWithAgreement() {
         try {
 
-            List<Count> counts = countRepository.fetchByWithAgreement();
+            List<Count> counts = countRepository.fetchByWithAgreement(ConstanteUtil.TOKEN_USER);
 
             return countMapper.mapperToDTO(counts);
         } catch (DataAccessException e) {

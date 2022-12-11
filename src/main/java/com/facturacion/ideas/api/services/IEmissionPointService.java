@@ -15,6 +15,8 @@ public interface IEmissionPointService {
 
 	List<EmissionPointResponseDTO> listAll(Long idSubsidiary);
 
+	List<EmissionPointResponseDTO> listAllByCount(Long idCount);
+
 	List<EmissionPointResponseDTO> listAll();
 	
 	EmissionPointResponseDTO findByCodeAndSubsidiary(String code, Long idSubbsidiary);

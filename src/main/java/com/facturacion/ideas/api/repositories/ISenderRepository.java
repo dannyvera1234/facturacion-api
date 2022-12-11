@@ -14,8 +14,12 @@ public interface ISenderRepository extends JpaRepository<Sender, Long> {
 	
 	
 	Optional<Sender> findByRuc(String ruc);
-	
+	@Query("select  sd.ide from Sender  sd where sd.count.ide=?1")
+	Optional<Long> findIdByCountIde(Long ide);
+
+
 	@Query("select true from Sender  sd where sd.ruc =?1")
+
 	Optional<Boolean> senderIsExist(String ruc);
 	Sender findByCount(Count count);
 	
