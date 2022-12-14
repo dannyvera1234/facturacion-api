@@ -121,6 +121,7 @@ public class RespuestaSolicitud {
     @XmlType(name = "", propOrder = {
         "comprobante"
     })
+
     public static class Comprobantes {
 
         @XmlElement(namespace = "http://ec.gob.sri.ws.recepcion")

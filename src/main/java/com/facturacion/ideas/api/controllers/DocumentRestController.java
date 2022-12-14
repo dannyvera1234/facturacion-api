@@ -4,8 +4,11 @@ import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.entities.Product;
 import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.services.IEncryptionService;
+import com.facturacion.ideas.api.util.PathDocuments;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import com.facturacion.ideas.api.services.IDocumentService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.util.List;
 
 @CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
@@ -68,6 +72,53 @@ public class DocumentRestController {
         }
     }
 
+    @GetMapping("/xml")
+    public ResponseEntity<PDFResponse> findXml() {
+
+        try {
+
+            String nombreArchivo = PathDocuments.PATH_BASE.concat("1308754199001/est_001/emi_001/autorizados/0912202201130875419900110010010000000871234567816.xml");
+            File archivo = new File(nombreArchivo);
+            SAXReader reader = new SAXReader();
+
+            Document document = reader.read(archivo);
+
+            String xmlStroing = document.asXML();
+
+            PDFResponse pdfResponse = new PDFResponse();
+            pdfResponse.setDocument(xmlStroing);
+
+            LOGGER.info(xmlStroing);
+            return  ResponseEntity.ok(pdfResponse);
+
+
+         /*   DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(false);
+            documentBuilderFactory.setValidating(false);
+            documentBuilderFactory.setFeature("http://xml.org/sax/features/namespaces", false);
+            documentBuilderFactory.setFeature("http://xml.org/sax/features/validation", false);
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+
+            Document document = documentBuilder.parse(archivo);
+            document.getDocumentElement().normalize();
+
+            LOGGER.info("Primer nodo: " + document.getFirstChild().getNodeName());
+
+            LOGGER.info( "XML PARSEADO: " + document.getTextContent());*/
+
+        } catch (Exception e) {
+
+            LOGGER.info( "error parseo: ", e);
+            return ResponseEntity.ok(new PDFResponse());
+
+        }
+
+    }
 
     @GetMapping("/test")
     public List<Product> test() {

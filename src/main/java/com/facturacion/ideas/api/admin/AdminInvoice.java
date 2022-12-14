@@ -38,11 +38,16 @@ public class AdminInvoice {
 
     private static final Logger LOGGER = LogManager.getLogger(AdminInvoice.class);
 
+    private static   Invoice invoiceXML;
+
     public static String generatorFractureXML(Invoice invoiceXML, final InvoiceNewDTO invoiceNewDTO,
                                               List<Product> products) throws GenerateXMLExeption {
 
         // Reiniciar
         facturaGenerada = null;
+
+        // Este objeto ya viene con datos, se le debe agregar los detalles y pagos
+        AdminInvoice.invoiceXML= invoiceXML;
 
         Factura factura = new Factura();
         factura.setInfoTributaria(createInfoTributaria(invoiceXML));

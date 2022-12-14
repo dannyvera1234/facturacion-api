@@ -15,6 +15,8 @@ import com.facturacion.ideas.api.repositories.*;
 import com.facturacion.ideas.api.sri.cliente.ClientSRI;
 import com.facturacion.ideas.api.sri.ws.autorizacion.Autorizacion;
 import com.facturacion.ideas.api.sri.ws.autorizacion.RespuestaComprobante;
+import com.facturacion.ideas.api.sri.ws.recepcion.Comprobante;
+import com.facturacion.ideas.api.sri.ws.recepcion.Mensaje;
 import com.facturacion.ideas.api.sri.ws.recepcion.RespuestaSolicitud;
 import com.facturacion.ideas.api.util.SignatureDocumentXML;
 import org.apache.logging.log4j.LogManager;
@@ -123,6 +125,7 @@ public class DocumentServiceImpl implements IDocumentService {
             invoiceXML.setDateEmission(new Date());
             invoiceXML.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
 
+
             pathNewInvoiceXML = AdminInvoice.generatorFractureXML(invoiceXML, invoiceNewDTO, products);
 
             facturaGenerada = AdminInvoice.getFacturaGenerada();
@@ -136,11 +139,94 @@ public class DocumentServiceImpl implements IDocumentService {
                     , pathNewInvoiceXML,
                     claveDescriptada, sender.getNameCerticate(), facturaGenerada.getInfoTributaria().getClaveAcceso());
 
+            /*
+            ResponseWebServiceDTO responseWebServiceDTO = new ResponseWebServiceDTO();
 
-            //consumeWebService(invoiceXML, numberSecuncial);
-            return consumeWebService(invoiceXML, numberSecuncial);
+            RespuestaSolicitud respuestaSolicitud = new RespuestaSolicitud();
 
-            //return  new ResponseWebServiceDTO();
+            respuestaSolicitud.setEstado("DEVUELTA");
+
+            RespuestaSolicitud.Comprobantes comprobantes = new RespuestaSolicitud.Comprobantes();
+
+            Comprobante comprobante = new Comprobante();
+            comprobante.setClaveAcceso("1234567891001244");
+
+            Comprobante.Mensajes mensajes = new Comprobante.Mensajes();
+            Mensaje mensaje = new Mensaje();
+            mensaje.setMensaje("peticon recibida");
+            mensaje.setTipo("TIPO NO SE");
+            mensaje.setIdentificador("0914854");
+            mensaje.setInformacionAdicional("Informacion adicional");
+
+
+            Mensaje mensaje2 = new Mensaje();
+            mensaje2.setMensaje("peticon recibida 2");
+            mensaje2.setTipo("TIPO NO SE 2");
+            mensaje2.setIdentificador("0914854  2");
+            mensaje2.setInformacionAdicional("Informacion adicional 2");
+
+
+            mensajes.getMensaje().add(mensaje);
+            mensajes.getMensaje().add(mensaje2);
+
+            comprobante.setMensajes(mensajes);
+
+
+            comprobantes.getComprobante().add( comprobante);
+
+            respuestaSolicitud.setComprobantes(comprobantes);
+
+            responseWebServiceDTO.setRespuestaSolicitud(respuestaSolicitud);
+
+
+            RespuestaComprobante respuestaComprobante = new RespuestaComprobante();
+            respuestaComprobante.setNumeroComprobantes("1");
+            respuestaComprobante.setClaveAccesoConsultada("0985121245121212121212124512121842121211112121");
+
+
+            RespuestaComprobante.Autorizaciones autorizaciones = new RespuestaComprobante.Autorizaciones();
+
+            Autorizacion autorizacion = new Autorizacion();
+            autorizacion.setComprobante("aqui el xml");
+            autorizacion.setNumeroAutorizacion("0985121245121212121212124512121842121211112121");
+            autorizacion.setAmbiente("PRUEBAS");
+            autorizacion.setEstado("AUTORIZADO");
+            autorizacion.setFechaAutorizacion(null);
+
+            Autorizacion.Mensajes mensajesAu = new Autorizacion.Mensajes();
+
+            com.facturacion.ideas.api.sri.ws.autorizacion.Mensaje mensae= new com.facturacion.ideas.api.sri.ws.autorizacion.Mensaje();
+
+            mensae.setTipo("tipo 1");
+            mensae.setIdentificador("12");
+            mensae.setTipo("EXITO");
+            mensae.setInformacionAdicional("nada de infor adicional");
+
+
+            com.facturacion.ideas.api.sri.ws.autorizacion.Mensaje mensajeDos= new com.facturacion.ideas.api.sri.ws.autorizacion.Mensaje();
+
+            mensajeDos.setTipo("tipo 2");
+            mensajeDos.setIdentificador("13");
+            mensajeDos.setTipo("EXITO bien");
+            mensajeDos.setInformacionAdicional("nada de infor adicional tipo 2");
+
+            mensajesAu.getMensaje().add(mensae);
+            mensajesAu.getMensaje().add(mensajeDos);
+            autorizacion.setMensajes(mensajesAu);
+
+
+            autorizaciones.getAutorizacion().add(autorizacion);
+
+
+
+
+            respuestaComprobante.setAutorizaciones(autorizaciones);
+
+            responseWebServiceDTO.setRespuestaComprobante(respuestaComprobante);
+            return  responseWebServiceDTO;
+*/
+
+           return consumeWebService(invoiceXML, numberSecuncial);
 
         } catch (GenerateXMLExeption e) { // Exception al generar el xml e guardarlo  y crear el directorio de firmados
             LOGGER.error(e.getMessage(), e);
