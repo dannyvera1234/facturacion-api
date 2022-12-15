@@ -27,6 +27,8 @@ public interface IDocumentMapper {
 	DeatailsInvoiceProduct mapperToEntity( DeatailsInvoiceProductDTO deatailsInvoiceProductDTO);
 
 	List<DetailsInvoicePayment> mapperToEntity(List<PaymenNewtDTO> paymenNewtDTOS);
+
+
 	
 	
 	

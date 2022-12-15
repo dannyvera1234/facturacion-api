@@ -9,6 +9,8 @@ public class ResponseWebServiceDTO {
 
     private RespuestaComprobante respuestaComprobante;
 
+    private  ValueInvoiceNewDTO valueInvoiceNewDTO;
+
 
     public RespuestaSolicitud getRespuestaSolicitud() {
         return respuestaSolicitud;
@@ -24,5 +26,13 @@ public class ResponseWebServiceDTO {
 
     public void setRespuestaComprobante(RespuestaComprobante respuestaComprobante) {
         this.respuestaComprobante = respuestaComprobante;
+    }
+
+    public ValueInvoiceNewDTO getValueInvoiceNewDTO() {
+        return valueInvoiceNewDTO;
+    }
+
+    public void setValueInvoiceNewDTO(ValueInvoiceNewDTO valueInvoiceNewDTO) {
+        this.valueInvoiceNewDTO = valueInvoiceNewDTO;
     }
 }

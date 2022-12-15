@@ -1,7 +1,6 @@
 package com.facturacion.ideas.api.controllers;
 
 import com.facturacion.ideas.api.dto.*;
-import com.facturacion.ideas.api.entities.Product;
 import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.services.IEncryptionService;
 import com.facturacion.ideas.api.util.PathDocuments;
@@ -34,7 +33,7 @@ public class DocumentRestController {
     private IEncryptionService encryptionService;
 
     @PostMapping("/invoices")
-    public ResponseEntity<ResponseWebServiceDTO> generarFactura(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
+    public ResponseEntity<ResponseWebServiceDTO> calcularValores(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
 
         LOGGER.info("Factura a guardar: " + invoiceNewDTO);
         try {
@@ -59,9 +58,9 @@ public class DocumentRestController {
     }
 
     @PostMapping("/calcular")
-    public ResponseEntity<ValueInvoiceNewDTO> generarFactura(@RequestBody List<DeatailsInvoiceProductDTO> detailsDocument) {
+    public ResponseEntity<ValueInvoiceNewDTO> calcularValores(@RequestBody List<DeatailsInvoiceProductDTO> detailsDocument) {
 
-        LOGGER.info("Valores Factura recibidos: " + detailsDocument);
+        LOGGER.info("Detalle Productos  a calcular Factura recibidos" + detailsDocument);
         try {
 
             ValueInvoiceNewDTO ValueInvoiceNewDTO = documentService.calcularValoresDocumento(detailsDocument);
@@ -120,61 +119,6 @@ public class DocumentRestController {
 
     }
 
-    @GetMapping("/test")
-    public List<Product> test() {
-
-
-        List<Long> ids = List.of(1L);
-
-        return documentService.searchProductsDetailsByIds(ids);
-
-
-        //return productRepository.fetchTaxValueTaxByIdeIn(ids);
-    }
-
-
-    @GetMapping("/envio")
-    public String envio(@RequestParam String texto) {
-
-
-		/*
-		try {
-			clienteSRI.validarComprobante(null);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}*/
-
-
-        //clienteSRI.receptionDocument("/home/ronny/Documentos/1911202201130875419900110010010000000281234567811_sign.xml", WSTypeEnum.WS_TEST_RECEPTION);
-
-
-        //AdminDocument.generateCheckDigit("200920200117231242580011001001000397193123456781");
-
-        //return  AdminDocument.generateCheckDigit("200920200117231242540011001001000397193123456781");
-
-        // return  AdminDocument.generateCheckDigit("151120220113087541990011001001000000019333333371");
-
-        //return productRepository.fetchTaxValueTaxByIdeIn(ids);
-        // clienteSRI.authorizationDocument(WSTypeEnum.WS_TEST_AUTHORIZATION, "1911202201130875419900110010010000000281234567811");
-
-
-        //String texto = "ronny";
-
-        String encripted = "";
-        String decripted = "";
-        try {
-            encripted = encryptionService.encrypt(texto);
-
-            decripted = encryptionService.deEncrypt(encripted);
-
-        } catch (
-                EncryptedException e
-        ) {
-
-            System.out.println("Error encryotar_:  " + e.getMessage());
-        }
-        return "Pass: " + encripted + ": " + decripted;
-    }
 }
 // 19112022  01 1308754199001 001 001 000000012 12345678 1 4
 

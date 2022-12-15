@@ -4,16 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.facturacion.ideas.api.dto.ProductEditDTO;
-import com.facturacion.ideas.api.dto.ProductResponseDTO;
+import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.QuestionEnum;
 import com.facturacion.ideas.api.enums.TypePorcentajeIvaEnum;
 import com.facturacion.ideas.api.enums.TypeTaxEnum;
 import org.springframework.stereotype.Component;
 
-import com.facturacion.ideas.api.dto.ProductDTO;
-import com.facturacion.ideas.api.dto.ProductInformationDTO;
 import com.facturacion.ideas.api.enums.TypeProductEnum;
 import com.facturacion.ideas.api.util.FunctionUtil;
 
@@ -45,6 +42,25 @@ public class ProductMapeerImpl implements IProductMapper {
         product.setIrbpnr(productDTO.getIrbpnr());
 
         return product;
+    }
+
+    @Override
+    public DeatailsInvoiceProduct mapperToEntity(DeatailsInvoiceProductDTO details) {
+
+        DeatailsInvoiceProduct item= new DeatailsInvoiceProduct();
+        item.setDescription(details.getDescription());
+        item.setUnitValue(details.getUnitValue());
+        item.setAmount(details.getAmount());
+        item.setSubtotal(details.getSubtotal());
+        item.setProduct(new Product(details.getIdProducto()));
+        return item;
+    }
+
+    @Override
+    public List<DeatailsInvoiceProduct> mapperToEntity(List<DeatailsInvoiceProductDTO> details) {
+
+        return details.stream().map(this::mapperToEntity).collect(Collectors.toList());
+
     }
 
     @Override

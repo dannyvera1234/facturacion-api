@@ -50,9 +50,9 @@ public class AdminInvoice {
         AdminInvoice.invoiceXML= invoiceXML;
 
         Factura factura = new Factura();
-        factura.setInfoTributaria(createInfoTributaria(invoiceXML));
+        factura.setInfoTributaria(createInfoTributaria());
         factura.setDetalles(createDetalles(products, invoiceNewDTO.getDeatailsInvoiceProductDTOs()));
-        factura.setInfoFactura(createInfoFactura(factura, invoiceXML, invoiceNewDTO));
+        factura.setInfoFactura(createInfoFactura(factura, invoiceNewDTO));
         factura.setId("comprobante");
         factura.setVersion(ConstanteUtil.VERSION_XML);
 
@@ -116,21 +116,21 @@ public class AdminInvoice {
         return pathDirectory;
     }
 
-    private static InfoTributaria createInfoTributaria(Invoice invoiceSaved) {
+    private static InfoTributaria createInfoTributaria() {
 
         InfoTributaria infoTributaria = new InfoTributaria();
 
-        EmissionPoint emissionPoint = invoiceSaved.getEmissionPoint();
+        EmissionPoint emissionPoint = AdminInvoice.invoiceXML.getEmissionPoint();
         Subsidiary subsidiary = emissionPoint.getSubsidiary();
         Sender sender = subsidiary.getSender();
 
 
-        infoTributaria.setSecuencial(invoiceSaved.getNumberSecuencial());
+        infoTributaria.setSecuencial(AdminInvoice.invoiceXML.getNumberSecuencial());
         infoTributaria.setAmbiente(sender.getTypeEnvironment());
         infoTributaria.setTipoEmision(sender.getTypeEmission());
         infoTributaria.setRazonSocial(sender.getSocialReason());
         infoTributaria.setRuc(sender.getRuc());
-        infoTributaria.setCodDoc(invoiceSaved.getTypeDocument());
+        infoTributaria.setCodDoc(AdminInvoice.invoiceXML.getTypeDocument());
         infoTributaria.setPtoEmi(emissionPoint.getCodePoint());
         infoTributaria.setEstab(subsidiary.getCode());
         infoTributaria.setDirMatriz(sender.getMatrixAddress());
@@ -144,7 +144,7 @@ public class AdminInvoice {
             infoTributaria.setAgenteRetencion(sender.getRetentionAgent());
         }
 
-        infoTributaria.setClaveAcceso(invoiceSaved.getKeyAccess());
+        infoTributaria.setClaveAcceso(AdminInvoice.invoiceXML.getKeyAccess());
 
         if (sender.getCommercialName() != null && !sender.getCommercialName().equals("null") && !sender.getCommercialName().isEmpty())
             infoTributaria.setNombreComercial(sender.getCommercialName());
@@ -165,7 +165,6 @@ public class AdminInvoice {
 
             // DetalleItem
             Detalle detalleItem = createDetalleItem(product, item);
-
             detailsItemList.add(detalleItem);
 
         });
@@ -216,7 +215,7 @@ public class AdminInvoice {
 
     }
 
-    public static InfoFactura createInfoFactura(Factura factura, Invoice invoiceXML, final InvoiceNewDTO invoiceNewDTO) {
+    public static InfoFactura createInfoFactura(Factura factura, final InvoiceNewDTO invoiceNewDTO) {
 
         InfoFactura infoFactura = new InfoFactura();
 

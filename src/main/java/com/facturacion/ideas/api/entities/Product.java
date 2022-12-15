@@ -75,6 +75,13 @@ public class Product implements Serializable {
 		initData();
 	}
 
+	public Product(Long ide) {
+		super();
+
+			this.ide = ide;
+		//initData();
+	}
+
 	public Product(Long ide, String codePrivate, String codeAuxilar, TypeProductEnum typeProductEnum, String name,
 			double unitValue, String iva, String ice, String irbpnr) {
 		super();

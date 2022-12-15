@@ -127,6 +127,7 @@ public class DocumentMapperImpl implements IDocumentMapper {
 
             detailsInvoicePayment.setPayment(new Payment(item.getCode()));
 
+
             pagos.add(detailsInvoicePayment);
         });
 

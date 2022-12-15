@@ -1,7 +1,6 @@
 package com.facturacion.ideas.api.services;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -11,12 +10,11 @@ import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.entities.*;
 import com.facturacion.ideas.api.enums.*;
 import com.facturacion.ideas.api.exeption.*;
+import com.facturacion.ideas.api.mapper.IProductMapper;
 import com.facturacion.ideas.api.repositories.*;
 import com.facturacion.ideas.api.sri.cliente.ClientSRI;
 import com.facturacion.ideas.api.sri.ws.autorizacion.Autorizacion;
 import com.facturacion.ideas.api.sri.ws.autorizacion.RespuestaComprobante;
-import com.facturacion.ideas.api.sri.ws.recepcion.Comprobante;
-import com.facturacion.ideas.api.sri.ws.recepcion.Mensaje;
 import com.facturacion.ideas.api.sri.ws.recepcion.RespuestaSolicitud;
 import com.facturacion.ideas.api.util.SignatureDocumentXML;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.facturacion.ideas.api.admin.AdminDocument;
 import com.facturacion.ideas.api.mapper.IDocumentMapper;
 import com.facturacion.ideas.api.util.ConstanteUtil;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 @Service
 public class DocumentServiceImpl implements IDocumentService {
@@ -69,6 +69,9 @@ public class DocumentServiceImpl implements IDocumentService {
     @Autowired
     private IEncryptionService encryptionService;
 
+    @Autowired
+    private IProductMapper productMapper;
+
     @Override
     @Transactional
     public ResponseWebServiceDTO saveInvoice(final InvoiceNewDTO invoiceNewDTO) {
@@ -77,6 +80,10 @@ public class DocumentServiceImpl implements IDocumentService {
 
         try {
             Invoice invoiceXML = new Invoice();
+
+            invoiceXML.setDeatailsInvoiceProducts(productMapper.mapperToEntity(invoiceNewDTO.getDeatailsInvoiceProductDTOs()));
+            invoiceXML.setValueInvoice(documentMapper.mapperToEntity(invoiceNewDTO.getValueInvoiceNewDTO()));
+            invoiceXML.setDetailsInvoicePayments(documentMapper.mapperToEntity(invoiceNewDTO.getPaymenNewtDTOS()));
 
             EmissionPoint emissionPoint = emissionPointRepository.fechtSubsidiaryToSender(invoiceNewDTO.getIdEmissionPoint())
                     .orElseThrow(() -> new NotFoundException("Punto Emisión id " + invoiceNewDTO.getIdEmissionPoint()
@@ -93,6 +100,9 @@ public class DocumentServiceImpl implements IDocumentService {
             Sender sender = subsidiary.getSender();
 
             invoiceXML.setEmissionPoint(emissionPoint);
+
+            // AGregar los detalles productos
+
 
             // Cliente
             if (invoiceNewDTO.getIdPerson() != null) {
@@ -225,8 +235,14 @@ public class DocumentServiceImpl implements IDocumentService {
             responseWebServiceDTO.setRespuestaComprobante(respuestaComprobante);
             return  responseWebServiceDTO;
 */
+            // return consumeWebService(invoiceXML, numberSecuncial);
 
-           return consumeWebService(invoiceXML, numberSecuncial);
+            ResponseWebServiceDTO responseWebServiceDTO = consumeWebService(invoiceXML, numberSecuncial);
+
+            // Agregar los valores en la respuesta para el pdf
+            responseWebServiceDTO.setValueInvoiceNewDTO(invoiceNewDTO.getValueInvoiceNewDTO());
+
+            return responseWebServiceDTO;
 
         } catch (GenerateXMLExeption e) { // Exception al generar el xml e guardarlo  y crear el directorio de firmados
             LOGGER.error(e.getMessage(), e);
@@ -325,7 +341,7 @@ public class DocumentServiceImpl implements IDocumentService {
                     if (product.getIce().equalsIgnoreCase("SI") &&
                             codImpuesto.equalsIgnoreCase(TypeTaxEnum.ICE.getCode())) {
 
-                        LOGGER.info("aQUI ES ICE " +  codImpuesto  + " " +  item.getValorIce()) ;
+                        LOGGER.info("aQUI ES ICE " + codImpuesto + " " + item.getValorIce());
 
                         ice = ice.add(BigDecimal.valueOf(item.getValorIce()));
 
@@ -456,7 +472,7 @@ public class DocumentServiceImpl implements IDocumentService {
         throw new BadRequestException("La Factura debe  contener al menos un detalle o más");
     }
 
-    public ResponseWebServiceDTO consumeWebService(Invoice invoiceXML, int numberSecuncial) {
+    public ResponseWebServiceDTO consumeWebService(final Invoice invoiceXML, int numberSecuncial) {
 
         LOGGER.debug("Dentro del web services");
         // LO que se enviara al frontED
@@ -504,12 +520,42 @@ public class DocumentServiceImpl implements IDocumentService {
             String estadoComprobate = respuestaComprobante.getAutorizaciones().getAutorizacion().get(0).getEstado();
             if (estadoComprobate.equalsIgnoreCase(StatusDocumentsEnum.AUTORIZADO.getName())) {
                 // Actualizar contador de documentos si todo el proceso fue realizado con exito
-
                 saveInvoiceNumber(AdminDocument.createInvoiceNumber(invoiceXML.getEmissionPoint(),
                         numberSecuncial,
                         facturaGenerada.getInfoTributaria().getCodDoc()));
 
                 LOGGER.info(String.format("Secuencia actualizado: %s   estado: %s", numberSecuncial, estadoComprobate));
+
+                // Si el comprobante se genero correctamente, guardanmos la factura en la bd
+
+                // Asignar la fecha de autorizacion de la factura
+                try {
+
+                    // Obtener fecha autorizacion
+                    XMLGregorianCalendar fechaXml = respuestaComprobante.getAutorizaciones().getAutorizacion().get(0).getFechaAutorizacion();
+
+                    // Convertir a gregorianCalendar
+                    GregorianCalendar cal = fechaXml.toGregorianCalendar();
+
+                    // Obtener en formato fecha
+                    Date dateUtil = cal.getTime();
+
+                    invoiceXML.setDateAutorization(dateUtil);
+                } catch (Exception e) {
+
+                    LOGGER.error("Error al convertir fecha autorizacion", e);
+                }
+
+                // Guardar factura
+
+                try {
+
+                    invoiceRepository.save(invoiceXML);
+                    LOGGER.info("Factura guardada correctamente");
+                } catch (Exception e) {
+                    LOGGER.error("Error al guardar factura", e);
+
+                }
 
             } else
                 LOGGER.info(String.format("Secuencia NO actualizado: %s   estado: %s", numberSecuncial, estadoComprobate));
