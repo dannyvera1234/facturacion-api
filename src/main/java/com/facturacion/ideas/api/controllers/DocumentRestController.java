@@ -17,7 +17,9 @@ import com.facturacion.ideas.api.util.ConstanteUtil;
 
 import javax.validation.Valid;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = ConstanteUtil.CROOS_ORIGIN)
 @RestController
@@ -33,15 +35,12 @@ public class DocumentRestController {
     private IEncryptionService encryptionService;
 
     @PostMapping("/invoices")
-    public ResponseEntity<ResponseWebServiceDTO> calcularValores(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
+    public ResponseEntity<ResponseWebServiceDTO> saveDocument(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
 
         LOGGER.info("Factura a guardar: " + invoiceNewDTO);
         try {
 
             ResponseWebServiceDTO responseWebServiceDTO = documentService.saveInvoice(invoiceNewDTO);
-
-            //ResponseWebServiceDTO responseWebServiceDTO =  new ResponseWebServiceDTO();
-
             return new ResponseEntity<>(responseWebServiceDTO, HttpStatus.CREATED);
 
         } catch (NotDataAccessException e) {
@@ -71,6 +70,34 @@ public class DocumentRestController {
         }
     }
 
+    @GetMapping("/documents")
+    public ResponseEntity<Map<String, Object>> findAllDocumentsBySender() {
+
+        try {
+            Map<String, Object> mapData = new HashMap<>();
+            List<ComprobantesResponseDTO> lista = documentService.findAllDocumentsBySender();
+            mapData.put("data", lista);
+            mapData.put("size", lista.size());
+            return  ResponseEntity.ok(mapData);
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<ResponseWebServiceDTO> download(@PathVariable Long id) {
+
+        LOGGER.info("Documento a descargar: " + id);
+        try{
+
+            ResponseWebServiceDTO responseWebServiceDTO = documentService.download(id);
+
+            return  ResponseEntity.ok(responseWebServiceDTO);
+        } catch (NotDataAccessException e) {
+            throw new NotDataAccessException(e.getMessage());
+        }
+    }
+
     @GetMapping("/xml")
     public ResponseEntity<PDFResponse> findXml() {
 
@@ -81,6 +108,7 @@ public class DocumentRestController {
             SAXReader reader = new SAXReader();
 
             Document document = reader.read(archivo);
+
 
             String xmlStroing = document.asXML();
 
@@ -118,6 +146,7 @@ public class DocumentRestController {
         }
 
     }
+
 
 }
 // 19112022  01 1308754199001 001 001 000000012 12345678 1 4

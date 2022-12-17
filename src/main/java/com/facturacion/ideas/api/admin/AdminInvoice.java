@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -641,7 +642,7 @@ public class AdminInvoice {
             ivaImp.setBaseImponible(detalleItem.getPrecioTotalSinImpuesto().add(valueICE));
             BigDecimal calculoIva = (ivaImp.getBaseImponible().multiply(ivaImp.getTarifa())).divide(BigDecimal.valueOf(100));
 
-            ivaImp.setValor(calculoIva.setScale(2));
+            ivaImp.setValor(calculoIva.setScale(2, RoundingMode.HALF_UP));
             impuestoList.add(ivaImp);
         }
         impuestos.setImpuesto(impuestoList);

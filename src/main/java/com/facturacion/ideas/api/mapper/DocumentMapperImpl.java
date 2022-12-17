@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.entities.*;
+import com.facturacion.ideas.api.util.ConstanteUtil;
 import org.springframework.stereotype.Component;
 
 import com.facturacion.ideas.api.enums.TypeDocumentEnum;
@@ -33,7 +34,7 @@ public class DocumentMapperImpl implements IDocumentMapper {
         invoice.setGuiaRemission(invoiceNewDTO.getRemissionGuideNumber());
 
         // Asignar lista con formas de pagos
-        invoice.setDetailsInvoicePayments( mapperToEntity(invoiceNewDTO.getPaymenNewtDTOS()));
+        invoice.setDetailsInvoicePayments(mapperToEntity(invoiceNewDTO.getPaymenNewtDTOS()));
 
         return invoice;
     }
@@ -90,7 +91,6 @@ public class DocumentMapperImpl implements IDocumentMapper {
     public ValueInvoiceResponseDTO mapperToDTO(ValueInvoice valueInvoice) {
 
         ValueInvoiceResponseDTO valueInvoiceResponseDTO = new ValueInvoiceResponseDTO();
-
         valueInvoiceResponseDTO.setIde(valueInvoice.getIde());
         valueInvoiceResponseDTO.setSubtIvaActual(valueInvoice.getSubtIvaActual());
         valueInvoiceResponseDTO.setSubtIvaCero(valueInvoice.getSubtIvaCero());
@@ -104,6 +104,24 @@ public class DocumentMapperImpl implements IDocumentMapper {
         valueInvoiceResponseDTO.setPropina(valueInvoice.getPropina());
         valueInvoiceResponseDTO.setTotal(valueInvoice.getTotal());
         return valueInvoiceResponseDTO;
+    }
+
+    @Override
+    public ValueInvoiceNewDTO mapperToNewDTO(ValueInvoice valueInvoice) {
+        ValueInvoiceNewDTO valueInvoiceNew = new ValueInvoiceNewDTO();
+        valueInvoiceNew.setIde(valueInvoice.getIde());
+        valueInvoiceNew.setSubtIvaActual(valueInvoice.getSubtIvaActual());
+        valueInvoiceNew.setSubtIvaCero(valueInvoice.getSubtIvaCero());
+        valueInvoiceNew.setSubtNoObjIva(valueInvoice.getSubtNoObjIva());
+        valueInvoiceNew.setSubtExceptoIva(valueInvoice.getSubtExceptoIva());
+        valueInvoiceNew.setSubtotal(valueInvoice.getSubtotal());
+        valueInvoiceNew.setDescuento(valueInvoice.getDescuento());
+        valueInvoiceNew.setIce(valueInvoice.getIce());
+        valueInvoiceNew.setRbpnr(valueInvoice.getRbpnr());
+        valueInvoiceNew.setIva(valueInvoice.getIva());
+        valueInvoiceNew.setPropina(valueInvoice.getPropina());
+        valueInvoiceNew.setTotal(valueInvoice.getTotal());
+        return valueInvoiceNew;
     }
 
     @Override
@@ -132,6 +150,39 @@ public class DocumentMapperImpl implements IDocumentMapper {
         });
 
         return pagos;
+    }
+
+    @Override
+    public ComprobantesResponseDTO mapperComprobanteToDTO(Invoice invoice) {
+
+        ComprobantesResponseDTO comprobante = new ComprobantesResponseDTO();
+        comprobante.setIdComprobante(invoice.getIde());
+        comprobante.setFechaEmision(FunctionUtil.convertDateToStringSRI(invoice.getDateEmission()));
+        comprobante.setTipoDocumento(TypeDocumentEnum.getTypeDocumentEnum(invoice.getTypeDocument()).getDescription());
+
+        Person person = invoice.getPerson();
+
+        if (person != null) {
+
+            comprobante.setNombreCliente(person.getRazonSocial());
+            comprobante.setNumeroIdentificacion(person.getNumeroIdentificacion());
+        } else {
+            comprobante.setNombreCliente(ConstanteUtil.TEXT_DEFAULT_CONSUMIDOR_FINAL);
+            comprobante.setNumeroIdentificacion(ConstanteUtil.TEXT_DEFAULT_CODE_CONSUMIDOR_FINAL);
+        }
+        comprobante.setTotalDocumento(invoice.getValueInvoice().getTotal());
+        return comprobante;
+    }
+
+    @Override
+    public List<ComprobantesResponseDTO> mapperComprobanteToDTO(List<Invoice> invoice) {
+
+        if (invoice.size() > 0) {
+            return invoice.stream().map(this::mapperComprobanteToDTO)
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+
     }
 
 }

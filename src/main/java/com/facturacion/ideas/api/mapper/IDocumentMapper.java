@@ -24,11 +24,14 @@ public interface IDocumentMapper {
 	
 	ValueInvoiceResponseDTO  mapperToDTO(ValueInvoice valueInvoice);
 
+	ValueInvoiceNewDTO  mapperToNewDTO(ValueInvoice valueInvoice);
 	DeatailsInvoiceProduct mapperToEntity( DeatailsInvoiceProductDTO deatailsInvoiceProductDTO);
 
 	List<DetailsInvoicePayment> mapperToEntity(List<PaymenNewtDTO> paymenNewtDTOS);
 
+	ComprobantesResponseDTO mapperComprobanteToDTO(Invoice invoice);
 
+	List<ComprobantesResponseDTO> mapperComprobanteToDTO(List<Invoice> invoice);
 	
 	
 	

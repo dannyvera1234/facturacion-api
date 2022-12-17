@@ -23,5 +23,9 @@ public interface IDocumentService {
 
 
 	List<Product> searchProductsDetailsByIds(List<Long> idsProducts);
+
+	List<ComprobantesResponseDTO> findAllDocumentsBySender();
+
+	ResponseWebServiceDTO download(Long idDocument);
 	
 }

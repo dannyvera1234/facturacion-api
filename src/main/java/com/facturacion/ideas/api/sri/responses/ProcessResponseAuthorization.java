@@ -177,8 +177,8 @@ public class ProcessResponseAuthorization {
 
                 case "comprobante":
 
-
-                    String dataRead = writeComprobanteAuthorization(nodeAutorization.getTextContent(), autorizacion.getEstado());
+                    LOGGER.debug(nodeChild.getTextContent());
+                    String dataRead = writeComprobanteAuthorization(nodeChild.getTextContent(), autorizacion.getEstado());
 
                     // No es necesario cargar el texto, ya que el xml que regreso el ws ya fue escrito en el directorio
                     // autorizados, por ahora lo deje asi

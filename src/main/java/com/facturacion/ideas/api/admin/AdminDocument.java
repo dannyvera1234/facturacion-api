@@ -11,6 +11,15 @@ import com.facturacion.ideas.api.enums.*;
 import com.facturacion.ideas.api.exeption.KeyAccessException;
 import com.facturacion.ideas.api.exeption.NotFoundException;
 import com.facturacion.ideas.api.util.ConstanteUtil;
+import com.facturacion.ideas.api.util.PathDocuments;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.io.SAXReader;
+
+import javax.swing.plaf.PanelUI;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 public class AdminDocument {
 
@@ -141,5 +150,33 @@ public class AdminDocument {
             file.delete();
         }
     }
+
+    public static XMLGregorianCalendar convertDateToXML(Date date) throws DatatypeConfigurationException {
+
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        return DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
+    }
+
+    public static String findXML(String pathBase) throws DocumentException {
+
+        File archivo = new File(pathBase);
+        SAXReader reader = new SAXReader();
+        Document document = reader.read(archivo);
+        return document.asXML();
+    }
+
+    public static String creatPathXml(String ruc,
+                                      String codeSubsidiary,
+                                      String codePuntoEmision,
+                                      String fileNameXml) {
+
+
+        return PathDocuments.PATH_BASE.concat(ruc)
+                .concat("/est_").concat(codeSubsidiary)
+                .concat("/emi_").concat(codePuntoEmision)
+                .concat("/autorizados/").concat(fileNameXml).concat(".xml");
+    }
+
 
 }

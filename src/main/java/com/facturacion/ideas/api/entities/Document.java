@@ -50,6 +50,9 @@ public  abstract class Document implements Serializable {
 	@Column(name = "DOC_TIP_EMI")
 	private String typoEmision;
 
+	@Column(name = "DOC_RUC_EMI")
+	private String rucSender;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "DOC_FK_COD_PTE")
 	private EmissionPoint emissionPoint;
@@ -153,6 +156,14 @@ public  abstract class Document implements Serializable {
 
 	public void setPerson(Person person) {
 		this.person = person;
+	}
+
+	public String getRucSender() {
+		return rucSender;
+	}
+
+	public void setRucSender(String rucSender) {
+		this.rucSender = rucSender;
 	}
 
 	@Override

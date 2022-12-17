@@ -16,9 +16,12 @@ import com.facturacion.ideas.api.sri.cliente.ClientSRI;
 import com.facturacion.ideas.api.sri.ws.autorizacion.Autorizacion;
 import com.facturacion.ideas.api.sri.ws.autorizacion.RespuestaComprobante;
 import com.facturacion.ideas.api.sri.ws.recepcion.RespuestaSolicitud;
+import com.facturacion.ideas.api.util.ArchivoUtils;
+import com.facturacion.ideas.api.util.PathDocuments;
 import com.facturacion.ideas.api.util.SignatureDocumentXML;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -84,6 +87,7 @@ public class DocumentServiceImpl implements IDocumentService {
             invoiceXML.setDeatailsInvoiceProducts(productMapper.mapperToEntity(invoiceNewDTO.getDeatailsInvoiceProductDTOs()));
             invoiceXML.setValueInvoice(documentMapper.mapperToEntity(invoiceNewDTO.getValueInvoiceNewDTO()));
             invoiceXML.setDetailsInvoicePayments(documentMapper.mapperToEntity(invoiceNewDTO.getPaymenNewtDTOS()));
+            invoiceXML.setRucSender(ConstanteUtil.TOKEN_USER);
 
             EmissionPoint emissionPoint = emissionPointRepository.fechtSubsidiaryToSender(invoiceNewDTO.getIdEmissionPoint())
                     .orElseThrow(() -> new NotFoundException("Punto Emisión id " + invoiceNewDTO.getIdEmissionPoint()
@@ -470,6 +474,79 @@ public class DocumentServiceImpl implements IDocumentService {
 
         }
         throw new BadRequestException("La Factura debe  contener al menos un detalle o más");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ComprobantesResponseDTO> findAllDocumentsBySender() {
+
+        try {
+            List<Invoice> invoiceList = invoiceRepository.findAllDocumentsBySender(ConstanteUtil.TOKEN_USER);
+
+            return documentMapper.mapperComprobanteToDTO(invoiceList);
+
+        } catch (DataAccessException ex) {
+
+            LOGGER.error("Error al consultar documentos ", ex);
+
+            throw new NotDataAccessException("Error al consultar los documentos");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseWebServiceDTO download(Long idDocument) {
+
+        try{
+            ResponseWebServiceDTO responseWebServiceDTO = new ResponseWebServiceDTO();
+            Invoice invoice = invoiceRepository.findInvoiceFetchValues(idDocument)
+                    .orElseThrow(() -> new NotFoundException(
+                            String.format("Documento %s %s", idDocument, ConstanteUtil.MESSAJE_NOT_FOUND_DEFAULT_EXCEPTION)
+                    ));
+
+            RespuestaComprobante respuestaComprobante = new RespuestaComprobante();
+            respuestaComprobante.setClaveAccesoConsultada(invoice.getNumberAutorization());
+            respuestaComprobante.setNumeroComprobantes("1");
+
+            RespuestaComprobante.Autorizaciones autorizaciones = new RespuestaComprobante.Autorizaciones();
+
+            // Autorizacion generada
+            Autorizacion autorizacion = new Autorizacion();
+            autorizacion.setEstado("AUTORIZADO");
+            autorizacion.setNumeroAutorizacion(invoice.getNumberAutorization());
+            try {
+                autorizacion.setFechaAutorizacion(AdminDocument.convertDateToXML(invoice.getDateEmission()));
+            } catch (Exception e) {
+                LOGGER.error("Error al converti fecha xmlGregoria", e);
+            }
+
+            String pathXmlDownload = AdminDocument.creatPathXml(
+                    invoice.getRucSender(),
+                    invoice.getEmissionPoint().getSubsidiary().getCode(),
+                    invoice.getEmissionPoint().getCodePoint(),
+                    invoice.getNumberAutorization()
+            );
+            LOGGER.info("PATH XML FILE " + pathXmlDownload);
+
+            autorizacion.setComprobante( AdminDocument.findXML(pathXmlDownload));
+
+            autorizaciones.getAutorizacion().add(autorizacion);
+            respuestaComprobante.setAutorizaciones(autorizaciones);
+
+            responseWebServiceDTO.setRespuestaComprobante(respuestaComprobante);
+            responseWebServiceDTO.setValueInvoiceNewDTO(documentMapper.mapperToNewDTO(invoice.getValueInvoice()));
+
+            return responseWebServiceDTO;
+        } catch (DataAccessException e) {
+
+            LOGGER.error("Error al buscar documento: ", e);
+            throw new NotDataAccessException("Error al buscar documento");
+        } catch (DocumentException e) {
+
+            LOGGER.error("Error al leer xml: ", e);
+            throw new BadRequestException("Error al leer documento xml");
+        }
+
     }
 
     public ResponseWebServiceDTO consumeWebService(final Invoice invoiceXML, int numberSecuncial) {
