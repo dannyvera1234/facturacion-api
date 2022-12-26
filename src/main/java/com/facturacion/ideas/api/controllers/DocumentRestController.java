@@ -3,11 +3,12 @@ package com.facturacion.ideas.api.controllers;
 import com.facturacion.ideas.api.dto.*;
 import com.facturacion.ideas.api.exeption.*;
 import com.facturacion.ideas.api.services.IEncryptionService;
+import com.facturacion.ideas.api.services.ServiceEmailSendImpl;
 import com.facturacion.ideas.api.util.PathDocuments;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dom4j.Document;
-import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,12 @@ import com.facturacion.ideas.api.services.IDocumentService;
 import com.facturacion.ideas.api.util.ConstanteUtil;
 
 import javax.validation.Valid;
+import java.awt.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +39,10 @@ public class DocumentRestController {
 
     @Autowired
     private IEncryptionService encryptionService;
+
+
+    @Autowired
+    private ServiceEmailSendImpl emailService;
 
     @PostMapping("/invoices")
     public ResponseEntity<ResponseWebServiceDTO> saveDocument(@RequestBody @Valid InvoiceNewDTO invoiceNewDTO) {
@@ -78,7 +88,7 @@ public class DocumentRestController {
             List<ComprobantesResponseDTO> lista = documentService.findAllDocumentsBySender();
             mapData.put("data", lista);
             mapData.put("size", lista.size());
-            return  ResponseEntity.ok(mapData);
+            return ResponseEntity.ok(mapData);
         } catch (NotDataAccessException e) {
             throw new NotDataAccessException(e.getMessage());
         }
@@ -88,17 +98,24 @@ public class DocumentRestController {
     public ResponseEntity<ResponseWebServiceDTO> download(@PathVariable Long id) {
 
         LOGGER.info("Documento a descargar: " + id);
-        try{
+        try {
 
             ResponseWebServiceDTO responseWebServiceDTO = documentService.download(id);
 
-            return  ResponseEntity.ok(responseWebServiceDTO);
+            return ResponseEntity.ok(responseWebServiceDTO);
         } catch (NotDataAccessException e) {
             throw new NotDataAccessException(e.getMessage());
         }
     }
 
-    @GetMapping("/xml")
+    @GetMapping("/email")
+    public void sendEmail() {
+
+        this.emailService.sendEmail();
+
+
+    }
+  /*  @GetMapping("/xml")
     public ResponseEntity<PDFResponse> findXml() {
 
         try {
@@ -116,27 +133,7 @@ public class DocumentRestController {
             pdfResponse.setDocument(xmlStroing);
 
             LOGGER.info(xmlStroing);
-            return  ResponseEntity.ok(pdfResponse);
-
-
-         /*   DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(false);
-            documentBuilderFactory.setValidating(false);
-            documentBuilderFactory.setFeature("http://xml.org/sax/features/namespaces", false);
-            documentBuilderFactory.setFeature("http://xml.org/sax/features/validation", false);
-            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-
-
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-
-
-            Document document = documentBuilder.parse(archivo);
-            document.getDocumentElement().normalize();
-
-            LOGGER.info("Primer nodo: " + document.getFirstChild().getNodeName());
-
-            LOGGER.info( "XML PARSEADO: " + document.getTextContent());*/
+            return ResponseEntity.ok(pdfResponse);
 
         } catch (Exception e) {
 
@@ -145,12 +142,7 @@ public class DocumentRestController {
 
         }
 
-    }
+    }*/
 
 
 }
-// 19112022  01 1308754199001 001 001 000000012 12345678 1 4
-
-// 1911202201130875419900110010010000000121234567810
-
-// 19112022  01 1308754199001
